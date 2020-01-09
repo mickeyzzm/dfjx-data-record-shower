@@ -57,7 +57,52 @@ const routes = [
             name: 'role',
             path: '/sys/role',
             component: () => import('@/models/sys/role/roleMain')
-          }
+          },
+          {
+            name: 'fldconfig',
+            path: '/rcdconfig/fldconfig',
+            component: () => import('@/models/rcdconfig/fldconfig')//填报指标体系
+          },
+          {
+            name: 'dictconfig',
+            path: '/rcdconfig/dictconfig',
+            component: () => import('@/models/rcdconfig/dictconfig')//数据字典
+          },
+          {
+            name: 'jobconfig',
+            path: '/rcdjobconfig/jobconfig',
+            component: () => import('@/models/rcdjobconfig/jobconfig')//填报任务维护
+          },
+          {
+            name: 'unitconfig',
+            path: '/rcdjobconfig/unitconfig',
+            component: () => import('@/models/rcdjobconfig/unitconfig')//填报组维护
+          },
+          {
+            name: 'rcdusercg',
+            path: '/rcdjobconfig/rcdusercg',
+            component: () => import('@/models/rcdjobconfig/rcdusercg')//填报人维护 
+          },
+          {
+            name: 'rcdnotice',
+            path: '/rcdjobconfig/rcdnotice',
+            component: () => import('@/models/rcdjobconfig/rcdnotice')//填报提醒维护 
+          },
+          {
+            name: 'datareport',
+            path: '/rcdjob/datareport',
+            component: () => import('@/models/rcdjob/datareport')//数据填报 
+          },
+          {
+            name: 'submitAUmanager',
+            path: '/record/submitAUmanager',
+            component: () => import('@/models/record/submitAUmanager')//机构管理 
+          },
+          {
+            name: 'administrative',
+            path: '/record/administrative',
+            component: () => import('@/models/record/administrative')//行政机构管理 
+          },
         ]
       }
     ]
