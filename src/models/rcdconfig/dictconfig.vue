@@ -13,7 +13,7 @@
     <el-main>
         <div v-show="boxContent">
             <div style="text-align:left;margin-bottom:10px">
-            <el-button @click="addUnitconfig" size="mini" type="primary">新增字典</el-button>
+            <el-button @click="addUnitconfigBox" size="mini" type="primary">新增字典</el-button>
             </div>
             <el-table
                 :data="tableData0"
@@ -38,8 +38,8 @@
                     label="操作" 
                     :resizable="false">
                     <template slot-scope="scope">
-                        <el-button size="mini" @click="openEditModalBox(scope.row)">编辑</el-button>
-                        <el-button size="mini" @click="editeDicCon(scope.row)">编辑字典内容</el-button>
+                        <el-button size="mini" type="text" @click="openEditModalBox(scope.row)">编辑</el-button>
+                        <el-button size="mini" type="text" @click="editeDicCon(scope.row)">编辑字典内容</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -81,7 +81,7 @@
                     label="操作" 
                     :resizable="false">
                     <template slot-scope="scope">
-                        <el-button size="mini" @click="openEditModal(scope.row)">编辑</el-button>
+                        <el-button size="mini" type="text" @click="openEditModal(scope.row)">编辑</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -114,15 +114,16 @@
     <!-- 二级菜单新增-->
     <el-dialog title="新增字典内容" :visible.sync="addShowModalPage" >
       <el-form  class="modal-form" label-position="right" label-width="25%" :model="addformData">
+            <el-form-item label="所属字典：">
+                <el-input style="width:50%" v-model="addformData.subDic" disabled placeholder="请输入所属字典"></el-input>
+            </el-form-item>
             <el-form-item size="mini" label="字典内容名称：" >
               <el-input style="width:50%" v-model="addformData.dicConNM" placeholder="请输入字典内容名称" auto-complete="off" ></el-input>
             </el-form-item>
             <el-form-item size="mini" label="字典内容值：">
               <el-input style="width:50%" v-model="addformData.dicConValue" placeholder="请输入字典内容值"></el-input>
             </el-form-item>
-            <el-form-item label="所属字典：">
-                <el-input style="width:50%" v-model="addformData.subDic" placeholder="请输入所属字典"></el-input>
-            </el-form-item>
+            
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="closeModal">取 消</el-button>
@@ -132,14 +133,14 @@
     <!-- 二级菜单编辑-->
     <el-dialog title="修改字典内容" :visible.sync="editShowModalPage" >
       <el-form  class="modal-form" label-position="right" label-width="25%" :model="editformData">
+            <el-form-item label="所属字典：">
+                <el-input style="width:50%" v-model="editformData.subDic" disabled placeholder="请输入所属字典"></el-input>
+            </el-form-item>
             <el-form-item size="mini" label="字典内容名称：" >
               <el-input style="width:50%" v-model="editformData.dicConNM" placeholder="请输入字典内容名称" auto-complete="off" ></el-input>
             </el-form-item>
             <el-form-item size="mini" label="字典内容值：">
               <el-input style="width:50%" v-model="editformData.dicConValue" placeholder="请输入字典内容值"></el-input>
-            </el-form-item>
-            <el-form-item label="所属字典：">
-                <el-input style="width:50%" v-model="editformData.subDic" placeholder="请输入所属字典"></el-input>
             </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -154,6 +155,7 @@
 export default {
     data () {
         return {
+            subDic:"",
             boxContent:false,
             itemContent:false,
             addShowModalPage:false,
@@ -301,6 +303,9 @@ export default {
         editeDicCon(){//编辑字典内容
             this.boxContent = false;
             this.treeId = 1;
+            this.$nextTick(function () {
+                this.$refs.tree.setCurrentKey(1);
+            })
             this.itemContent = true;
             this.tableData = this.tableData1;
         },
@@ -311,7 +316,7 @@ export default {
             if (this.addformDataBox.dicConNM == "" || this.addformDataBox.dicConValue == "" || this.addformDataBox.subDic == "") {
                 this.$notify({
                     dangerouslyUseHTMLString: true,       
-                    message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>字典内容名称、字典内容值、所属字典'
+                    message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>字典名称'
                 })
             }else{
                 this.BaseRequest({
@@ -338,7 +343,7 @@ export default {
             if (this.editformDataBox.dicConNM == "" || this.editformDataBox.dicConValue == "" || this.editformDataBox.subDic == "") {
                 this.$notify({
                     dangerouslyUseHTMLString: true,       
-                    message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>字典内容名称、字典内容值、所属字典'
+                    message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>字典名称'
                 })
             }else{
                 this.BaseRequest({
@@ -360,12 +365,13 @@ export default {
         },
         addUnitconfig () {//二级新增
             this.addShowModalPage = true;
+            this.addformData.subDic = this.tableData[0].subDic;
         },
         addSubmitDataForm: function () {//二级新增弹窗
             if (this.addformData.dicConNM == "" || this.addformData.dicConValue == "" || this.addformData.subDic == "") {
                 this.$notify({
                     dangerouslyUseHTMLString: true,       
-                    message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>字典内容名称、字典内容值、所属字典'
+                    message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>字典内容名称、字典内容值'
                 })
             }else{
                 this.BaseRequest({
@@ -388,14 +394,13 @@ export default {
         openEditModal: function (row) {//二级编辑
             this.editShowModalPage = true;
             this.user_id = row.person_id;
-            this.editformData.basicClassNm = row.name;
-            this.editformData.isEffectiveItem = row.isEffectiveItem;
+            this.editformData.subDic = row.subDic;
         },
         editSubmitDataForm: function () {//二级编辑弹窗 
             if (this.editformData.dicConNM == "" || this.editformData.dicConValue == "" || this.editformData.subDic == "") {
                 this.$notify({
                     dangerouslyUseHTMLString: true,       
-                    message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>字典内容名称、字典内容值、所属字典'
+                    message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>字典内容名称、字典内容值'
                 })
             }else{
                 this.BaseRequest({
