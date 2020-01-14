@@ -88,7 +88,7 @@
     <!-- 新建、编辑、查看任务 -->
     <el-dialog
       :visible.sync="jobconfigDialog"
-      title="新增任务"
+      :title="title + '任务'"
       :close-on-click-modal="false"
       @close="jobconfigClose"
       width="35%">
@@ -210,7 +210,8 @@ export default {
         endTime: ''
       },
       isShow: true,
-      isRead: false
+      isRead: false,
+      title: '新增'
     }
   },
   methods: {
@@ -220,6 +221,7 @@ export default {
     },
     // 新增任务
     addJobconfig () {
+      this.title = '新增'
       this.jobconfigDialog = true
     },
     // 新增任务确定
@@ -239,11 +241,13 @@ export default {
     },
     // 任务编辑
     editJobconfig (row) {
+      this.title = '修改'
       this.jobconfigDialog = true
       this.FormData = row
     },
     // 任务详情
     detailJobconfig (row) {
+      this.title = '查看'
       this.jobconfigDialog = true
       this.FormData = row
       this.isShow = false
@@ -294,64 +298,5 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.main {
-  height: 100%;
-  padding: 30px 60px;
-  background-color: #fff;
-  box-sizing: border-box;
-}
-.query {
-  text-align: left;
-  padding:10px 0;
-  margin-bottom: 20px;
-}
-.query > .el-input,.el-select {
-  width: 15%;
-}
-.query > .el-input,.el-select,.el-button {
-  margin-right: 20px;
-}
-/deep/ .el-dialog__header {
-  border-bottom: 1px solid #c0c4cc;
-}
-/deep/ .el-dialog__header .el-dialog__title{
-  font-size: 16px;
-}
-/deep/ .el-checkbox {
-  text-align: left;
-}
-/deep/ .el-transfer-panel .el-transfer-panel__header .el-checkbox .el-checkbox__label {
-  font-size: 14px;
-}
-/deep/ .el-checkbox__label {
-  font-size: 12px;
-}
-/deep/ .el-transfer__buttons .el-button {
-  display: inline;
-}
-/deep/ .el-transfer__buttons .el-button:first-child {
-  margin-right: 5px;
-}
-/deep/ .selrcdusercg  .el-dialog__body {
-  display: flex;
-  justify-content: center;
-}
-/deep/ .addJob .el-form-item__content {
-  text-align: right;
-}
-.el-form .el-form-item:nth-child(1),.el-form-item:nth-child(2),.el-form-item:nth-child(3) {
-  display: flex;
-}
-.el-form {
-  padding: 0 30px;
-}
-/deep/ .public .el-form-item__content {
-  flex: 3;
-}
-/deep/ .addJob .el-form-item__content {
-  text-align: right;
-}
-.dialogbody {
-  width: 80%;
-}
+@import '@/assets/scss/rcdjobconfig/jobconfig.scss';
 </style>

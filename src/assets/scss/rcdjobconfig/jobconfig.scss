@@ -1,0 +1,60 @@
+.main {
+    height: 100%;
+    padding: 30px 60px;
+    background-color: #fff;
+    box-sizing: border-box;
+  }
+  .query {
+    text-align: left;
+    padding:10px 0;
+    margin-bottom: 20px;
+  }
+  .query > .el-input,.el-select {
+    width: 15%;
+  }
+  .query > .el-input,.el-select,.el-button {
+    margin-right: 20px;
+  }
+  /deep/ .el-dialog__header {
+    border-bottom: 1px solid #c0c4cc;
+  }
+  /deep/ .el-dialog__header .el-dialog__title{
+    font-size: 16px;
+  }
+  /deep/ .el-checkbox {
+    text-align: left;
+  }
+  /deep/ .el-transfer-panel .el-transfer-panel__header .el-checkbox .el-checkbox__label {
+    font-size: 14px;
+  }
+  /deep/ .el-checkbox__label {
+    font-size: 12px;
+  }
+  /deep/ .el-transfer__buttons .el-button {
+    display: inline;
+  }
+  /deep/ .el-transfer__buttons .el-button:first-child {
+    margin-right: 5px;
+  }
+  /deep/ .selrcdusercg  .el-dialog__body {
+    display: flex;
+    justify-content: center;
+  }
+  /deep/ .addJob .el-form-item__content {
+    text-align: right;
+  }
+  .el-form .el-form-item:nth-child(1),.el-form-item:nth-child(2),.el-form-item:nth-child(3) {
+    display: flex;
+  }
+  .el-form {
+    padding: 0 30px;
+  }
+  /deep/ .public .el-form-item__content {
+    flex: 3;
+  }
+  /deep/ .addJob .el-form-item__content {
+    text-align: right;
+  }
+  .dialogbody {
+    width: 80%;
+  }

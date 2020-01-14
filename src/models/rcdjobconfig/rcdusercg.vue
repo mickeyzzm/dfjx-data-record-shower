@@ -153,7 +153,6 @@ export default {
     },
     // 点击节点
     handleNodeClick (data) {
-      console.log(data)
     },
     // 取消
     canelRcdusercg () {
@@ -174,28 +173,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.main {
-  height: 100%;
-  padding: 30px 60px;
-  background-color: #fff;
-  box-sizing: border-box;
-}
-.query {
-  text-align: left;
-  padding:10px 0;
-  margin-bottom: 20px;
-}
-.query > .el-input,.el-button {
-  margin-right: 20px;
-}
-/deep/ .el-dialog__header {
-  border-bottom: 1px solid #c0c4cc;
-}
-/deep/ .el-dialog__header .el-dialog__title{
-  font-size: 16px;
-  padding-top: 10px;
-}
-.el-aside {
-  border-right: 1px solid #c0c4cc;
-}
+@import '@/assets/scss/rcdjobconfig/rcdusercg.scss';
 </style>
