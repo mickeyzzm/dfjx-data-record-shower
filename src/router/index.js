@@ -91,7 +91,24 @@ const routes = [
           {
             name: 'datareport',
             path: '/rcdjob/datareport',
-            component: () => import('@/models/rcdjob/datareport')//数据填报 
+            component: () => import('@/models/rcdjob/datareport/reportMain')//数据填报
+          },
+          {
+            name: 'reportFill',
+            path: '/rcdjob/datareport/reportFill',
+            component: () => import('@/models/rcdjob/datareport/reportFill'),
+            children: [
+              {
+                name: 'oneDimensionsStaticRecord',
+                path: '/record/onedim/onedimRecord',
+                component: () => import('@/models/rcdjob/datareport/onedim/onedimRecord'),
+              },
+              {
+                name: 'multDimensionsStaticRecord',
+                path: '/record/multdim/griddimRecord',
+                component: () => import('@/models/rcdjob/datareport/multdim/griddimRecord'),
+              }
+            ]
           },
           {
             name: 'submitAUmanager',
@@ -102,7 +119,7 @@ const routes = [
             name: 'administrative',
             path: '/record/administrative',
             component: () => import('@/models/record/administrative')//行政机构管理 
-          },
+          }
         ]
       }
     ]
