@@ -24,15 +24,15 @@
                 border
                 stripe>
                 <el-table-column 
-                prop="dicCode"
-                width="100" 
-                label="字典编号" 
-                :resizable="false">
+                    prop="dicCode"
+                    width="100" 
+                    label="字典编号" 
+                    :resizable="false">
                 </el-table-column>
                 <el-table-column 
-                prop="dicNm"
-                label="字典名称" 
-                :resizable="false">
+                    prop="dicNm"
+                    label="字典名称" 
+                    :resizable="false">
                 </el-table-column>
                 <el-table-column 
                     label="操作" 
@@ -57,25 +57,25 @@
                 border
                 stripe>
                 <el-table-column 
-                prop="dicCode"
-                width="100" 
-                label="字典内容编号" 
-                :resizable="false">
+                    prop="dicCode"
+                    width="100" 
+                    label="字典内容编号" 
+                    :resizable="false">
                 </el-table-column>
                 <el-table-column 
-                prop="dicConNM"
-                label="字典内容名称" 
-                :resizable="false">
+                    prop="dicConNM"
+                    label="字典内容名称" 
+                    :resizable="false">
                 </el-table-column>
                 <el-table-column 
-                prop="dicConValue"
-                label="字典内容值" 
-                :resizable="false">
+                    prop="dicConValue"
+                    label="字典内容值" 
+                    :resizable="false">
                 </el-table-column>
                 <el-table-column 
-                prop="subDic"
-                label="所属字典" 
-                :resizable="false">
+                    prop="subDic"
+                    label="所属字典" 
+                    :resizable="false">
                 </el-table-column>
                 <el-table-column 
                     label="操作" 
@@ -276,6 +276,24 @@ export default {
         }
     },
     methods: {
+        getDataMenu(){//左侧菜单数据
+            this.BaseRequest({
+                url: '/dictionary/selectleftDataDictionary',
+                method: 'get',
+                params: {}
+            }).then((res) => {
+                if(res == "success"){
+                    // this.Message.success('修改成功');
+                    console.log(res,"dd")
+                }
+            })
+        },
+        getDataList_L(){//一级table数据
+
+        },
+        getDataList_LL(){//二级table数据
+
+        },
         // 点击节点
         handleNodeClick (data) {
             if (data.id == 0) {
@@ -432,6 +450,7 @@ export default {
     created () {
         this.$nextTick(function () {
             this.$refs.tree.setCurrentKey(0);
+            this.getDataMenu();
         })
         this.boxContent = true;
         this.tableData0 = this.tableDataBox;

@@ -53,7 +53,7 @@
             </div>
         </el-dialog>
         <!-- 一级菜单编辑-->
-        <el-dialog title="修改字典" :visible.sync="editShowModalPageBox" >
+        <el-dialog title="修改指标基本类别" :visible.sync="editShowModalPageBox" >
             <el-form  class="modal-form" label-position="right" label-width="25%" :model="editformDataBox">
                 <el-form-item size="mini" label="基本类别名称：" >
                     <el-input style="width:50%" v-model="editformDataBox.subClasNm" placeholder="请输入基本类别名称" auto-complete="off" ></el-input>
@@ -117,7 +117,7 @@ export default {
                     subClasNm:"组织"
                 },
             ],
-
+            typeCode:"",
         }
     },
     methods: {
@@ -149,6 +149,8 @@ export default {
         },
         openEditModalBox: function (row) {//一级编辑
             this.editShowModalPageBox = true;
+            this.editformDataBox.subClasNm = row.subClasNm;
+            this.typeCode = row.typeCode;
         },
         editSubmitDataFormBox: function () {//一级编辑弹窗 
             if (this.editformDataBox.subClasNm == "" || this.editformDataBox.isEffective == "" ) {
@@ -161,7 +163,7 @@ export default {
                     url: '/contact/updatepageContact',
                     method: 'get',
                     params: {
-                        'person_id': this.user_id,
+                        'person_id': this.typeCode,
                         'person_nm': this.editformDataBox.subClasNm,
                         'person_tel': this.editformDataBox.isEffective,
                     }
@@ -175,10 +177,9 @@ export default {
             }
         },
         closeModal: function () {
-            this.addformDataBox.isEffective ="";
+            this.addformDataBox.isEffectiveNm ="";
             this.addformDataBox.subClasNm ="";
             this.editformDataBox.isEffective ="";
-            this.editformDataBox.subClasNm ="";
             this.addShowModalPageBox = false;
             this.editShowModalPageBox = false;
         },
