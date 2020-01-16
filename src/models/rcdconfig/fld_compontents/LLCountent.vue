@@ -36,7 +36,7 @@
             </el-table-column>
         </el-table>
         <!-- 二级菜单新增-->
-        <el-dialog title="新增字典内容" :visible.sync="addShowModalPage_ll" >
+        <el-dialog title="新增指标类别" :visible.sync="addShowModalPage_ll" >
             <el-form  class="modal-form" label-position="right" label-width="25%" :model="addformData_ll">
                 <el-form-item size="mini" label="所属基本类别：" >
                     <el-input style="width:50%" v-model="addformData_ll.subfidClass" disabled placeholder="请输入所属基本类别" auto-complete="off" ></el-input>
@@ -51,7 +51,7 @@
             </div>
         </el-dialog>
         <!-- 二级菜单编辑-->
-        <el-dialog title="修改字典内容" :visible.sync="editShowModalPage_ll" >
+        <el-dialog title="修改指标类别" :visible.sync="editShowModalPage_ll" >
             <el-form  class="modal-form" label-position="right" label-width="25%" :model="editformData_ll">
                 <el-form-item size="mini" label="所属基本类别：" >
                     <el-input style="width:50%" v-model="editformData_ll.subfidClass" disabled placeholder="请输入所属基本类别" auto-complete="off" ></el-input>
@@ -84,6 +84,7 @@ export default {
                 subfidClass: "",
                 inClaNm: "",
             },
+            typeCode:"",
         }
     },
     methods: {
@@ -92,10 +93,10 @@ export default {
             this.addformData_ll.subfidClass = this.tableData_ll[0].subfidClass;
         },
         addSubmitDataForm_ll: function () {//二级新增弹窗  
-            if (this.addformData_ll.subfidClass == "" || this.addformData_ll.inClaNm == "") {
+            if (this.addformData_ll.inClaNm == "") {
                 this.$notify({
                     dangerouslyUseHTMLString: true,    
-                    message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>所属基本类别、指标类别名称'
+                    message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>指标类别名称'
                 })
             }else{
                 this.BaseRequest({
@@ -117,9 +118,11 @@ export default {
         openEditModal_ll: function (row) {//二级编辑
             this.editShowModalPage_ll = true;
             this.editformData_ll.subfidClass = row.subfidClass;
+            this.editformData_ll.inClaNm = row.inClaNm;
+            this.typeCode = row.typeCode;
         },
         editSubmitDataForm_ll: function () {//二级编辑弹窗 
-            if (this.editformData_ll.subfidClass == "" || this.editformData_ll.inClaNm == "") {
+            if ( this.editformData_ll.inClaNm == "") {
                 this.$notify({
                     dangerouslyUseHTMLString: true,       
                     message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>指标类别名称'
@@ -129,6 +132,7 @@ export default {
                     url: '/contact/updatepageContact',
                     method: 'get',
                     params: {
+                        'person_nm': this.typeCode,
                         'person_nm': this.editformData_ll.subfidClass,
                         'person_tel': this.editformData_ll.inClaNm,
                     }
@@ -144,9 +148,7 @@ export default {
         closeModal: function () {
             this.addShowModalPage_ll = false;
             this.editShowModalPage_ll = false;
-            this.addformData_ll.subfidClass = "";
             this.addformData_ll.inClaNm = "";
-            this.editformData_ll.inClaNm = "";
             this.editformData_ll.inClaNm = "";
         },
     },

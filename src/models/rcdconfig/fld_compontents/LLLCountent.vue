@@ -125,7 +125,7 @@
             </div>
         </el-dialog>
         <!-- 数据字典弹窗 新增-->
-        <el-dialog title="数据字典内容" :visible.sync="addShowModalPage_dataFid" >
+        <el-dialog title="新增数据字典内容" :visible.sync="addShowModalPage_dataFid" >
             <el-container>
                 <el-aside style="width: 30%">
                 <el-tree
@@ -149,20 +149,20 @@
                             border
                             stripe>
                             <el-table-column 
-                            prop="dicCode"
-                            width="100" 
-                            label="字典编号" 
-                            :resizable="false">
+                                prop="dicCode"
+                                width="100" 
+                                label="字典编号" 
+                                :resizable="false">
                             </el-table-column>
                             <el-table-column 
-                            prop="dicConNM"
-                            label="字典名称" 
-                            :resizable="false">
+                                prop="dicConNM"
+                                label="字典名称" 
+                                :resizable="false">
                             </el-table-column>
                             <el-table-column 
-                            prop="dicConValue"
-                            label="字典值" 
-                            :resizable="false">
+                                prop="dicConValue"
+                                label="字典值" 
+                                :resizable="false">
                             </el-table-column>
                             <el-table-column
                                 :resizable="false"
@@ -178,7 +178,7 @@
             </div>
         </el-dialog>
         <!-- 数据字典弹窗 修改-->
-        <el-dialog title="数据字典内容" :visible.sync="editShowModalPage_dataFid" >
+        <el-dialog title="修改数据字典内容" :visible.sync="editShowModalPage_dataFid" >
             <el-container>
                 <el-aside style="width: 30%">
                     <el-tree
@@ -202,20 +202,20 @@
                             border
                             stripe>
                             <el-table-column 
-                            prop="dicCode"
-                            width="100" 
-                            label="字典编号" 
-                            :resizable="false">
+                                prop="dicCode"
+                                width="100" 
+                                label="字典编号" 
+                                :resizable="false">
                             </el-table-column>
                             <el-table-column 
-                            prop="dicConNM"
-                            label="字典名称" 
-                            :resizable="false">
+                                prop="dicConNM"
+                                label="字典名称" 
+                                :resizable="false">
                             </el-table-column>
                             <el-table-column 
-                            prop="dicConValue"
-                            label="字典值" 
-                            :resizable="false">
+                                prop="dicConValue"
+                                label="字典值" 
+                                :resizable="false">
                             </el-table-column>
                             <el-table-column
                                 :resizable="false"
@@ -353,7 +353,8 @@ export default {
             },
             treeId_Add: 1,
             multipleSelection_add: [],
-            multipleSelection_edit: []
+            multipleSelection_edit: [],
+            typeCode:"",
         }
     },
     methods: {
@@ -373,12 +374,13 @@ export default {
             }
         },
         handleSelectionChange_add(val){
-            this.multipleSelection_add = val;
-            // console.log(this.multipleSelection_add,"add")
+            for(var i=0;i<val.length;i++){
+                this.multipleSelection_add.push(val[i].dicCode);
+            }
         },
         handleSelectionChange_edit(val){
-            this.multipleSelection_edit = val;
-            // console.log(this.multipleSelection_add,"ee")
+            this.multipleSelection_edit = val.dicCode;
+            // console.log(this.multipleSelection_edit,"ee")
         },
         datafidBtn_add(){//数据字典选择按钮 新增
             this.addShowModalPage_dataFid = true;
@@ -390,13 +392,40 @@ export default {
             })
         },
         addSubmitDataForm_dataFid(){//数据字典选择按钮 新增弹窗
-            this.closeModalDatafid();
+            var addSelections = this.multipleSelection_add;
+            var selections = JSON.stringify(addSelections);
+            console.log(selections,"sss")
+            this.BaseRequest({
+                url: '/contact/updatepageContact',
+                method: 'get',
+                params: {
+                    'person_id': selections, 
+                }
+            }).then((res) => {
+                if(res == "success"){
+                    this.Message.success('添加成功');
+                    this.closeModalDatafid();
+                }
+            })
         },
         datafidBtn_edit(){//数据字典 修改
             this.editShowModalPage_dataFid = true;
         },
         editSubmitDataForm_dataFid(){//数据字典 修改弹窗
-            this.closeModalDatafid();
+            var editSelections = this.multipleSelection_edit
+            var selections = JSON.stringify(editSelections);
+             this.BaseRequest({
+                url: '/contact/updatepageContact',
+                method: 'get',
+                params: {
+                    'person_id': selections, 
+                }
+            }).then((res) => {
+                if(res == "success"){
+                    this.Message.success('添加成功');
+                    this.closeModalDatafid();
+                }
+            })
         },
         addUnitconfig_lll () {//三级新增
             this.addShowModalPage_lll = true; 
@@ -435,9 +464,10 @@ export default {
         },
         openEditModal_lll: function (row) {//三级编辑
             this.editShowModalPage_lll = true;
-            this.user_id = row.person_id; 
+            this.typeCode = row.typeCode;
             this.editformData_lll.subfidClass = row.subfidClass;
             this.editformData_lll.inClass = row.subClass;
+            this.editformData_lll.inClaNm = row.inNm;
         },
         editSubmitDataForm_lll: function () {//三级编辑弹窗
             if (this.editformData_lll.inClaNm == "" || this.editformData_lll.dataType == "" || this.editformData_lll.isEmpoty == "" ) {
@@ -455,9 +485,9 @@ export default {
                     url: '/contact/updatepageContact',
                     method: 'get',
                     params: {
-                        'person_id': this.user_id, 
+                        'person_id': this.typeCode, 
+                        'person_tel': this.editformData_lll.inClaNm,
                         'person_nm': this.editformData_lll.dataType,
-                        'person_tel': this.editformData_lll.inClass,
                         'person_tel': this.editformData_lll.isEmpoty,
                         'person_tel': this.editformData_lll.datafid,
                     }

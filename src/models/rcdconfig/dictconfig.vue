@@ -24,15 +24,15 @@
                 border
                 stripe>
                 <el-table-column 
-                prop="dicCode"
-                width="100" 
-                label="字典编号" 
-                :resizable="false">
+                    prop="dicCode"
+                    width="100" 
+                    label="字典编号" 
+                    :resizable="false">
                 </el-table-column>
                 <el-table-column 
-                prop="dicNm"
-                label="字典名称" 
-                :resizable="false">
+                    prop="dicNm"
+                    label="字典名称" 
+                    :resizable="false">
                 </el-table-column>
                 <el-table-column 
                     label="操作" 
@@ -57,25 +57,25 @@
                 border
                 stripe>
                 <el-table-column 
-                prop="dicCode"
-                width="100" 
-                label="字典内容编号" 
-                :resizable="false">
+                    prop="dicCode"
+                    width="100" 
+                    label="字典内容编号" 
+                    :resizable="false">
                 </el-table-column>
                 <el-table-column 
-                prop="dicConNM"
-                label="字典内容名称" 
-                :resizable="false">
+                    prop="dicConNM"
+                    label="字典内容名称" 
+                    :resizable="false">
                 </el-table-column>
                 <el-table-column 
-                prop="dicConValue"
-                label="字典内容值" 
-                :resizable="false">
+                    prop="dicConValue"
+                    label="字典内容值" 
+                    :resizable="false">
                 </el-table-column>
                 <el-table-column 
-                prop="subDic"
-                label="所属字典" 
-                :resizable="false">
+                    prop="subDic"
+                    label="所属字典" 
+                    :resizable="false">
                 </el-table-column>
                 <el-table-column 
                     label="操作" 

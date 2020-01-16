@@ -25,9 +25,9 @@
 </template>
 
 <script>
-import LCountent from './fld_compontents/LCountent';
-import LLCountent from './fld_compontents/LLCountent';
-import LLLCountent from './fld_compontents/LLLCountent';
+import LCountent from './fld_compontents/LCountent';//一级菜单
+import LLCountent from './fld_compontents/LLCountent';//二级菜单
+import LLLCountent from './fld_compontents/LLLCountent';//三级菜单
 export default {
     data () {
         return {
@@ -55,7 +55,7 @@ export default {
                         children: [
                             {
                                 label: '基本信息',
-                                id: 11,
+                                id: 1.1,
                                 children: [
                                     {
                                         label: '年龄',
@@ -73,7 +73,7 @@ export default {
                             },
                             {
                                 label: '教育信息',
-                                id: 12,
+                                id: 1.2,
                                 children: [
                                     {
                                         label: '教育程度',
@@ -88,7 +88,7 @@ export default {
                             },
                             {
                                 label: '资产信息',
-                                id: 13,
+                                id: 1.3,
                                 children: [
                                     {
                                         label: '是否自有房产',
@@ -225,19 +225,19 @@ export default {
                 this.itemContent_lll = false;
                 this.boxContent_l = false;
                 this.tableData_ll = this.tableData4;
-            }else if (data.id == 11) {
+            }else if (data.id == 1.1) {
                 this.tableData_lll = [];
                 this.itemContent_lll = true;
                 this.itemContent_ll = false;
                 this.boxContent_l = false;
                 this.tableData_lll = this.tableData5;
-            }else if (data.id == 12) {
+            }else if (data.id == 1.2) {
                 this.tableData_lll = [];
                 this.itemContent_lll = true;
                 this.itemContent_ll = false;
                 this.boxContent_l = false;
                 this.tableData_lll = this.tableData6;
-            }else if (data.id == 13) {
+            }else if (data.id == 1.3) {
                 this.tableData_lll = [];
                 this.itemContent_lll = true;
                 this.itemContent_ll = false;
