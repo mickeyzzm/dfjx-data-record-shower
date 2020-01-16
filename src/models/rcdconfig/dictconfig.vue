@@ -276,6 +276,24 @@ export default {
         }
     },
     methods: {
+        getDataMenu(){//左侧菜单数据
+            this.BaseRequest({
+                url: '/dictionary/selectleftDataDictionary',
+                method: 'get',
+                params: {}
+            }).then((res) => {
+                if(res == "success"){
+                    // this.Message.success('修改成功');
+                    console.log(res,"dd")
+                }
+            })
+        },
+        getDataList_L(){//一级table数据
+
+        },
+        getDataList_LL(){//二级table数据
+
+        },
         // 点击节点
         handleNodeClick (data) {
             if (data.id == 0) {
@@ -432,6 +450,7 @@ export default {
     created () {
         this.$nextTick(function () {
             this.$refs.tree.setCurrentKey(0);
+            this.getDataMenu();
         })
         this.boxContent = true;
         this.tableData0 = this.tableDataBox;
