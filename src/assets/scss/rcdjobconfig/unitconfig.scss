@@ -12,6 +12,9 @@
   .el-aside {
     border-right: 1px solid #c0c4cc;
   }
+  /deep/ .el-tree-node__children .el-tree-node__label {
+    font-size: 12px;
+  }
   /deep/ .el-dialog__header {
     border-bottom: 1px solid #c0c4cc;
   }
