@@ -8,7 +8,6 @@
         :expand-on-click-node="false"
         :default-expanded-keys="[-1]"
         :highlight-current="true"
-        ref="tree"
       ></el-tree>
     </el-aside>
     <el-main>
@@ -28,7 +27,7 @@
         <el-table-column label="操作" :resizable="false">
           <template slot-scope="scope">
             <el-button type="text" size="mini" @click="fldconfig(scope.row)">指标</el-button>
-            <el-button type="text" size="mini">删除</el-button>
+            <el-button type="text" size="mini" @click="deletercdjobunitconfig(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -77,12 +76,10 @@
       <div style="width:80%">
         <el-tree
           :data="flgTreeData"
-          node-key="id"
-          @node-click="handleNodeClickFlg"
-          :default-expanded-keys="[1.1]"
-          :default-checked-keys="jobUnitid"
+          node-key="fld_id"
           show-checkbox
           :highlight-current="true"
+          :default-expanded-keys="activeRcdt"
           ref="tree"
         ></el-tree>
         <div style="text-align:right;margin-top:30px">
@@ -124,7 +121,9 @@ export default {
       keyWorld: '',
       nodeList: [],
       jobUnitid: [],
-      current: {}
+      activeList: [],
+      current: {},
+      activeRcdt: []
     }
   },
   methods: {
@@ -179,13 +178,45 @@ export default {
         }
       })
     },
+    // 删除任务组
+    deletercdjobunitconfig (row) {
+      this.$confirm('确认要删除该任务组吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        closeOnClickModal: false,
+        type: 'warning'
+      }).then(() => {
+        this.BaseRequest({
+          url: '/reporting/deletercdjobunitconfig',
+          method: 'get',
+          params: {
+            job_unit_id: row.job_unit_id
+          }
+        }).then(data => {
+          if (data === 'success') {
+            this.$message.success('删除成功')
+            this.unitList()
+          } else {
+            this.$message.error('删除失败')
+          }
+        })
+      }).catch(() => {
+        return false
+      })
+    },
     // 左侧导航点击节点
     handleNodeClick (node) {
       this.treeId = node.job_id
       this.unitList(node)
     },
-    // 关联指标菜单
-    leftrcddtMenu () {
+    // 指标
+    fldconfig (row) {
+      this.flgDialogVisible = true
+      this.current = row
+      this.selectrcdjobunitfld()
+    },
+    // 关联指标一级菜单
+    leftrcddtMenuSt () {
       this.BaseRequest({
         url: '/rcdDt/leftrcddtproj',
         method: 'get'
@@ -198,15 +229,76 @@ export default {
               disabled: true,
               children: []
             })
+            this.leftrcddtMenuNd(item.proj_id)
           })
         }
       })
     },
-    // 指标
-    fldconfig (row) {
-      this.leftrcddtMenu()
-      this.flgDialogVisible = true
-      this.current = row
+    // 关联指标二级菜单
+    leftrcddtMenuNd (projId) {
+      this.BaseRequest({
+        url: '/rcdDt/leftrcddtcatg',
+        method: 'get',
+        params: {proj_id: projId}
+      }).then(data => {
+        if (data.length > 0) {
+          this.flgTreeData.map(item => {
+            if (item.proj_id === projId) {
+              item.children = []
+              data.map(element => {
+                this.leftrcddtMenuRd(element.catg_id)
+                item.children.push({
+                  label: element.catg_name,
+                  catg_id: element.catg_id,
+                  children: []
+                })
+              })
+            }
+          })
+        }
+      })
+    },
+    // 关联指标三级菜单
+    leftrcddtMenuRd (catgId) {
+      this.BaseRequest({
+        url: '/rcdDt/leftrcddtfld',
+        method: 'get',
+        params: {catg_id: catgId}
+      }).then(data => {
+        if (data.length > 0) {
+          this.flgTreeData.map(item => {
+            if (item.children.length > 0) {
+              item.children.map(element => {
+                if (element.catg_id === catgId) {
+                  element.children = []
+                  data.map(rcdt => {
+                    element.children.push({
+                      label: rcdt.fld_name,
+                      fld_id: rcdt.fld_id
+                    })
+                  })
+                }
+              })
+            }
+          })
+        }
+      })
+    },
+    // 获取任务组已经绑定的指标
+    selectrcdjobunitfld () {
+      this.BaseRequest({
+        url: '/reporting/selectrcdjobunitfld',
+        method: 'get',
+        params: {
+          job_unit_id: this.current.job_unit_id
+        }
+      }).then(data => {
+        this.$refs.tree.setCheckedNodes(data)
+        this.activeRcdt = []
+        data.map(item => {
+          this.activeRcdt.push(item.fld_id)
+        })
+      })
     },
     // 提交选择指标
     subFlg () {
@@ -221,8 +313,8 @@ export default {
         url: '/reporting/rcdjobunitfld',
         method: 'get',
         params: {
-          fld_id: JSON.stringify(this.current.job_unit_id),
-          jobunitid: this.jobUnitid.join(',')
+          fld_id: this.jobUnitid.join(','),
+          jobunitid: JSON.stringify(this.current.job_unit_id)
         }
       }).then(data => {
         if (data === 'success') {
@@ -233,55 +325,6 @@ export default {
           this.flgDialogVisible = false
         }
       })
-    },
-    // 指标点击节点
-    handleNodeClickFlg (node) {
-      if (node.proj_id) {
-        this.BaseRequest({
-          url: '/rcdDt/leftrcddtcatg',
-          method: 'get',
-          params: {proj_id: node.proj_id}
-        }).then(data => {
-          if (data.length > 0) {
-            this.flgTreeData.map(item => {
-              if (item.proj_id === node.proj_id) {
-                item.children = []
-                data.map(element => {
-                  item.children.push({
-                    label: element.catg_name,
-                    catg_id: element.catg_id,
-                    children: []
-                  })
-                })
-              }
-            })
-          }
-        })
-      } else if (node.catg_id) {
-        this.BaseRequest({
-          url: '/rcdDt/leftrcddtfld',
-          method: 'get',
-          params: {catg_id: node.catg_id}
-        }).then(data => {
-          if (data.length > 0) {
-            this.flgTreeData.map(item => {
-              item.children.map(element => {
-                if (element.catg_id === node.catg_id) {
-                  element.children = []
-                  data.map(rcdt => {
-                    element.children.push({
-                      label: rcdt.fld_name,
-                      fld_id: rcdt.fld_id
-                    })
-                  })
-                }
-              })
-            })
-          }
-        })
-      } else {
-        return false
-      }
     },
     // 页数改变
     handleSizeChange (val) {
@@ -295,6 +338,7 @@ export default {
   created () {
     this.leftTreeList()
     this.unitList()
+    this.leftrcddtMenuSt()
   }
 }
 </script>
