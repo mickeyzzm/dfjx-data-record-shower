@@ -1,40 +1,49 @@
 <template>
   <div class="main">
     <div class="query">
-      <el-input v-model="keyWorld" clearable size="mini" placeholder="请输入任务名称"></el-input>
-      <el-select v-model="optionValue" clearable size="mini" placeholder="请选择任务状态">
+      <el-input v-model="jobNm" clearable size="mini" placeholder="请输入任务名称"></el-input>
+      <el-select v-model="jobStatus" clearable size="mini" placeholder="请选择任务状态">
         <el-option v-for="item in options" :key="item.value" :label="item.name" :value="item.value"></el-option>
       </el-select>
-      <el-button type="primary" @click="query">查询</el-button>
+      <el-button type="primary" @click="rcdjobconfigList">查询</el-button>
       <el-button type="primary" @click="addJobconfig">新增任务</el-button>
     </div>
     <el-table
     :data="tableData"
     style="width: 100%"
+    :header-cell-style="{background:'#f6f6f7'}"
     size="mini"
     border
     stripe>
       <el-table-column type="index" width="100" label="填报任务编号" :resizable="false"></el-table-column>
-      <el-table-column prop="jobconfigNm" label="填报任务名称" :resizable="false"></el-table-column>
+      <el-table-column prop="job_name" label="填报任务名称" :resizable="false"></el-table-column>
       <el-table-column label="填报状态" :resizable="false">
         <template slot-scope="scope">
-          <span v-if="scope.row.state === 0">已下发</span>
-          <span v-else-if="scope.row.state === 1">编辑中</span>
-          <span v-else-if="scope.row.state === 2">审批中</span>
+          <span v-if="scope.row.job_status === 0">编辑中</span>
+          <span v-else-if="scope.row.job_status === 1">已发布</span>
         </template>
       </el-table-column>
-      <el-table-column prop="startTime" column-key="date" label="填报开始时间" :resizable="false"></el-table-column>
-      <el-table-column prop="endTime" column-key="date" label="填报结束时间" :resizable="false"></el-table-column>
-      <el-table-column label="操作" width="400" :resizable="false">
+      <el-table-column prop="job_start_dt" column-key="date" label="填报开始时间" :resizable="false"></el-table-column>
+      <el-table-column prop="job_end_dt" column-key="date" label="填报结束时间" :resizable="false"></el-table-column>
+      <el-table-column label="操作" width="500" :resizable="false">
         <template slot-scope="scope">
-          <el-button v-if="scope.row.state === 1" type="text" @click="editJobconfig(scope.row)" size="mini">编辑</el-button>
-          <el-button v-if="scope.row.state === 1" type="text" @click="unitconfig" size="mini">填报组维护</el-button>
-          <el-button v-if="scope.row.state === 1" type="text" @click="rcdusercg" size="mini">填报人维护</el-button>
-          <el-button v-if="scope.row.state === 1" type="text" size="mini">任务下发</el-button>
-          <el-button v-if="scope.row.state !== 1" type="text" @click="detailJobconfig(scope.row)" size="mini">查看</el-button>
+          <el-button type="text" @click="editJobconfig(scope.row)" size="mini">编辑</el-button>
+          <el-button type="text" @click="unitconfig(scope.row)" size="mini">填报组维护</el-button>
+          <el-button type="text" @click="rcdusercg(scope.row)" size="mini">填报人维护</el-button>
+          <el-button type="text" size="mini">任务下发</el-button>
+          <el-button type="text" @click="detailJobconfig(scope.row)" size="mini">查看</el-button>
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pagination.currentPageIndex"
+      :page-sizes="[10, 15, 20]"
+      :page-size="pagination.pageSize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="pagination.total"
+    ></el-pagination>
     <!-- 填报组弹窗 -->
     <el-dialog
       title="选择任务组"
@@ -45,12 +54,13 @@
         <el-transfer
           v-model="value"
           :titles="['待选择任务组','已选择任务组']"
+          :props="{key: 'job_unit_id', label: 'job_unit_name'}"
           :button-texts="['移除','添加']"
           :data="transferTable">
         </el-transfer>
         <div style="margin-top:10px">
-          <el-button type="primary" @click="canelUnitconfig">取消</el-button>
-          <el-button type="primary" @click="subUnitconfig">确认</el-button>
+          <el-button type="primary" @click="unitconfigDialog = false">取消</el-button>
+          <el-button type="primary" @click="subUnitconfig" >确定</el-button>
         </div>
       </div>
     </el-dialog>
@@ -72,6 +82,7 @@
         <el-table
           :data="rcdusercgTable"
           style="width:100%"
+          :header-cell-style="{background:'#f6f6f7'}"
           size="mini"
           border
           stripe>
@@ -80,7 +91,7 @@
           <el-table-column prop="name" label="填报人名称" :resizable="false"></el-table-column>
         </el-table>
         <div style="margin-top:30px;text-align:right;">
-          <el-button type="primary" @click="canelRcdusercg">取消</el-button>
+          <el-button type="primary" @click="rcdusercgDialog = false">取消</el-button>
           <el-button style="margin-right:0;" type="primary" @click="subRcdusercg">确认</el-button>
         </div>
       </div>
@@ -94,12 +105,12 @@
       width="35%">
       <el-form :model="FormData">
           <el-form-item class="public" label="填报任务名称：">
-            <el-input :readonly="isRead" v-model="FormData.jobconfigNm" placeholder="请输入填报任务名称"></el-input>
+            <el-input :readonly="isRead" v-model="FormData.job_name" placeholder="请输入填报任务名称"></el-input>
           </el-form-item>
           <el-form-item class="public" label="任务开始日期：">
             <el-date-picker
               size="mini"
-              v-model="FormData.startTime"
+              v-model="FormData.job_start_dt"
               type="date"
               value-format="yyyy-MM-dd"
               :readonly="isRead"
@@ -110,7 +121,7 @@
           <el-form-item class="public" style="margin-bottom:30px;" label="任务结束日期：">
             <el-date-picker
               size="mini"
-              v-model="FormData.endTime"
+              v-model="FormData.job_end_dt"
               type="date"
               value-format="yyyy-MM-dd"
               :readonly="isRead"
@@ -119,8 +130,9 @@
             </el-date-picker>
           </el-form-item>
           <el-form-item v-if="isShow" style="margin-bottom:0;" class="addJob">
-            <el-button type="primary" @click="canelJobconfig">取消</el-button>
-            <el-button type="primary" @click="subJobconfig" style="margin-right:0">确认</el-button>
+            <el-button type="primary" @click="jobconfigDialog = false">取消</el-button>
+            <el-button v-if="!isSave" type="primary" @click="subJobconfig" >确定</el-button>
+            <el-button v-else type="primary" @click="saveJobconfig">确定</el-button>
           </el-form-item>
         </el-form>
     </el-dialog>
@@ -131,33 +143,20 @@
 export default {
   data () {
     return {
-      keyWorld: '',
+      // 分页
+      pagination: {
+        total: 0,
+        currentPageIndex: 1,
+        pageSize: 10
+      },
+      jobNm: '',
       options: [
         { name: '已下发', value: 0 },
         { name: '编辑中', value: 1 },
         { name: '审批中', value: 2 }
       ],
-      optionValue: null,
-      tableData: [
-        {
-          jobconfigNm: '小学在读学生信息',
-          state: 1,
-          startTime: '2020-1-1',
-          endTime: '2020-1-3'
-        },
-        {
-          jobconfigNm: '1月份蔬菜价格统计',
-          state: 1,
-          startTime: '2020-1-5',
-          endTime: '2020-1-7'
-        },
-        {
-          jobconfigNm: '12月份蔬菜价格统计',
-          state: 2,
-          startTime: '2020-1-8',
-          endTime: '2020-1-10'
-        }
-      ],
+      jobStatus: '',
+      tableData: [],
       unitconfigDialog: false,
       rcdusercgDialog: false,
       jobconfigDialog: false,
@@ -189,6 +188,9 @@ export default {
       ],
       transferTable: [],
       value: [],
+      ary1: [],
+      ary2: [],
+      isResquest: false,
       agency: [
         {name: '机构1', value: 1},
         {name: '机构2', value: 2}
@@ -205,19 +207,33 @@ export default {
         {name: '王五1'}
       ],
       FormData: {
-        jobconfigNm: '',
-        startTime: '',
-        endTime: ''
+        job_name: '',
+        job_start_dt: '',
+        job_end_dt: ''
       },
       isShow: true,
+      isSave: false,
       isRead: false,
-      title: '新增'
+      title: '新增',
+      currPage: {}
     }
   },
   methods: {
-    // 查询
-    query () {
-      console.log(this.optionValue + 'hh')
+    // 获取任务列表
+    rcdjobconfigList () {
+      this.BaseRequest({
+        url: '/fillinatask/rcdjobconfiglist',
+        method: 'get',
+        params: {
+          currPage: this.pagination.currentPageIndex,
+          pageSize: this.pagination.pageSize,
+          job_name: this.jobNm,
+          job_status: this.jobStatus
+        }
+      }).then(data => {
+        this.tableData = data.dataList
+        this.pagination.total = data.dataList.length
+      })
     },
     // 新增任务
     addJobconfig () {
@@ -226,24 +242,48 @@ export default {
     },
     // 新增任务确定
     subJobconfig () {
-      this.jobconfigDialog = false
-      console.log(this.addFormData)
-    },
-    // 新增任务取消
-    canelJobconfig () {
-      this.jobconfigDialog = false
-    },
-    // 任务窗口关闭
-    jobconfigClose () {
-      this.FormData = {}
-      this.isShow = true
-      this.isRead = false
+      this.BaseRequest({
+        url: '/fillinatask/insertrcdjobconfig',
+        method: 'get',
+        params: this.FormData
+      }).then(data => {
+        if (data === 'success') {
+          this.rcdjobconfigList()
+          this.$message.success('新增成功')
+          this.jobconfigDialog = false
+        } else {
+          this.$message.error('新增失败')
+          this.jobconfigDialog = false
+        }
+      })
     },
     // 任务编辑
     editJobconfig (row) {
       this.title = '修改'
       this.jobconfigDialog = true
       this.FormData = row
+      this.isSave = true
+      this.current = row
+    },
+    // 保存修改
+    saveJobconfig () {
+      this.BaseRequest({
+        url: '/fillinatask/updatercdjobconfig',
+        method: 'get',
+        params: {
+          job_id: this.current.job_id,
+          ...this.FormData
+        }
+      }).then(data => {
+        if (data === 'success') {
+          this.rcdjobconfigList()
+          this.$message.success('修改成功')
+          this.jobconfigDialog = false
+        } else {
+          this.$message.error('修改失败')
+          this.jobconfigDialog = false
+        }
+      })
     },
     // 任务详情
     detailJobconfig (row) {
@@ -253,46 +293,103 @@ export default {
       this.isShow = false
       this.isRead = true
     },
+    // 任务窗口关闭
+    jobconfigClose () {
+      this.FormData = {}
+      this.isShow = true
+      this.isRead = false
+      this.isSave = false
+    },
+    // 选择填报组
+    unitconfig (row) {
+      this.unitconfigDialog = true
+      this.current = row
+      this.selectRcdJobUnitConfig(row)
+    },
+    // 待选择任务组
+    selectRcdJobUnitConfig (row) {
+      this.BaseRequest({
+        url: '/fillinatask/selectRcdJobUnitConfig',
+        method: 'get',
+        params: {job_id: row.job_id}
+      }).then(data => {
+        this.ary1 = data
+        this.selectRcdJobUnitConfigyi(row)
+      })
+    },
+    // 已选择任务组
+    selectRcdJobUnitConfigyi (row) {
+      this.BaseRequest({
+        url: '/fillinatask/selectRcdJobUnitConfigyi',
+        method: 'get',
+        params: {job_id: row.job_id}
+      }).then(data => {
+        this.isResquest = false
+        data.map(item => {
+          this.value.push(item.job_unit_id)
+        })
+        this.ary2 = data
+        this.transferTable = this.ary1.concat(this.ary2)
+      })
+    },
     // 任务组确定
     subUnitconfig () {
-      this.unitconfigDialog = false
+      this.BaseRequest({
+        url: '/fillinatask/updateRcdJobUnitConfigyi',
+        method: 'get',
+        params: {
+          job_id: JSON.stringify(this.current.job_id),
+          jobunitid: this.value.join(',')
+        }
+      }).then(data => {
+        if (data === 'success') {
+          this.unitconfigDialog = false
+          this.$message.success('添加成功')
+        } else {
+          this.$message.error('添加失败')
+          this.unitconfigDialog = false
+        }
+      })
     },
-    // 任务组取消
-    canelUnitconfig () {
-      this.unitconfigDialog = false
+    // 选择填报人
+    rcdusercg (row) {
+      this.rcdusercgDialog = true
+      this.current = row
     },
     // 填报人确定
     subRcdusercg () {
-      this.rcdusercgDialog = false
-    },
-    // 填报人取消
-    canelRcdusercg () {
-      this.rcdusercgDialog = false
-    },
-    // 选择填报组
-    unitconfig () {
-      this.unitconfigDialog = true
-      this.transferTable = []
-      if (this.table.length > 0) {
-        for (let i = 0; i <= this.table.length; i++) {
-          let _this = this
-          this.transferTable.push({
-            key: i,
-            label: _this.table[i].unitconfigNm
-          })
+      this.BaseRequest({
+        url: '/fillinatask/insertrcdjobpersonassign',
+        method: 'get',
+        params: {
+          userid: [],
+          job_id: this.current.job_id
         }
-      }
-    },
-    // 选择填报人
-    rcdusercg () {
-      this.rcdusercgDialog = true
+      }).then(data => {
+        if (data === 'success') {
+          this.rcdjobconfigList()
+          this.$message.success('新增成功')
+          this.jobconfigDialog = false
+        } else {
+          this.$message.error('新增失败')
+          this.jobconfigDialog = false
+        }
+      })
     },
     // 获取机构下用户
     agencyUser () {
-      if (this.agencyValue === 2) {
-        this.rcdusercgTable = this.rcdusercgTable1
-      }
+    },
+    // 页数改变
+    handleSizeChange (val) {
+      this.pagination.pageSize = val
+    },
+    // 当前页改变
+    handleCurrentChange (val) {
+      this.pagination.currentPageIndex = val
     }
+  },
+  created () {
+    this.rcdjobconfigList()
   }
 }
 </script>
