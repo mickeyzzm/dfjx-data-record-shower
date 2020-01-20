@@ -7,28 +7,29 @@
             :data="tableData_lll"
             style="width: 80%"
             :header-cell-style="{background:'#f6f6f7',}"
+            :loading="loading"
             class = "searchGrid"
             size="mini"
             border
             stripe>
             <el-table-column 
-                prop="inCode"
+                prop="catg_id"
                 width="100" 
                 label="指标编码" 
                 :resizable="false">
             </el-table-column>
             <el-table-column 
-                prop="inNm"
+                prop="fld_name"
                 label="指标名称" 
                 :resizable="false">
             </el-table-column>
             <el-table-column 
-                prop="subClass"
+                prop="catg_name"
                 label="所属类别" 
                 :resizable="false">
             </el-table-column>
             <el-table-column 
-                prop="subfidClass"
+                prop="proj_name"
                 label="所属基本类别" 
                 :resizable="false">
             </el-table-column>
@@ -40,6 +41,13 @@
                 </template>
             </el-table-column>
         </el-table>
+        <el-pagination
+            @current-change="currentChangeHandle_LLL"
+            :current-page="pageIndex_LLL"
+            :page-size="pageSize_LLL"
+            :total="totalPage_LLL"
+            layout="total, prev, pager, next, jumper">
+        </el-pagination>
         <!-- 三级菜单新增-->
         <el-dialog title="新增指标" :visible.sync="addShowModalPage_lll" >
             <el-form  class="modal-form" label-position="right" label-width="25%" :model="addformData_lll">
@@ -72,7 +80,17 @@
                         </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item size="mini" label="数据字典：" v-if="addformData_lll.dataType == 2">
+                <el-form-item size="mini" label="指标类型：">
+                    <el-select style="width:50%" v-model="addformData_lll.fld_type">
+                        <el-option
+                            v-for="item in fld_types"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item size="mini" label="数据字典：" v-show="showDatafid_add">
                    <el-input style="width:37%" v-model="addformData_lll.datafid" placeholder="请输入数据字典"></el-input>
                     <el-button @click="datafidBtn_add()" type="primary">选择</el-button>
                 </el-form-item>
@@ -94,7 +112,7 @@
                 <el-form-item size="mini" label="指标名称："> 
                     <el-input style="width:50%" v-model="editformData_lll.inClaNm" placeholder="请输入指标名称"></el-input>
                 </el-form-item>
-                <el-form-item size="mini" label="数据类型：">
+                <el-form-item size="mini" label="数据类型：" >
                     <el-select style="width:50%" v-model="editformData_lll.dataType">
                         <el-option
                             v-for="item in dataTypes"
@@ -114,7 +132,17 @@
                         </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item size="mini" label="数据字典：" v-if="editformData_lll.dataType == 2">
+                <el-form-item size="mini" label="指标类型：">
+                    <el-select style="width:50%" v-model="editformData_lll.fld_type">
+                        <el-option
+                            v-for="item in fld_types"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item size="mini" label="数据字典：" v-show="showDatafid_edit">
                     <el-input style="width:37%" v-model="editformData_lll.datafid" placeholder="请输入数据字典"></el-input>
                     <el-button @click="datafidBtn_edit()" type="primary">选择</el-button>
                 </el-form-item>
@@ -140,7 +168,7 @@
                 <el-main style="padding: 0 20px;">
                     <div v-show="itemContent">
                         <el-table
-                            :data="tableData"
+                            :data="tableDataAdd"
                             style="width: 100%"
                             :header-cell-style="{background:'#f6f6f7',}"
                             @selection-change="handleSelectionChange_add"
@@ -149,18 +177,18 @@
                             border
                             stripe>
                             <el-table-column 
-                                prop="dicCode"
+                                prop="dict_content_id"
                                 width="100" 
                                 label="字典编号" 
                                 :resizable="false">
                             </el-table-column>
                             <el-table-column 
-                                prop="dicConNM"
+                                prop="dict_content_name"
                                 label="字典名称" 
                                 :resizable="false">
                             </el-table-column>
                             <el-table-column 
-                                prop="dicConValue"
+                                prop="dict_content_value"
                                 label="字典值" 
                                 :resizable="false">
                             </el-table-column>
@@ -193,7 +221,7 @@
                 <el-main style="padding: 0 20px;">
                     <div v-show="itemContent">
                         <el-table
-                            :data="tableData"
+                            :data="tableDataEdit"
                             style="width: 100%"
                             :header-cell-style="{background:'#f6f6f7',}"
                             @selection-change="handleSelectionChange_edit"
@@ -202,23 +230,24 @@
                             border
                             stripe>
                             <el-table-column 
-                                prop="dicCode"
+                                prop="dict_content_id"
                                 width="100" 
                                 label="字典编号" 
                                 :resizable="false">
                             </el-table-column>
                             <el-table-column 
-                                prop="dicConNM"
+                                prop="dict_content_name"
                                 label="字典名称" 
                                 :resizable="false">
                             </el-table-column>
                             <el-table-column 
-                                prop="dicConValue"
+                                prop="dict_content_value"
                                 label="字典值" 
                                 :resizable="false">
                             </el-table-column>
                             <el-table-column
                                 :resizable="false"
+                                
                                 type="selection">
                             </el-table-column>
                         </el-table>
@@ -235,33 +264,44 @@
 <script>
 export default {
     props:{
-      tableData_lll:{type:Array,default:[]},
+        tableData_lll:{
+          type:Array,default:[],
+        },
+        catg_id:{
+          catg_id:String,default:"",
+        },
+        pageIndex_LLL:{
+          pageIndex_LLL:String,default:1,
+        },
+        pageSize_LLL:{
+          pageSize_LLL:String,default:10,
+        },
+        totalPage_LLL:{
+          totalPage_LLL:String,default:0,
+        },
+        page_res_LLL:{
+          page_res_LLL:Object,default:"",
+        },
     },
     data () {
         return {
+            showDatafid_add:false,
+            showDatafid_edit:false,
+            dicPageIndex_LLL: 1,
+            dicPageSize_LLL: 10,
+            dicTotalPage_LLL: 0,
+            dicPage_res_LLL:{},
             itemContent:false,
             treeData: [
                 { 
                 label: '数据字典',
                 id:0,
-                children: [
-                    {
-                        label: '学历字典',
-                        id: 1
-                    },
-                    {
-                        label: '是否',
-                        id: 2
-                    },
-                    {
-                        label: '公司机构属性',
-                        id: 3
-                    }
-                ]
+                children: []
                 }
             ],
             tableData0: [],
-            tableData: [],
+            tableDataAdd: [],
+            tableDataEdit: [],
             tableData1: [
                 {
                 dicCode: '1',
@@ -318,6 +358,15 @@ export default {
                     id:"1",
                 }
             ],
+            fld_types:[
+                {
+                    name:"通用指标",
+                    id:"0",
+                },{
+                    name:"突发指标",
+                    id:"1",
+                }
+            ],
             dataTypes:[
                 {
                     name:"字符串",
@@ -326,8 +375,11 @@ export default {
                     name:"数字",
                     id:"1",
                 },{
-                    name:"数据字典",
+                    name:"日期",
                     id:"2",
+                },{
+                    name:"数据字典",
+                    id:"3",
                 }
             ],
             addShowModalPage_lll:false,
@@ -341,7 +393,9 @@ export default {
                 inClaNm : "",
                 dataType : "",
                 isEmpoty : "",
+                fld_types:"",
                 datafid: "",
+                datafidArry: [],
             },
             editformData_lll: {    
                 subfidClass: "",
@@ -349,94 +403,166 @@ export default {
                 inClaNm : "",
                 dataType : "",
                 isEmpoty : "",
+                fld_types:"",
                 datafid: "",
+                datafidArry: [],
             },
             treeId_Add: 1,
             multipleSelection_add: [],
             multipleSelection_edit: [],
             typeCode:"",
+            loading:false,
+            dataDicDict_id:"",
+            checkSelectionArry_edit:[],
+            checkSelectionArry_add:[],
+        }
+    },
+    watch: {
+        'addformData_lll.dataType':function(val){
+            if(val == 3){
+                 this.showDatafid_add = true;
+            }
+        },
+        'editformData_lll.dataType':function(val){
+            if(val == 3){
+                 this.showDatafid_edit = true;
+            }
         }
     },
     methods: {
-        handleNodeClick_lll (data) {
-            if (data.id == 1) {
-                this.tableData = [];
-                this.itemContent = true;
-                this.tableData = this.tableData1;
-            } else if (data.id == 2) {
-                this.tableData = [];
-                this.itemContent = true;
-                this.tableData = this.tableData2;
-            } else if (data.id == 3) {
-                this.tableData = [];
-                this.itemContent = true;
-                this.tableData = this.tableData3;
+        getDataDicLeftMenuData(){//左侧菜单数据
+            this.BaseRequest({
+                url: '/dictionary/selectleftDataDictionary',
+                method: 'get',
+                params: {}
+            }).then((res) => {
+                // console.log(res,"顶顶顶顶")
+                res.map(item => {
+                    this.treeData[0].children.push({
+                        label: item.dict_name,
+                        id: item.dict_id
+                    })
+                })
+            })
+        },
+        getDataDicTableDataAdd(dicPageNum_LLL){//三级菜单 新增 数据字典table数据
+            this.tableData = [];
+            this.itemContent = true;
+            if (dicPageNum_LLL && dicPageNum_LLL !== '') {
+                this.dicPageIndex_LLL = dicPageNum_LLL;
+            } else {
+                dicPageNum_LLL = this.dicPageIndex_LLL;
+            }
+            this.BaseRequest({
+                url: '/dictionary/selectDataDictionary',
+                method: 'get',
+                params: {
+                    'dict_id': this.dataDicDict_id,
+                    'currPage': dicPageNum_LLL,
+                    'pageSize': 10,
+                }
+            }).then((res) => {
+                // console.log(res,"数据字典table 新增");
+                this.loading = true;
+                if(res){
+                    this.tableDataAdd = res.dataList;
+                    this.loading = false;
+                } 
+            })
+        },
+        getDataDicTableDataEdit(dicPageNum_LLL){//三级菜单 编辑 数据字典table数据
+            this.tableData = [];
+            this.itemContent = true;
+            if (dicPageNum_LLL && dicPageNum_LLL !== '') {
+                this.dicPageIndex_LLL = dicPageNum_LLL;
+            } else {
+                dicPageNum_LLL = this.dicPageIndex_LLL;
+            }
+            this.BaseRequest({
+                url: '/dictionary/selectDataDictionary',
+                method: 'get',
+                params: {
+                    'dict_id': this.dataDicDict_id,
+                    'currPage': dicPageNum_LLL,
+                    'pageSize': 10,
+                }
+            }).then((res) => {
+                // console.log(res,"数据字典table 新增");
+                this.loading = true;
+                if(res){
+                    this.tableDataEdit = res.dataList;
+                    this.loading = false;
+                } 
+            })
+        },
+        handleNodeClick_lll (node) {
+            this.dataDicDict_id = node.id;
+            this.getDataDicTableDataAdd();
+            this.getDataDicTableDataEdit();
+            for(var i in node){
+                if(node[i] == node.id){
+                    this.addformData_lll.datafid = node.label;
+                }
             }
         },
         handleSelectionChange_add(val){
+            this.checkSelectionArry_add = val;
+            this.multipleSelection_add = [];
             for(var i=0;i<val.length;i++){
-                this.multipleSelection_add.push(val[i].dicCode);
+                this.multipleSelection_add.push(val[i].dict_content_id);
             }
+            this.addformData_lll.datafidArry = this.multipleSelection_add;
         },
         handleSelectionChange_edit(val){
-            this.multipleSelection_edit = val.dicCode;
-            // console.log(this.multipleSelection_edit,"ee")
+            this.checkSelectionArry_edit = val;
+            this.multipleSelection_edit = [];
+            for(var i=0;i<val.length;i++){
+                this.multipleSelection_edit.push(val[i].dict_content_id);
+            }
+            this.editformData_lll.datafidArry = this.multipleSelection_edit;
         },
         datafidBtn_add(){//数据字典选择按钮 新增
             this.addShowModalPage_dataFid = true;
+            this.getDataDicTableDataAdd();
             this.itemContent = true;
-            this.tableData = this.tableData1;
             this.treeId_Add = 1;
             this.$nextTick(function () {
                 this.$refs.tree.setCurrentKey(1);
             })
         },
         addSubmitDataForm_dataFid(){//数据字典选择按钮 新增弹窗
-            var addSelections = this.multipleSelection_add;
-            var selections = JSON.stringify(addSelections);
-            console.log(selections,"sss")
-            this.BaseRequest({
-                url: '/contact/updatepageContact',
-                method: 'get',
-                params: {
-                    'person_id': selections, 
-                }
-            }).then((res) => {
-                if(res == "success"){
-                    this.Message.success('添加成功');
-                    this.closeModalDatafid();
-                }
-            })
+            if(this.checkSelectionArry_add.length == 0){
+                this.Message.warning('请选择字典');
+            }else{
+                this.addShowModalPage_dataFid = false;
+            }
         },
-        datafidBtn_edit(){//数据字典 修改
+        datafidBtn_edit(){//数据字典选择按钮 修改
             this.editShowModalPage_dataFid = true;
-        },
-        editSubmitDataForm_dataFid(){//数据字典 修改弹窗
-            var editSelections = this.multipleSelection_edit
-            var selections = JSON.stringify(editSelections);
-             this.BaseRequest({
-                url: '/contact/updatepageContact',
-                method: 'get',
-                params: {
-                    'person_id': selections, 
-                }
-            }).then((res) => {
-                if(res == "success"){
-                    this.Message.success('添加成功');
-                    this.closeModalDatafid();
-                }
+            this.itemContent = true;
+            this.treeId_Add = 1;
+            this.getDataDicTableDataEdit();
+            this.$nextTick(function () {
+                this.$refs.tree.setCurrentKey(1);
             })
+        },
+        editSubmitDataForm_dataFid(){//数据字典选择按钮 修改弹窗
+            if(this.checkSelectionArry_edit.length == 0){
+                this.Message.warning('请选择字典');
+            }else{
+                this.editShowModalPage_dataFid = false;
+            }
         },
         addUnitconfig_lll () {//三级新增
             this.addShowModalPage_lll = true; 
-            this.addformData_lll.subfidClass = this.tableData_lll[0].subfidClass;
-            this.addformData_lll.inClass = this.tableData_lll[0].subClass;
+            this.addformData_lll.subfidClass = this.tableData_lll[0].proj_name;
+            this.addformData_lll.inClass = this.tableData_lll[0].catg_name;
         },
-        addSubmitDataForm_lll: function () {//三级新增弹窗  
-            if (this.addformData_lll.inClaNm == "" || this.addformData_lll.dataType == "" || this.addformData_lll.isEmpoty == "" ) {
+        addSubmitDataForm_lll() {//三级新增弹窗
+            if (this.addformData_lll.inClaNm == "" || this.addformData_lll.dataType == "" || this.addformData_lll.isEmpoty == "" || this.addformData_lll.fld_type == "") {
                 this.$notify({
                     dangerouslyUseHTMLString: true,    
-                    message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>指标名称、数据类型、是否可空'
+                    message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>指标名称、数据类型、是否可空、指标类型'
                 })
             }else if(this.addformData_lll.dataType == 2 && this.addformData_lll.datafid == ""){
                     this.$notify({
@@ -445,60 +571,100 @@ export default {
                     })
             }else{
                 this.BaseRequest({
-                    url: '/contact/insertpageContact',
+                    url: '/rcdDt/insertrcddtfld',
                     method: 'get',
                     params: {
-                        'person_nm': this.addformData_lll.inClaNm,
-                        'person_tel': this.addformData_lll.dataType,
-                        'person_tel': this.addformData_lll.isEmpoty,
-                        'person_tel': this.addformData_lll.datafid,
+                        'catg_id': this.catg_id,
+                        'fld_name': this.addformData_lll.inClaNm,
+                        'fld_data_type': this.addformData_lll.dataType,
+                        'fld_is_null': this.addformData_lll.isEmpoty,
+                        'fld_type':this.addformData_lll.fld_type,
+                        'dict_content_id': this.addformData_lll.datafidArry.join(","),
                     }
                 }).then((res) => {
                     if(res == "success"){
                         this.Message.success('保存成功');
-                        // this.getTableData(1);
+                        this.$emit("getTableData_LLL");
+                        this.$emit("getMenuData_Add_LLL");
                         this.closeModal();
                     }
                 })
             }
         },
-        openEditModal_lll: function (row) {//三级编辑
+        openEditModal_lll(row) {//三级编辑
             this.editShowModalPage_lll = true;
-            this.typeCode = row.typeCode;
-            this.editformData_lll.subfidClass = row.subfidClass;
-            this.editformData_lll.inClass = row.subClass;
-            this.editformData_lll.inClaNm = row.inNm;
+            this.typeCode = row.fld_id;
+            this.editformData_lll.subfidClass = row.proj_name;
+            this.editformData_lll.inClass = row.catg_name;
+            this.editformData_lll.inClaNm = row.fld_name;
+            this.editformData_lll.isEmpoty = row.fld_is_null==0?"否":"是";
+            this.editformData_lll.fld_type = row.fld_type==0?"通用指标":"突发指标";
+            if(row.fld_data_type == 0){
+                this.editformData_lll.dataType = "字符串";
+            }else if(row.fld_data_type == 1){
+                this.editformData_lll.dataType = "数据";
+            }else if(row.fld_data_type == 2){
+                this.editformData_lll.dataType = "日期";
+            }else if(row.fld_data_type == 3){
+                this.editformData_lll.dataType = "数据字典";
+                if(this.editformData_lll.dataType == "数据字典"){
+                    this.showDatafid_edit = true;
+                }
+                // this.editformData_lll.datafid = false;
+            }
         },
-        editSubmitDataForm_lll: function () {//三级编辑弹窗
-            if (this.editformData_lll.inClaNm == "" || this.editformData_lll.dataType == "" || this.editformData_lll.isEmpoty == "" ) {
+        editSubmitDataForm_lll(){//三级编辑弹窗
+            if (this.editformData_lll.inClaNm == "" || this.editformData_lll.dataType == "" || this.editformData_lll.isEmpoty == "" || this.editformData_lll.fld_type == "") {
                 this.$notify({
                     dangerouslyUseHTMLString: true,    
-                    message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>指标名称、数据类型、是否可空'
+                    message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>指标名称、数据类型、是否可空、指标类型'
                 })
-            }else if(this.editformData_lll.dataType == 2 && this.editformData_lll.datafid == ""){
+            }else if(this.editformData_lll.dataType == 3 && this.editformData_lll.datafid == ""){
                     this.$notify({
                         dangerouslyUseHTMLString: true,    
                         message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>数据字典'
                     })
+            }else if(this.editformData_lll.dataType == "字符串"){
+                this.editformData_lll.dataType = 0;
+            }else if( this.editformData_lll.dataType == "数字"){
+                this.editformData_lll.dataType = 1;
+            }else if( this.editformData_lll.dataType == "日期"){
+                this.editformData_lll.dataType = 2;
+            }else if( this.editformData_lll.dataType == "数据字典"){
+                this.editformData_lll.dataType = 3;
+            }else if( this.editformData_lll.isEmpoty == "否"){
+                this.editformData_lll.isEmpoty = 0;
+            }else if( this.editformData_lll.isEmpoty == "是"){
+                this.editformData_lll.isEmpoty = 1;
+            }else if( this.editformData_lll.fld_type == "通用指标"){
+                this.editformData_lll.fld_type = 0;
+            }else if( this.editformData_lll.fld_type == "突发指标"){
+                this.editformData_lll.fld_type = 1;
             }else{
                 this.BaseRequest({
-                    url: '/contact/updatepageContact',
+                    url: '/rcdDt/updatercddtfld',
                     method: 'get',
                     params: {
-                        'person_id': this.typeCode, 
-                        'person_tel': this.editformData_lll.inClaNm,
-                        'person_nm': this.editformData_lll.dataType,
-                        'person_tel': this.editformData_lll.isEmpoty,
-                        'person_tel': this.editformData_lll.datafid,
+                        'fld_id': this.typeCode,
+                        'catg_id': this.catg_id,
+                        'fld_name': this.editformData_lll.inClaNm,
+                        'fld_data_type': this.editformData_lll.dataType,
+                        'fld_is_null': this.editformData_lll.isEmpoty,
+                        'fld_type':this.editformData_lll.fld_type,
+                        'dict_content_id': this.editformData_lll.datafidArry.join(","),
                     }
                 }).then((res) => {
                     if(res == "success"){
                         this.Message.success('修改成功');
-                        // this.getTableData(1);
-                        this.closeModal();
+                        this.$emit("getTableData_LLL");
+                        this.$emit("getMenuData_edit_LLL");
+                        this.editShowModalPage_lll = false;
                     }
                 })
             }
+        },
+        currentChangeHandle_LLL(val){
+            this.$emit("currentChangeHandle_LLL",val)
         },
         closeModal: function () {
             this.addShowModalPage_lll = false;
@@ -519,7 +685,12 @@ export default {
         }
     },
     created () {
-
+        this.$nextTick(function () {
+            this.getDataDicLeftMenuData();
+            this.getDataDicTableDataAdd(); 
+            this.getDataDicTableDataEdit(); 
+            
+        })
     }
 }
 </script>

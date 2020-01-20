@@ -12,18 +12,18 @@
             border
             stripe>
             <el-table-column 
-                prop="inClaCode"
+                prop="proj_id"
                 width="100" 
                 label="指标类别编码" 
                 :resizable="false">
             </el-table-column>
             <el-table-column 
-                prop="inClaNm"
+                prop="catg_name"
                 label="指标类别名称" 
                 :resizable="false">
             </el-table-column>
             <el-table-column 
-                prop="subfidClass"
+                prop="proj_name"
                 label="所属基本类别" 
                 :resizable="false">
             </el-table-column>
@@ -35,6 +35,13 @@
                 </template>
             </el-table-column>
         </el-table>
+        <el-pagination
+            @current-change="currentChangeHandle_LL"
+            :current-page="pageIndex_LL"
+            :page-size="pageSize_LL"
+            :total="totalPage_LL"
+            layout="total, prev, pager, next, jumper">
+        </el-pagination>
         <!-- 二级菜单新增-->
         <el-dialog title="新增指标类别" :visible.sync="addShowModalPage_ll" >
             <el-form  class="modal-form" label-position="right" label-width="25%" :model="addformData_ll">
@@ -70,7 +77,24 @@
 <script>
 export default {
     props:{
-      tableData_ll:{type:Array,default:[]},
+        tableData_ll:{
+          type:Array,default:[],
+        },
+        proj_id:{
+          proj_id:String,default:"",
+        },
+        pageIndex_LL:{
+          pageIndex_LL:Number,default:1,
+        },
+        pageSize_LL:{
+          pageSize_LL:String,default:10,
+        },
+        totalPage_LL:{
+          totalPage_LL:String,default:0,
+        },
+        page_res_LL:{
+          page_res_LL:Object,default:"",
+        },
     },
     data () {
         return {
@@ -88,11 +112,14 @@ export default {
         }
     },
     methods: {
+        currentChangeHandle_LL(val){
+            this.$emit("currentChangeHandle_LL",val)
+        },
         addUnitconfig_ll () {//二级新增
             this.addShowModalPage_ll = true;
-            this.addformData_ll.subfidClass = this.tableData_ll[0].subfidClass;
+            this.addformData_ll.subfidClass = this.tableData_ll[0].proj_name;
         },
-        addSubmitDataForm_ll: function () {//二级新增弹窗  
+        addSubmitDataForm_ll() {//二级新增弹窗  
             if (this.addformData_ll.inClaNm == "") {
                 this.$notify({
                     dangerouslyUseHTMLString: true,    
@@ -100,28 +127,29 @@ export default {
                 })
             }else{
                 this.BaseRequest({
-                    url: '/contact/insertpageContact',
+                    url: '/rcdDt/inserttixircddtprojer',
                     method: 'get',
                     params: {
-                        'person_nm': this.addformData_ll.subfidClass,
-                        'person_tel': this.addformData_ll.inClaNm,
+                        'proj_id': this.proj_id,
+                        'catg_name': this.addformData_ll.inClaNm,
                     }
                 }).then((res) => {
                     if(res == "success"){
                         this.Message.success('保存成功');
-                        // this.getTableData(1);
+                        this.$emit("getTableData_LL");
+                        this.$emit("getMenuData_Add_LL");
                         this.closeModal();
                     }
                 })
             }
         },
-        openEditModal_ll: function (row) {//二级编辑
+        openEditModal_ll(row) {//二级编辑
             this.editShowModalPage_ll = true;
-            this.editformData_ll.subfidClass = row.subfidClass;
-            this.editformData_ll.inClaNm = row.inClaNm;
-            this.typeCode = row.typeCode;
+            this.editformData_ll.subfidClass = row.proj_name;
+            this.editformData_ll.inClaNm = row.catg_name;
+            this.typeCode = row.catg_id;
         },
-        editSubmitDataForm_ll: function () {//二级编辑弹窗 
+        editSubmitDataForm_ll() {//二级编辑弹窗 
             if ( this.editformData_ll.inClaNm == "") {
                 this.$notify({
                     dangerouslyUseHTMLString: true,       
@@ -129,23 +157,24 @@ export default {
                 })
             }else{
                 this.BaseRequest({
-                    url: '/contact/updatepageContact',
+                    url: '/rcdDt/updatetixircddtprojer',
                     method: 'get',
                     params: {
-                        'person_nm': this.typeCode,
-                        'person_nm': this.editformData_ll.subfidClass,
-                        'person_tel': this.editformData_ll.inClaNm,
+                        'catg_id': this.typeCode,
+                        'proj_id': this.proj_id,
+                        'catg_name': this.editformData_ll.inClaNm,
                     }
                 }).then((res) => {
                     if(res == "success"){
                         this.Message.success('修改成功');
-                        // this.getTableData(1);
+                        this.$emit("getTableData_LL");
+                        this.$emit("getMenuData_edit_LL");
                         this.closeModal();
                     }
                 })
             }
         },
-        closeModal: function () {
+        closeModal() {
             this.addShowModalPage_ll = false;
             this.editShowModalPage_ll = false;
             this.addformData_ll.inClaNm = "";
