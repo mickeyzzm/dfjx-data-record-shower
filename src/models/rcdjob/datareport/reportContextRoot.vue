@@ -90,20 +90,20 @@
       },
       saveReportsCallBack(unitId,processName,saveException){
         if(processName=='SUBMIT'){
-          this.$emit("submitReportsCallBack",unitId,this.unitEntity.unit_name,saveException,"SAVE")
+          this.$emit("submitReportsCallBack",unitId,this.unitEntity.job_unit_name,saveException,"SAVE")
         }else if(processName=='SAVEANDVALIDATE'){
-          this.$emit("saveAndValidateCallBack",unitId,this.unitEntity.unit_name,saveException,"SAVE")
+          this.$emit("saveAndValidateCallBack",unitId,this.unitEntity.job_unit_name,saveException,"SAVE")
         } else{
           this.$emit("saveReportsCallBack",unitId,saveException)
         }
       },
       validateReportsCallBack(unitId,processName,saveException){
         if(processName=='SUBMIT'){
-          this.$emit("submitReportsCallBack",unitId,this.unitEntity.unit_name,saveException,"VALIDATE")
+          this.$emit("submitReportsCallBack",unitId,this.unitEntity.job_unit_name,saveException,"VALIDATE")
         }else if(processName=='SAVEANDVALIDATE'){
-          this.$emit("saveAndValidateCallBack",unitId,this.unitEntity.unit_name,saveException,"VALIDATE")
+          this.$emit("saveAndValidateCallBack",unitId,this.unitEntity.job_unit_name,saveException,"VALIDATE")
         }else{
-          this.$emit("validateReportsCallBack",unitId,this.unitEntity.unit_name,saveException)
+          this.$emit("validateReportsCallBack",unitId,this.unitEntity.job_unit_name,saveException)
         }
       }
     },

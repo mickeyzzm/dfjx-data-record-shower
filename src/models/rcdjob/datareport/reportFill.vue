@@ -210,7 +210,7 @@
           background: 'rgba(0, 0, 0, 0.7)'
         })
         this.unitEntities.forEach(unitEntity=>{
-          const unitId = unitEntity.unit_id
+          const unitId = unitEntity.job_unit_id
           const reportContextRef = this.$refs['reportContextRef'+unitId][0]
           reportContextRef.doSaveContext()
         })
@@ -226,7 +226,7 @@
           background: 'rgba(0, 0, 0, 0.7)'
         })
         this.unitEntities.forEach(unitEntity=>{
-          const unitId = unitEntity.unit_id
+          const unitId = unitEntity.job_unit_id
           const reportContextRef = this.$refs['reportContextRef'+unitId][0]
           reportContextRef.doSaveAndValidate(processName)
         })
@@ -456,7 +456,7 @@
             //console.log(processName+"---"+this.doneCount)
 
             if(processName=="SAVE"){
-              this.doRefreshFomular()
+              // this.doRefreshFomular()
             }else if(processName=="VALIDATE"){
               this.doSaveAndValidate("SAVE")
             }
@@ -497,7 +497,7 @@
               type: 'success',
               message: "所有输入项均校验通过"
             });
-            this.doRefreshFomular()
+            // this.doRefreshFomular()
           }
         }
       },
@@ -548,7 +548,7 @@
               message: processmessage
             });
             if(processName=="SAVE"){
-              this.doRefreshFomular("YES")
+              // this.doRefreshFomular("YES")
             }else if(processName=="VALIDATE"){
               this.doSubmitContext("SAVE")
             }
