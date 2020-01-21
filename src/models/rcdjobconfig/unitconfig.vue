@@ -8,11 +8,12 @@
         :expand-on-click-node="false"
         :default-expanded-keys="[-1]"
         :highlight-current="true"
+        ref="treeBox"
       ></el-tree>
     </el-aside>
     <el-main>
       <div style="text-align:left">
-        <el-button :disabled="treeId === -1" @click="unitDialogVisible = true" size="mini" type="primary">新增任务组</el-button>
+        <el-button :disabled="treeId === -1" @click="insertUnit" size="mini" type="primary">新增任务组</el-button>
       </div>
       <el-table :header-cell-style="{background:'#f6f6f7'}" :data="tableData" style="width: 90%" size="mini" border stripe>
         <el-table-column type="index" width="100" label="指标编码" :resizable="false"></el-table-column>
@@ -142,17 +143,25 @@ export default {
             })
           })
         }
+        this.$nextTick(() => {
+          this.$refs.treeBox.setCurrentKey(data[0].job_id)
+        })
       })
     },
+    // 新增任务组
+    insertUnit () {
+      this.unitDialogVisible = true
+      this.insertJobForm = {job_unit_name: '', job_unit_active: 0}
+    },
     // 任务组列表
-    unitList (node) {
+    unitList () {
       this.BaseRequest({
         url: '/reporting/rcdjobunitconfiglist',
         method: 'get',
         params: {
           currPage: this.pagination.currentPageIndex,
           pageSize: this.pagination.pageSize,
-          job_id: node ? node.job_id : 1
+          job_id: this.treeId ? this.treeId : 1
         }
       }).then(data => {
         this.tableData = data.dataList
@@ -165,7 +174,7 @@ export default {
         url: '/reporting/insertrcdjobunitconfig',
         method: 'get',
         params: {
-          job_id: 1,
+          job_id: this.treeId ? this.treeId : 1,
           ...this.insertJobForm
         }
       }).then(data => {
@@ -207,6 +216,9 @@ export default {
     // 左侧导航点击节点
     handleNodeClick (node) {
       this.treeId = node.job_id
+      if (node.job_id === -1) {
+        return false
+      }
       this.unitList(node)
     },
     // 指标
@@ -250,7 +262,8 @@ export default {
                 item.children.push({
                   label: element.catg_name,
                   catg_id: element.catg_id,
-                  children: []
+                  children: [],
+                  disabled: true
                 })
               })
             }
@@ -270,6 +283,7 @@ export default {
             if (item.children.length > 0) {
               item.children.map(element => {
                 if (element.catg_id === catgId) {
+                  element.disabled = false
                   element.children = []
                   data.map(rcdt => {
                     element.children.push({

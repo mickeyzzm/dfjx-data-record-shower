@@ -70,13 +70,21 @@
       :visible.sync="rcdusercgDialog"
       custom-class="selrcdusercg"
       :close-on-click-modal="false"
-      width="50%">
+      width="55%">
       <div style="width:80%;">
         <div style="text-align:left;margin-bottom:30px;">
         <span>请选择机构：</span>
-        <el-select style="width:22%;" :filterable="true" v-model="agencyValue">
-          <el-option v-for="item in agency" :key="item.value" :label="item.name" :value="item.value"></el-option>
-        </el-select>
+        <el-cascader
+          v-model="agencyValue"
+          style="width: 35%"
+          :show-all-levels="false"
+          :props="defaultProps"
+          placeholder="请选择机构"
+          :filterable="true"
+          :options="agency"
+          ref="mycascader"
+          @change="handleChange">
+        </el-cascader>
         <el-button type="primary" @click="agencyUser">获取机构下用户</el-button>
         </div>
         <el-table
@@ -84,11 +92,13 @@
           style="width:100%"
           :header-cell-style="{background:'#f6f6f7'}"
           size="mini"
+          @selection-change="handlecheck"
           border
+          ref="multipleTable"
           stripe>
           <el-table-column type="selection"></el-table-column>
           <el-table-column type="index" width="130" label="填报人id" :resizable="false"></el-table-column>
-          <el-table-column prop="name" label="填报人名称" :resizable="false"></el-table-column>
+          <el-table-column prop="user_name" label="填报人名称" :resizable="false"></el-table-column>
         </el-table>
         <div style="margin-top:30px;text-align:right;">
           <el-button type="primary" @click="rcdusercgDialog = false">取消</el-button>
@@ -191,21 +201,9 @@ export default {
       ary1: [],
       ary2: [],
       isResquest: false,
-      agency: [
-        {name: '机构1', value: 1},
-        {name: '机构2', value: 2}
-      ],
-      agencyValue: 1,
-      rcdusercgTable: [
-        {name: '张三'},
-        {name: '李四'},
-        {name: '王五'}
-      ],
-      rcdusercgTable1: [
-        {name: '张三1'},
-        {name: '李四1'},
-        {name: '王五1'}
-      ],
+      agency: [],
+      agencyValue: [],
+      rcdusercgTable: [],
       FormData: {
         job_name: '',
         job_start_dt: '',
@@ -215,7 +213,15 @@ export default {
       isSave: false,
       isRead: false,
       title: '新增',
-      currPage: {}
+      currPage: {},
+      defaultProps: {
+        children: 'children',
+        label: 'name',
+        value: 'id'
+      },
+      currentAgency: '',
+      currentData: [],
+      userid: []
     }
   },
   methods: {
@@ -355,29 +361,115 @@ export default {
     rcdusercg (row) {
       this.rcdusercgDialog = true
       this.current = row
-    },
-    // 填报人确定
-    subRcdusercg () {
+      // 已经绑定的用户
       this.BaseRequest({
-        url: '/fillinatask/insertrcdjobpersonassign',
+        url: '/fillinatask/huixianrcdjobpersonassign',
         method: 'get',
-        params: {
-          userid: [],
-          job_id: this.current.job_id
-        }
-      }).then(data => {
-        if (data === 'success') {
-          this.rcdjobconfigList()
-          this.$message.success('新增成功')
-          this.jobconfigDialog = false
+        params: {job_id: row.job_id}
+      }).then(checkeddata => {
+        this.agencyValue = []
+        if (checkeddata.length > 0) {
+          // this.hlklhl(this.agency, checkeddata[0].origin_id)
+          this.BaseRequest({
+            url: '/reporting/useroriginassignlist',
+            method: 'get',
+            params: {origin_id: checkeddata[0].origin_id}
+          }).then(data => {
+            this.rcdusercgTable = data
+            checkeddata.map(item => {
+              this.rcdusercgTable.map((element, index) => {
+                if (element.user_id === item.user_id) {
+                  this.$nextTick(() => {
+                    this.$refs.multipleTable.toggleRowSelection(this.rcdusercgTable[index])
+                  })
+                }
+              })
+            })
+          })
         } else {
-          this.$message.error('新增失败')
-          this.jobconfigDialog = false
+          this.rcdusercgTable = []
+          this.agencyValue = []
         }
       })
     },
+    // 通过最后一层id找出所有父级
+    // hlklhl (agencyList, originId) {
+    //   for (let i = 0; i < agencyList.length; i++) {
+    //     let item = agencyList[i]
+    //     if (item.id == originId) {
+    //       console.log(item)
+    //     } else {
+    //       if (item.children) {
+    //         this.hlklhl(item.children, originId)
+    //       }
+    //     }
+    //   }
+    // },
+    // 填报人确定
+    subRcdusercg () {
+      if (this.currentData.length > 0) {
+        this.userid = []
+        this.currentData.map(item => {
+          this.userid.push(item.user_id)
+        })
+        this.BaseRequest({
+          url: '/fillinatask/insertrcdjobpersonassign',
+          method: 'get',
+          params: {
+            userid: this.userid.join(','),
+            job_id: JSON.stringify(this.current.job_id)
+          }
+        }).then(data => {
+          if (data === 'success') {
+            this.rcdjobconfigList()
+            this.$message.success('新增成功')
+            this.rcdusercgDialog = false
+          } else {
+            this.$message.error('新增失败')
+            this.rcdusercgDialog = false
+          }
+        })
+      } else {
+        this.$message('未选择填报人')
+      }
+    },
+    // 获取组织结构
+    getOriginDatas () {
+      this.BaseRequest({
+        url: '/reporting/getOriginDatas',
+        method: 'get'
+      }).then(data => {
+        this.agency = this.OriginData(data.list)
+      })
+    },
+    // 递归处理组织结构
+    OriginData (data) {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].children.length < 1) {
+          data[i].children = undefined
+        } else {
+          this.OriginData(data[i].children)
+        }
+      }
+      return data
+    },
     // 获取机构下用户
     agencyUser () {
+      this.BaseRequest({
+        url: '/reporting/useroriginassignlist',
+        method: 'get',
+        params: {origin_id: this.currentAgency}
+      }).then(data => {
+        this.rcdusercgTable = data
+      })
+    },
+    // 选择机构时改变
+    handleChange (value) {
+      this.currentAgency = value[value.length - 1]
+    },
+    // 选择用户改变
+    handlecheck (value) {
+      this.currentData = value
     },
     // 页数改变
     handleSizeChange (val) {
@@ -390,6 +482,7 @@ export default {
   },
   created () {
     this.rcdjobconfigList()
+    this.getOriginDatas()
   }
 }
 </script>

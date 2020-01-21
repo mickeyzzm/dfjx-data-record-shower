@@ -3,7 +3,7 @@
     <div class="query">
       <el-input v-model="keyWorld" size="mini" style="width:15%;" placeholder="请输入填报人名称"></el-input>
       <el-button type="primary" @click="rcdusercgList">查询</el-button>
-      <el-button type="primary" @click="addRcdusercg">新增填报人</el-button>
+      <el-button type="primary" @click="insertUser">新增填报人</el-button>
     </div>
     <el-table
     :data="tableData"
@@ -17,7 +17,7 @@
       <el-table-column prop="user_name" label="填报人姓名" :resizable="false"></el-table-column>
       <el-table-column label="操作" :resizable="false">
         <template slot-scope="scope">
-          <el-button type="text" size="mini">编辑</el-button>
+          <el-button type="text" size="mini" @click="editUser(scope.row)">编辑</el-button>
           <el-button type="text" size="mini" @click="deleteUser(scope.row)">删除</el-button>
         </template>
       </el-table-column>
@@ -36,7 +36,8 @@
       title="新增填报人"
       :visible.sync="dialogVisible "
       :close-on-click-modal="false"
-      @close="close"
+      @opened="opened"
+      @close="isResquest = false"
       width="50%">
       <el-container>
         <el-aside style="width:30%">
@@ -44,8 +45,9 @@
             :data="treeData"
             node-key="id"
             @node-click="handleNodeClick"
-            :default-expanded-keys="[1]"
+            :default-expanded-keys="active"
             :highlight-current="true"
+            :props="defaultProps"
             ref="tree"
           ></el-tree>
         </el-aside>
@@ -62,7 +64,7 @@
             >
             <el-table-column type="selection" :resizable="false"></el-table-column>
             <el-table-column type="index" width="120" label="用户Id" :resizable="false"></el-table-column>
-            <el-table-column prop="rcdusercgNm" label="用户名称" :resizable="false"></el-table-column>
+            <el-table-column prop="user_name" label="用户名称" :resizable="false"></el-table-column>
           </el-table>
           <div style="text-align:right;margin-top:40px;">
             <el-button type="primary" @click="dialogVisible = false">取消</el-button>
@@ -87,55 +89,17 @@ export default {
       keyWorld: '',
       tableData: [],
       dialogVisible: false,
-      treeData: [
-        {
-          label: '组织结构',
-          id: 0,
-          children: [
-            {
-              label: '大兴区信访局',
-              id: 1,
-              children: [
-                {
-                  label: 'xx镇信访局',
-                  id: 1.1
-                },
-                {
-                  label: 'xx街道信访局',
-                  id: 1.2
-                }
-              ]
-            },
-            {
-              label: '中国某某公司',
-              id: 2,
-              children: [
-                {
-                  label: '北京xx公司',
-                  id: 2.1,
-                  children: [
-                    {
-                      label: '大兴xx公司'
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              label: '大兴区某某局',
-              id: 3,
-              children: [
-                {
-                  label: 'xx街道办事处',
-                  id: 3.1
-                }
-              ]
-            }
-          ]
-        }
-      ],
+      treeData: [],
       rcdusercgTable: [],
-      current: []
+      current: [],
+      defaultProps: {
+        children: 'children',
+        label: 'name'
+      },
+      currentNode: '',
+      userid: [],
+      active: [],
+      currentRow: {}
     }
   },
   methods: {
@@ -154,23 +118,73 @@ export default {
         this.pagination.total = data.dataList.length
       })
     },
-    // 新增填报人
-    addRcdusercg () {
-      this.dialogVisible = true
-      this.BaseRequest({
-        url: '/reporting/getOriginDatas',
-        method: 'get'
-      }).then(data => {
-        console.log(data)
+    opened () {
+      this.$nextTick(() => {
+        this.$refs.tree.setCurrentKey(this.currentRow.origin_id)
       })
+      this.active = []
+      this.active.push(this.currentRow.origin_id)
+    },
+    insertUser () {
+      this.dialogVisible = true
+      this.$refs.multipleTable.clearSelection()
+    },
+    // 提交新增填报人
+    subRcdusercg () {
+      if (this.current.length > 0) {
+        this.userid = []
+        this.current.map(item => {
+          this.userid.push(item.user_id)
+        })
+        this.BaseRequest({
+          url: '/reporting/insertrcdpersonconfig',
+          method: 'get',
+          params: {
+            origin_id: this.currentNode,
+            userid: this.userid.join(',')
+          }
+        }).then(data => {
+          if (data === 'success') {
+            this.rcdusercgList()
+            this.dialogVisible = false
+            this.$message.success('添加成功')
+            this.$refs.multipleTable.clearSelection()
+          } else {
+            this.$message.error('添加失败')
+          }
+        })
+      } else {
+        this.$message('未选择填报人')
+      }
     },
     // 点击节点
-    handleNodeClick (data) {
-
+    handleNodeClick (node) {
+      if (this.current.length > 0) {
+        this.$confirm('检测有已经选择未提交的数据，是否保存?', '提示', {
+          confirmButtonText: '保存',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.subRcdusercg()
+        }).catch(() => {
+          this.useroriginassignlist(node)
+        })
+      } else {
+        this.useroriginassignlist(node)
+      }
     },
-    // 确认
-    subRcdusercg () {
-      this.dialogVisible = false
+    // 点击节点获取对应表
+    useroriginassignlist (node) {
+      this.BaseRequest({
+        url: '/reporting/useroriginassignlist',
+        method: 'get',
+        params: {origin_id: node.id}
+      }).then(data => {
+        if (data.length > 0) {
+          this.currentNode = node.id
+          this.rcdusercgTable = data
+        }
+      })
     },
     // 删除
     deleteUser (row) {
@@ -198,11 +212,51 @@ export default {
         return false
       })
     },
-    handlecheck (value) {
-      this.currentData = value
+    // 修改填报人
+    editUser (row) {
+      this.currentRow = row
+      this.dialogVisible = true
+      this.BaseRequest({
+        url: '/reporting/useroriginassignlist',
+        method: 'get',
+        params: {origin_id: row.origin_id}
+      }).then(data => {
+        this.rcdusercgTable = data
+        this.selectedUser(row)
+      })
     },
-    close () {
-      this.$refs.multipleTable.clearSelection()
+    // 获取已选择的用户
+    selectedUser (row) {
+      this.BaseRequest({
+        url: '/reporting/selectrcdpersonconfig',
+        method: 'get',
+        params: {
+          origin_id: row.origin_id
+        }
+      }).then(checkeddata => {
+        checkeddata.map(item => {
+          this.rcdusercgTable.map((element, index) => {
+            if (element.user_id === item.user_id) {
+              this.$nextTick(() => {
+                this.$refs.multipleTable.toggleRowSelection(this.rcdusercgTable[index])
+              })
+            }
+          })
+        })
+      })
+    },
+    // 选择填报人
+    handlecheck (value) {
+      this.current = value
+    },
+    // 获取组织结构
+    getOriginDatas () {
+      this.BaseRequest({
+        url: '/reporting/getOriginDatas',
+        method: 'get'
+      }).then(data => {
+        this.treeData = data.list
+      })
     },
     // 页数改变
     handleSizeChange (val) {
@@ -215,6 +269,9 @@ export default {
   },
   created () {
     this.rcdusercgList()
+  },
+  mounted () {
+    this.getOriginDatas()
   }
 }
 </script>
