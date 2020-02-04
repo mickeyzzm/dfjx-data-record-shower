@@ -47,10 +47,10 @@ module.exports = {
 
   build: {
     // Template for index.html
-    index: path.resolve(__dirname, '../vue-shower/index.html'),
+    index: path.resolve(__dirname, '../data-record/index.html'),
 
     // Paths
-    assetsRoot: path.resolve(__dirname, '../vue-shower'),
+    assetsRoot: path.resolve(__dirname, '../data-record'),
     assetsSubDirectory: 'static',
     // assetsPublicPath: '/',
 
