@@ -13,19 +13,19 @@
                 size="mini"
                 border
                 stripe>
-                <el-table-column 
+                <el-table-column
                     prop="proj_id"
-                    width="100" 
-                    label="基本类别编码" 
+                    width="100"
+                    label="基本类别编码"
                     :resizable="false">
                 </el-table-column>
-                <el-table-column 
+                <el-table-column
                     prop="proj_name"
-                    label="基本类别名称" 
+                    label="基本类别名称"
                     :resizable="false">
                 </el-table-column>
-                <el-table-column 
-                    label="操作" 
+                <el-table-column
+                    label="操作"
                     :resizable="false">
                     <template slot-scope="scope">
                         <el-button size="mini"  type="text" @click="openEditModalBox(scope.row)">编辑</el-button>
@@ -92,10 +92,10 @@ export default {
         return {
             isEffective:[
                 {
-                    name:"无效",
+                    name:"有效",
                     id:"0",
                 },{
-                    name:"有效",
+                    name:"无效",
                     id:"1",
                 }
             ],
@@ -166,7 +166,7 @@ export default {
         addSubmitDataFormBox: function () {//一级新增弹窗
             if (this.addformDataBox.subClasNm == "" || this.addformDataBox.isEffectiveNm == "" ) {
                 this.$notify({
-                    dangerouslyUseHTMLString: true,       
+                    dangerouslyUseHTMLString: true,
                     message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>基本类别名称、是否有效'
                 })
             }else{
@@ -190,20 +190,22 @@ export default {
         openEditModalBox: function (row) {//一级编辑
             this.editShowModalPageBox = true;
             this.editformDataBox.subClasNm = row.proj_name;
-            this.editformDataBox.isEffectiveNm = row.is_actived==0?"无效":"有效";
+            this.editformDataBox.isEffectiveNm = row.is_actived==0?"有效":"无效";
             this.typeCode = row.proj_id;
         },
-        editSubmitDataFormBox: function () {//一级编辑弹窗 
+        editSubmitDataFormBox: function () {//一级编辑弹窗
+        console.log(this.editformDataBox)
             if (this.editformDataBox.subClasNm == "" || this.editformDataBox.isEffectiveNm == "" ) {
                 this.$notify({
-                    dangerouslyUseHTMLString: true,       
+                    dangerouslyUseHTMLString: true,
                     message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>基本类别名称、是否有效'
                 })
-            }else if(this.editformDataBox.isEffectiveNm == "无效"){
-                this.editformDataBox.isEffectiveNm = 0;
-            }else if( this.editformDataBox.isEffectiveNm == "有效"){
-                this.editformDataBox.isEffectiveNm = 1;
             }else{
+                if(this.editformDataBox.isEffectiveNm == "有效"){
+                    this.editformDataBox.isEffectiveNm = this.isEffective[0].id;
+                }else if( this.editformDataBox.isEffectiveNm == "无效"){
+                    this.editformDataBox.isEffectiveNm = this.isEffective[1].id;
+                }
                 this.BaseRequest({
                     url: '/rcdDt/updatercddtproj',
                     method: 'get',

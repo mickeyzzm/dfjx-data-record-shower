@@ -12,29 +12,29 @@
             size="mini"
             border
             stripe>
-            <el-table-column 
+            <el-table-column
                 prop="catg_id"
-                width="100" 
-                label="指标编码" 
+                width="100"
+                label="指标编码"
                 :resizable="false">
             </el-table-column>
-            <el-table-column 
+            <el-table-column
                 prop="fld_name"
-                label="指标名称" 
+                label="指标名称"
                 :resizable="false">
             </el-table-column>
-            <el-table-column 
+            <el-table-column
                 prop="catg_name"
-                label="所属类别" 
+                label="所属类别"
                 :resizable="false">
             </el-table-column>
-            <el-table-column 
+            <el-table-column
                 prop="proj_name"
-                label="所属基本类别" 
+                label="所属基本类别"
                 :resizable="false">
             </el-table-column>
-            <el-table-column 
-                label="操作" 
+            <el-table-column
+                label="操作"
                 :resizable="false">
                 <template slot-scope="scope">
                     <el-button size="mini" type="text" @click="openEditModal_lll(scope.row)">编辑</el-button>
@@ -57,7 +57,7 @@
                 <el-form-item size="mini" label="指标类别：">
                     <el-input style="width:50%" v-model="addformData_lll.inClass" disabled placeholder="请输入指标类别"></el-input>
                 </el-form-item>
-                <el-form-item size="mini" label="指标名称："> 
+                <el-form-item size="mini" label="指标名称：">
                     <el-input style="width:50%" v-model="addformData_lll.inClaNm" placeholder="请输入指标名称"></el-input>
                 </el-form-item>
                 <el-form-item size="mini" label="数据类型：">
@@ -106,10 +106,10 @@
                 <el-form-item size="mini" label="指标基本类别：" >
                     <el-input style="width:50%" v-model="editformData_lll.subfidClass" disabled placeholder="请输入指标基本类别" auto-complete="off" ></el-input>
                 </el-form-item>
-                <el-form-item size="mini" label="指标类别："> 
+                <el-form-item size="mini" label="指标类别：">
                     <el-input style="width:50%" v-model="editformData_lll.inClass" disabled placeholder="请输入指标类别"></el-input>
                 </el-form-item>
-                <el-form-item size="mini" label="指标名称："> 
+                <el-form-item size="mini" label="指标名称：">
                     <el-input style="width:50%" v-model="editformData_lll.inClaNm" placeholder="请输入指标名称"></el-input>
                 </el-form-item>
                 <el-form-item size="mini" label="数据类型：" >
@@ -176,20 +176,20 @@
                             size="mini"
                             border
                             stripe>
-                            <el-table-column 
+                            <el-table-column
                                 prop="dict_content_id"
-                                width="100" 
-                                label="字典编号" 
+                                width="100"
+                                label="字典编号"
                                 :resizable="false">
                             </el-table-column>
-                            <el-table-column 
+                            <el-table-column
                                 prop="dict_content_name"
-                                label="字典名称" 
+                                label="字典名称"
                                 :resizable="false">
                             </el-table-column>
-                            <el-table-column 
+                            <el-table-column
                                 prop="dict_content_value"
-                                label="字典值" 
+                                label="字典值"
                                 :resizable="false">
                             </el-table-column>
                             <el-table-column
@@ -229,25 +229,25 @@
                             size="mini"
                             border
                             stripe>
-                            <el-table-column 
+                            <el-table-column
                                 prop="dict_content_id"
-                                width="100" 
-                                label="字典编号" 
+                                width="100"
+                                label="字典编号"
                                 :resizable="false">
                             </el-table-column>
-                            <el-table-column 
+                            <el-table-column
                                 prop="dict_content_name"
-                                label="字典名称" 
+                                label="字典名称"
                                 :resizable="false">
                             </el-table-column>
-                            <el-table-column 
+                            <el-table-column
                                 prop="dict_content_value"
-                                label="字典值" 
+                                label="字典值"
                                 :resizable="false">
                             </el-table-column>
                             <el-table-column
                                 :resizable="false"
-                                
+
                                 type="selection">
                             </el-table-column>
                         </el-table>
@@ -293,7 +293,7 @@ export default {
             dicPage_res_LLL:{},
             itemContent:false,
             treeData: [
-                { 
+                {
                 label: '数据字典',
                 id:0,
                 children: []
@@ -393,17 +393,17 @@ export default {
                 inClaNm : "",
                 dataType : "",
                 isEmpoty : "",
-                fld_types:"",
+                fld_type:"",
                 datafid: "",
                 datafidArry: [],
             },
-            editformData_lll: {    
+            editformData_lll: {
                 subfidClass: "",
                 inClass : "",
                 inClaNm : "",
                 dataType : "",
                 isEmpoty : "",
-                fld_types:"",
+                fld_type:"",
                 datafid: "",
                 datafidArry: [],
             },
@@ -412,7 +412,7 @@ export default {
             multipleSelection_edit: [],
             typeCode:"",
             loading:false,
-            dataDicDict_id:"",
+            dataDicDict_id:"1",
             checkSelectionArry_edit:[],
             checkSelectionArry_add:[],
         }
@@ -467,7 +467,7 @@ export default {
                 if(res){
                     this.tableDataAdd = res.dataList;
                     this.loading = false;
-                } 
+                }
             })
         },
         getDataDicTableDataEdit(dicPageNum_LLL){//三级菜单 编辑 数据字典table数据
@@ -492,7 +492,7 @@ export default {
                 if(res){
                     this.tableDataEdit = res.dataList;
                     this.loading = false;
-                } 
+                }
             })
         },
         handleNodeClick_lll (node) {
@@ -502,6 +502,7 @@ export default {
             for(var i in node){
                 if(node[i] == node.id){
                     this.addformData_lll.datafid = node.label;
+                    this.editformData_lll.datafid = node.label;
                 }
             }
         },
@@ -554,19 +555,19 @@ export default {
             }
         },
         addUnitconfig_lll () {//三级新增
-            this.addShowModalPage_lll = true; 
+            this.addShowModalPage_lll = true;
             this.addformData_lll.subfidClass = this.tableData_lll[0].proj_name;
             this.addformData_lll.inClass = this.tableData_lll[0].catg_name;
         },
         addSubmitDataForm_lll() {//三级新增弹窗
             if (this.addformData_lll.inClaNm == "" || this.addformData_lll.dataType == "" || this.addformData_lll.isEmpoty == "" || this.addformData_lll.fld_type == "") {
                 this.$notify({
-                    dangerouslyUseHTMLString: true,    
+                    dangerouslyUseHTMLString: true,
                     message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>指标名称、数据类型、是否可空、指标类型'
                 })
             }else if(this.addformData_lll.dataType == 2 && this.addformData_lll.datafid == ""){
                     this.$notify({
-                        dangerouslyUseHTMLString: true,    
+                        dangerouslyUseHTMLString: true,
                         message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>数据字典'
                     })
             }else{
@@ -592,6 +593,7 @@ export default {
             }
         },
         openEditModal_lll(row) {//三级编辑
+            // console.log(row,"oo")
             this.editShowModalPage_lll = true;
             this.typeCode = row.fld_id;
             this.editformData_lll.subfidClass = row.proj_name;
@@ -602,7 +604,7 @@ export default {
             if(row.fld_data_type == 0){
                 this.editformData_lll.dataType = "字符串";
             }else if(row.fld_data_type == 1){
-                this.editformData_lll.dataType = "数据";
+                this.editformData_lll.dataType = "数字";
             }else if(row.fld_data_type == 2){
                 this.editformData_lll.dataType = "日期";
             }else if(row.fld_data_type == 3){
@@ -614,33 +616,35 @@ export default {
             }
         },
         editSubmitDataForm_lll(){//三级编辑弹窗
+            // console.log(this.editformData_lll)
             if (this.editformData_lll.inClaNm == "" || this.editformData_lll.dataType == "" || this.editformData_lll.isEmpoty == "" || this.editformData_lll.fld_type == "") {
                 this.$notify({
-                    dangerouslyUseHTMLString: true,    
+                    dangerouslyUseHTMLString: true,
                     message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>指标名称、数据类型、是否可空、指标类型'
                 })
             }else if(this.editformData_lll.dataType == 3 && this.editformData_lll.datafid == ""){
                     this.$notify({
-                        dangerouslyUseHTMLString: true,    
+                        dangerouslyUseHTMLString: true,
                         message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>数据字典'
                     })
-            }else if(this.editformData_lll.dataType == "字符串"){
-                this.editformData_lll.dataType = 0;
-            }else if( this.editformData_lll.dataType == "数字"){
-                this.editformData_lll.dataType = 1;
-            }else if( this.editformData_lll.dataType == "日期"){
-                this.editformData_lll.dataType = 2;
-            }else if( this.editformData_lll.dataType == "数据字典"){
-                this.editformData_lll.dataType = 3;
-            }else if( this.editformData_lll.isEmpoty == "否"){
-                this.editformData_lll.isEmpoty = 0;
-            }else if( this.editformData_lll.isEmpoty == "是"){
-                this.editformData_lll.isEmpoty = 1;
-            }else if( this.editformData_lll.fld_type == "通用指标"){
-                this.editformData_lll.fld_type = 0;
-            }else if( this.editformData_lll.fld_type == "突发指标"){
-                this.editformData_lll.fld_type = 1;
             }else{
+                if(this.editformData_lll.dataType == "字符串"){
+                    this.editformData_lll.dataType = this.dataTypes[0].id;
+                }else if( this.editformData_lll.dataType == "数字"){
+                    this.editformData_lll.dataType = this.dataTypes[1].id;
+                }else if( this.editformData_lll.dataType == "日期"){
+                    this.editformData_lll.dataType = this.dataTypes[2].id;
+                }else if( this.editformData_lll.dataType == "数据字典"){
+                    this.editformData_lll.dataType = this.dataTypes[3].id;
+                }else if( this.editformData_lll.isEmpoty == "否"){
+                    this.editformData_lll.isEmpoty = this.isEmpoty[0].id;
+                }else if( this.editformData_lll.isEmpoty == "是"){
+                    this.editformData_lll.isEmpoty =  this.isEmpoty[1].id;
+                }else if( this.editformData_lll.fld_type == "通用指标"){
+                    this.editformData_lll.fld_type = this.fld_types[0].id;
+                }else if( this.editformData_lll.fld_type == "突发指标"){
+                    this.editformData_lll.fld_type = this.fld_types[1].id;
+                }
                 this.BaseRequest({
                     url: '/rcdDt/updatercddtfld',
                     method: 'get',
@@ -673,6 +677,7 @@ export default {
             this.addformData_lll.dataType = "";
             this.addformData_lll.isEmpoty = "";
             this.addformData_lll.datafid = "";
+            this.addformData_lll.fld_type = "";
             this.editformData_lll.inClaNm = "";
             this.editformData_lll.dataType = "";
             this.editformData_lll.isEmpoty = "";
@@ -687,9 +692,9 @@ export default {
     created () {
         this.$nextTick(function () {
             this.getDataDicLeftMenuData();
-            this.getDataDicTableDataAdd(); 
-            this.getDataDicTableDataEdit(); 
-            
+            this.getDataDicTableDataAdd();
+            this.getDataDicTableDataEdit();
+
         })
     }
 }
