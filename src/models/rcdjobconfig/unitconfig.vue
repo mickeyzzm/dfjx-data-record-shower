@@ -21,8 +21,8 @@
         <el-table-column label="状态" :resizable="false">
           <template slot-scope="scope">
             <span
-              :style="scope.row.job_unit_active === 0 ? 'color:red':'color:blue'"
-            >{{scope.row.job_unit_active === 0 ? "停用":"启用"}}</span>
+              :style="scope.row.job_unit_active == 0 ? 'color:red':'color:blue'"
+            >{{scope.row.job_unit_active == 0 ? "停用":"启用"}}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" :resizable="false">

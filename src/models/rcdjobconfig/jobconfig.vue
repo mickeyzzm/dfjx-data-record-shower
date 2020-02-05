@@ -97,7 +97,7 @@
           ref="multipleTable"
           stripe>
           <el-table-column type="selection"></el-table-column>
-          <el-table-column type="index" width="130" label="填报人id" :resizable="false"></el-table-column>
+          <el-table-column prop="user_id" width="130" label="填报人id" :resizable="false"></el-table-column>
           <el-table-column prop="user_name" label="填报人名称" :resizable="false"></el-table-column>
         </el-table>
         <div style="margin-top:30px;text-align:right;">

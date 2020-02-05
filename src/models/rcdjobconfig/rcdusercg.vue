@@ -12,7 +12,7 @@
     size="mini"
     border
     stripe>
-      <el-table-column type="index" width="100" label="填报人编号" :resizable="false"></el-table-column>
+      <el-table-column prop="user_id" width="100" label="填报人编号" :resizable="false"></el-table-column>
       <el-table-column prop="origin_name" label="填报人所属机构" :resizable="false"></el-table-column>
       <el-table-column prop="user_name" label="填报人姓名" :resizable="false"></el-table-column>
       <el-table-column label="操作" :resizable="false">
@@ -63,7 +63,7 @@
             ref="multipleTable"
             >
             <el-table-column type="selection" :resizable="false"></el-table-column>
-            <el-table-column type="index" width="120" label="用户Id" :resizable="false"></el-table-column>
+            <el-table-column prop="user_id" width="120" label="用户Id" :resizable="false"></el-table-column>
             <el-table-column prop="user_name" label="用户名称" :resizable="false"></el-table-column>
           </el-table>
           <div style="text-align:right;margin-top:40px;">
