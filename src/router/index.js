@@ -59,11 +59,6 @@ const routes = [
             component: () => import('@/models/sys/role/roleMain')
           },
           {
-            name: 'didi',
-            path: '/rcdconfig/didi',
-            component: () => import('@/models/rcdconfig/didi')//填报指标体系
-          },
-          {
             name: 'fldconfig',
             path: '/rcdconfig/fldconfig',
             component: () => import('@/models/rcdconfig/fldconfig')//填报指标体系

@@ -416,6 +416,8 @@ export default {
             dataDicDict_id:"1",
             checkSelectionArry_edit:[],
             checkSelectionArry_add:[],
+            listlalla: [],
+            testList: []
         }
     },
     watch: {
@@ -437,6 +439,26 @@ export default {
         }
     },
     methods: {
+        test () {
+            this.testList = []
+            this.listlalla.map(item => {
+                 this.BaseRequest({
+                  url: '/dictionary/selectDataDictionary',
+                  method: 'get',
+                  params: {
+                      'dict_id': item,
+                      'currPage': 1,
+                      'pageSize': 100,
+                  }
+              }).then((res) => {
+                  if (res.dataList.length > 0) {
+                      res.dataList.map(element => {
+                          this.testList.push(element)
+                      })
+                  }
+              })
+            })
+        },
         getDataDicLeftMenuData(){//左侧菜单数据
             this.BaseRequest({
                 url: '/dictionary/selectleftDataDictionary',
@@ -449,6 +471,7 @@ export default {
                         label: item.dict_name,
                         id: item.dict_id
                     })
+                    this.listlalla.push(item.dict_id)
                 })
             })
         },
@@ -485,6 +508,7 @@ export default {
             } else {
                 dicPageNum_LLL = this.dicPageIndex_LLL;
             }
+
             this.BaseRequest({
                 url: '/dictionary/selectDataDictionary',
                 method: 'get',
@@ -494,7 +518,7 @@ export default {
                     'pageSize': 10,
                 }
             }).then((res) => {
-                console.log(res,"数据字典table 新增");
+                // console.log(res,"数据字典table 新增");
                 this.loading = true;
                 if(res){
                     this.tableDataEdit = res.dataList;
@@ -505,10 +529,11 @@ export default {
         handleNodeClick_lll (node) {
             this.dataDicDict_id = node.id;
             this.getDataDicTableDataAdd();
-            this.getDataDicTableDataEdit(this.dataDicDict_id);
+            this.getDataDicTableDataEdit();
             for(var i in node){
                 if(node[i] == node.id){
                     this.addformData_lll.datafid = node.label;
+                    this.editformData_lll.datafid = node.label;
                 }
             }
         },
@@ -547,7 +572,11 @@ export default {
         datafidBtn_edit(){//数据字典选择按钮 修改
             this.editShowModalPage_dataFid = true;
             this.itemContent = true;
-            this.treeId_Add = 1;
+            this.treeData[0].children.map((itreeItem)=>{
+              if(itreeItem.label == this.editformData_lll.datafid){
+                this.treeId_Add = itreeItem.id;
+                }
+            })
             this.$nextTick(() => {
                 this.$refs.tree.setCurrentKey(this.treeId_Add);
             })
@@ -558,18 +587,33 @@ export default {
                       'fld_id': this.typeCode,
                   }
             }).then((res) => {
-                  console.log(res,"默认选中res数据")
-                  res.map(item => {
-                      this.tableDataEdit.map((element, index) => {
-                            // console.log(element,"element")
-                            if (element.dict_content_id=== item.dict_content_id) {
-                                this.$nextTick(() => {
-                                    this.$refs.multipleTable.toggleRowSelection(element,true);
-                                })
-                            }
-                      })
-                  })
+                let resData = res;
+                this.BaseRequest({
+                    url: '/dictionary/selectDataDictionary',//数据字典右侧表格数据
+                    method: 'get',
+                    params: {
+                        'dict_id': this.treeId_Add,
+                        'currPage': 1,
+                        'pageSize': 50,
+                    }
+                }).then((data) => {
+                    if(data){
+                        this.tableDataEdit = data.dataList;
+                        let arr = [];
+                        for (let i = 0; i < resData.length; i++) {
+                            arr.push(this.tableDataEdit.find(element =>
+                            element.dict_content_id===resData[i].dict_content_id))
+                        }
+                        arr.forEach((rows, index) => {
+                              this.$nextTick(item => {
+                                  this.$refs.multipleTable.toggleRowSelection(this.tableDataEdit[index]);
+                              })
+                        })
+
+                    }
+                })
             })
+
         },
         editSubmitDataForm_dataFid(){//数据字典选择按钮 修改弹窗
             if(this.checkSelectionArry_edit.length == 0){
@@ -577,6 +621,7 @@ export default {
             }else{
                 this.editShowModalPage_dataFid = false;
             }
+
         },
         addUnitconfig_lll () {//三级新增
             this.addShowModalPage_lll = true;
@@ -618,7 +663,7 @@ export default {
             }
         },
         openEditModal_lll(row) {//三级编辑
-            // console.log(row,"oo")
+            this.test();
             this.editShowModalPage_lll = true;
             this.typeCode = row.fld_id;
             this.editformData_lll.subfidClass = row.proj_name;
@@ -642,17 +687,18 @@ export default {
                             'fld_id': row.fld_id,
                         }
                     }).then((res) => {
-                        console.log(res,"lll")
-                        res.map(item => {//res是选中的list数据
-                            this.tableDataEdit.map((element, index) => {//this.tableDataEdit表格所有数据
-                                
-                            })
+                        res.map(item => {//res是选中的list数据dict_content_id
+                            this.testList.map(element => {
+                                if (item.dict_content_id === element.dict_content_id) {
+                                    this.editformData_lll.datafid = element.dict_name;
+                                }
+                            })
                         })
                     })
                 }
             }
         },
-        editSubmitDataForm_lll(){//三级编辑弹窗
+        editSubmitDataForm_lll(row){//三级编辑弹窗
             // console.log(this.editformData_lll)
             if (this.editformData_lll.inClaNm == "" || this.editformData_lll.dataType == "" || this.editformData_lll.isEmpoty == "" || this.editformData_lll.fld_type == "") {
                 this.$notify({
