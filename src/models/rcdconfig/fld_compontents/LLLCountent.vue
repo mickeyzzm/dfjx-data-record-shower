@@ -13,7 +13,7 @@
             border
             stripe>
             <el-table-column
-                prop="catg_id"
+                prop="fld_id"
                 width="100"
                 label="指标编码"
                 :resizable="false">
@@ -225,6 +225,7 @@
                             style="width: 100%"
                             :header-cell-style="{background:'#f6f6f7',}"
                             @selection-change="handleSelectionChange_edit"
+                            ref="multipleTable"
                             class = "searchGrid"
                             size="mini"
                             border
@@ -420,12 +421,18 @@ export default {
     watch: {
         'addformData_lll.dataType':function(val){
             if(val == 3){
-                 this.showDatafid_add = true;
+                this.showDatafid_add = true;
+            }else{
+                this.showDatafid_add = false;
             }
         },
         'editformData_lll.dataType':function(val){
             if(val == 3){
-                 this.showDatafid_edit = true;
+                this.showDatafid_edit = true;
+            }else if(val == "数据字典"){
+                this.showDatafid_edit = true;
+            }else{
+                this.showDatafid_edit = false;
             }
         }
     },
@@ -459,7 +466,7 @@ export default {
                 params: {
                     'dict_id': this.dataDicDict_id,
                     'currPage': dicPageNum_LLL,
-                    'pageSize': 10,
+                    'pageSize': 100,
                 }
             }).then((res) => {
                 // console.log(res,"数据字典table 新增");
@@ -487,7 +494,7 @@ export default {
                     'pageSize': 10,
                 }
             }).then((res) => {
-                // console.log(res,"数据字典table 新增");
+                console.log(res,"数据字典table 新增");
                 this.loading = true;
                 if(res){
                     this.tableDataEdit = res.dataList;
@@ -498,11 +505,10 @@ export default {
         handleNodeClick_lll (node) {
             this.dataDicDict_id = node.id;
             this.getDataDicTableDataAdd();
-            this.getDataDicTableDataEdit();
+            this.getDataDicTableDataEdit(this.dataDicDict_id);
             for(var i in node){
                 if(node[i] == node.id){
                     this.addformData_lll.datafid = node.label;
-                    this.editformData_lll.datafid = node.label;
                 }
             }
         },
@@ -542,10 +548,28 @@ export default {
             this.editShowModalPage_dataFid = true;
             this.itemContent = true;
             this.treeId_Add = 1;
-            this.getDataDicTableDataEdit();
-            this.$nextTick(function () {
-                this.$refs.tree.setCurrentKey(1);
-            })
+            this.$nextTick(() => {
+                this.$refs.tree.setCurrentKey(this.treeId_Add);
+            })
+            this.BaseRequest({
+                  url: '/rcdDt/updatehuixianrcddtfldctassign',
+                  method: 'get',
+                  params: {
+                      'fld_id': this.typeCode,
+                  }
+            }).then((res) => {
+                  console.log(res,"默认选中res数据")
+                  res.map(item => {
+                      this.tableDataEdit.map((element, index) => {
+                            // console.log(element,"element")
+                            if (element.dict_content_id=== item.dict_content_id) {
+                                this.$nextTick(() => {
+                                    this.$refs.multipleTable.toggleRowSelection(element,true);
+                                })
+                            }
+                      })
+                  })
+            })
         },
         editSubmitDataForm_dataFid(){//数据字典选择按钮 修改弹窗
             if(this.checkSelectionArry_edit.length == 0){
@@ -583,6 +607,7 @@ export default {
                         'dict_content_id': this.addformData_lll.datafidArry.join(","),
                     }
                 }).then((res) => {
+                  console.log(res,"LLL")
                     if(res == "success"){
                         this.Message.success('保存成功');
                         this.$emit("getTableData_LLL");
@@ -610,9 +635,21 @@ export default {
             }else if(row.fld_data_type == 3){
                 this.editformData_lll.dataType = "数据字典";
                 if(this.editformData_lll.dataType == "数据字典"){
-                    this.showDatafid_edit = true;
+                    this.BaseRequest({
+                        url: '/rcdDt/updatehuixianrcddtfldctassign',
+                        method: 'get',
+                        params: {
+                            'fld_id': row.fld_id,
+                        }
+                    }).then((res) => {
+                        console.log(res,"lll")
+                        res.map(item => {//res是选中的list数据
+                            this.tableDataEdit.map((element, index) => {//this.tableDataEdit表格所有数据
+                                
+                            })
+                        })
+                    })
                 }
-                // this.editformData_lll.datafid = false;
             }
         },
         editSubmitDataForm_lll(){//三级编辑弹窗
@@ -650,7 +687,7 @@ export default {
                     method: 'get',
                     params: {
                         'fld_id': this.typeCode,
-                        'catg_id': this.catg_id,
+                        'catg_id': "3",
                         'fld_name': this.editformData_lll.inClaNm,
                         'fld_data_type': this.editformData_lll.dataType,
                         'fld_is_null': this.editformData_lll.isEmpoty,

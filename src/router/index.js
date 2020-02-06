@@ -59,6 +59,11 @@ const routes = [
             component: () => import('@/models/sys/role/roleMain')
           },
           {
+            name: 'didi',
+            path: '/rcdconfig/didi',
+            component: () => import('@/models/rcdconfig/didi')//填报指标体系
+          },
+          {
             name: 'fldconfig',
             path: '/rcdconfig/fldconfig',
             component: () => import('@/models/rcdconfig/fldconfig')//填报指标体系
@@ -81,12 +86,12 @@ const routes = [
           {
             name: 'rcdusercg',
             path: '/rcdjobconfig/rcdusercg',
-            component: () => import('@/models/rcdjobconfig/rcdusercg')//填报人维护 
+            component: () => import('@/models/rcdjobconfig/rcdusercg')//填报人维护
           },
           {
             name: 'rcdnotice',
             path: '/rcdjobconfig/rcdnotice',
-            component: () => import('@/models/rcdjobconfig/rcdnotice')//填报提醒维护 
+            component: () => import('@/models/rcdjobconfig/rcdnotice')//填报提醒维护
           },
           {
             name: 'datareport',
@@ -113,12 +118,12 @@ const routes = [
           {
             name: 'submitAUmanager',
             path: '/record/submitAUmanager',
-            component: () => import('@/models/record/submitAUmanager')//机构管理 
+            component: () => import('@/models/record/submitAUmanager')//机构管理
           },
           {
             name: 'administrative',
             path: '/record/administrative',
-            component: () => import('@/models/record/administrative')//行政机构管理 
+            component: () => import('@/models/record/administrative')//行政机构管理
           }
         ]
       }

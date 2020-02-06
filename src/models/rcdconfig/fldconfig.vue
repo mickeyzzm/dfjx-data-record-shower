@@ -61,11 +61,11 @@
               //     }
               // ],
               flgTreeData: [
-                {
-                  label: '指标体系',
-                  id:0,
-                  children: []
-                }
+                // {
+                //   label: '指标体系',
+                //   id:0,
+                //   children: []
+                // }
               ],
               activeRcdt: [],
               tableData0: [],
@@ -108,14 +108,15 @@
       methods: {
           // 关联指标一级菜单
           leftrcddtMenuSt () {
-              this.flgTreeData[0].children = [];
+              // this.flgTreeData[0].children = [];
               this.BaseRequest({
                   url: '/rcdDt/leftrcddtproj',
                   method: 'get'
               }).then(data => {
+                // console.log(data,"人11")
                   if (data.length > 0) {
                   data.map(item => {
-                      this.flgTreeData[0].children.push({
+                      this.flgTreeData.push({
                         label: item.proj_name,
                         proj_id: item.proj_id,
                         disabled: true,
@@ -134,6 +135,7 @@
                   method: 'get',
                   params: {proj_id: projId}
               }).then(data => {
+                // console.log(data,"22")
                   if (data.length > 0) {
                   this.flgTreeData.map(item => {
                       if (item.proj_id === projId) {
@@ -159,6 +161,7 @@
                   method: 'get',
                   params: {catg_id: catgId}
               }).then(data => {
+                // console.log(data,"333")
                   if (data.length > 0) {
                   this.flgTreeData.map(item => {
                       if (item.children.length > 0) {
