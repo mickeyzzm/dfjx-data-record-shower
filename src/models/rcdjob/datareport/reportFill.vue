@@ -192,7 +192,7 @@
       // },
       //2019 04 26修改 应客户要求，去掉步骤逻辑，用户可随意点选任意填报步骤。
       stepClick(clickObj,unitNum){
-        const active_unit = this.unitEntities[unitNum].unit_id
+        const active_unit = this.unitEntities[unitNum].job_unit_id
         this.currUnitId = active_unit
         this.activeStepNum = unitNum
         // this.selectActiveStep(active_unit,true,'N')

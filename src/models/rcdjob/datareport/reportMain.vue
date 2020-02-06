@@ -1,5 +1,5 @@
 <template>
-  <div class="main">
+  <WorkMain :headerItems="['报送管理','报表管理']">
 
     <el-table
       :data="reportDataList"
@@ -8,6 +8,7 @@
       border
       stripe>
       <el-table-column prop="report_id"   label="填报编号" :resizable="false"></el-table-column>
+      <el-table-column prop="job_name"   label="任务名称" :resizable="false"></el-table-column>
       <el-table-column prop="record_origin_id"   label="所属机构" :resizable="false"></el-table-column>
       <el-table-column prop="record_user_id"   label="填报人" :resizable="false"></el-table-column>
       <el-table-column prop="record_status_cn"   label="填报状态" :resizable="false"></el-table-column>
@@ -18,11 +19,13 @@
         </template>
       </el-table-column>
     </el-table>
-  </div>
+  </WorkMain>
 
 </template>
 
 <script>
+  import WorkMain from "@/models/public/WorkMain"
+
   export default {
     name: "datareportMainPage",
     data () {
@@ -32,6 +35,9 @@
         currPageNum:1,
         totalPage:1
       }
+    },
+    components: {
+      WorkMain
     },
     methods: {
       getTableData(pageNum){
