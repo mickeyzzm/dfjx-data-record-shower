@@ -15,10 +15,11 @@
             <LCountent @getMenuData_Add_L="leftrcddtMenuSt" @getMenuData_edit_L="leftrcddtMenuSt"></LCountent>
         </div>
         <div v-show="itemContent_ll">
-            <LLCountent :tableData_ll = "tableData_ll"  :proj_id = "proj_id" @getMenuData_Add_LL="leftrcddtMenuNd" @getMenuData_edit_LL="leftrcddtMenuNd" @getTableData_LL="getTableData_LL" :pageIndex_LL = "pageIndex_LL" :pageSize_LL = "pageSize_LL" :totalPage_LL = "totalPage_LL" :page_res_LL = "page_res_LL" @currentChangeHandle_LL="currentChangeHandle_LL"></LLCountent>
+            <LLCountent :tableData_ll = "tableData_ll"  :proj_id = "proj_id" :nodeLabel="nodeLabel" @getMenuData_Add_LL="leftrcddtMenuNd" @getMenuData_edit_LL="leftrcddtMenuNd" @getTableData_LL="getTableData_LL" :pageIndex_LL = "pageIndex_LL" :pageSize_LL = "pageSize_LL" :totalPage_LL = "totalPage_LL" :page_res_LL = "page_res_LL" @currentChangeHandle_LL="currentChangeHandle_LL"></LLCountent>
         </div>
         <div v-show="itemContent_lll">
-            <LLLCountent :tableData_lll = "tableData_lll" :catg_id = "catg_id" @getMenuData_Add_LLL="leftrcddtMenuRd" @getMenuData_edit_LLL="leftrcddtMenuRd" @getTableData_LLL="getTableData_LLL" :pageIndex_LLL = "pageIndex_LLL" :pageSize_LLL = "pageSize_LLL" :totalPage_LLL = "totalPage_LLL" :page_res_LLL = "page_res_LLL" @currentChangeHandle_LLL="currentChangeHandle_LLL"></LLLCountent>
+            <!-- <LLLCountent :tableData_lll = "tableData_lll" :catg_id = "catg_id" :nodeLabel="nodeLabel" @getMenuData_Add_LLL="leftrcddtMenuRd" @getMenuData_edit_LLL="leftrcddtMenuRd" @getTableData_LLL="getTableData_LLL" :pageIndex_LLL = "pageIndex_LLL" :pageSize_LLL = "pageSize_LLL" :totalPage_LLL = "totalPage_LLL" :page_res_LLL = "page_res_LLL" @currentChangeHandle_LLL="currentChangeHandle_LLL"></LLLCountent> -->
+            <LLLCountent :tableData_lll = "tableData_lll" :catg_id = "catg_id" :nodeLabel="nodeLabel"  @getTableData_LLL="getTableData_LLL" :pageIndex_LLL = "pageIndex_LLL" :pageSize_LLL = "pageSize_LLL" :totalPage_LLL = "totalPage_LLL" :page_res_LLL = "page_res_LLL" @currentChangeHandle_LLL="currentChangeHandle_LLL"></LLLCountent>
         </div>
     </el-main>
   </el-container>
@@ -90,6 +91,7 @@
               ],
               proj_id:"",
               catg_id:"",
+              nodeLabel:"",
               loading:false,
           }
       },
@@ -241,6 +243,7 @@
               console.log(node,"node")
               this.proj_id = node.proj_id;
               this.catg_id = node.catg_id;
+               this.nodeLabel = node.label;
               if(node.id == 0){
                   this.boxContent_l = true;
                   this.itemContent_ll = false;

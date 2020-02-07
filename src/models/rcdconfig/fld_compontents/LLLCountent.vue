@@ -271,6 +271,9 @@ export default {
         catg_id:{
           catg_id:String,default:"",
         },
+        nodeLabel:{
+          nodeLabel:String,default:"",
+        },
         pageIndex_LLL:{
           pageIndex_LLL:String,default:1,
         },
@@ -390,23 +393,23 @@ export default {
             datafidShowModalPage:false,
             addformData_lll: {
                 subfidClass: "",
-                inClass : "",
-                inClaNm : "",
-                dataType : "",
-                isEmpoty : "",
+                inClass:"",
+                inClaNm:"",
+                dataType:"",
+                isEmpoty:"",
                 fld_type:"",
-                datafid: "",
-                datafidArry: [],
+                datafid:"",
+                datafidArry:[],
             },
             editformData_lll: {
-                subfidClass: "",
-                inClass : "",
-                inClaNm : "",
-                dataType : "",
-                isEmpoty : "",
+                subfidClass:"",
+                inClass:"",
+                inClaNm:"",
+                dataType:"",
+                isEmpoty:"",
                 fld_type:"",
-                datafid: "",
-                datafidArry: [],
+                datafid:"",
+                datafidArry:[],
             },
             treeId_Add: 1,
             multipleSelection_add: [],
@@ -626,8 +629,8 @@ export default {
         },
         addUnitconfig_lll () {//三级新增
             this.addShowModalPage_lll = true;
-            this.addformData_lll.subfidClass = this.tableData_lll[0].proj_name;
-            this.addformData_lll.inClass = this.tableData_lll[0].catg_name;
+            this.addformData_lll.inClass = this.nodeLabel;//指标类别
+            this.addformData_lll.subfidClass = this.tableData_lll[0].proj_name;//指标基本类别
         },
         addSubmitDataForm_lll() {//三级新增弹窗
             if (this.addformData_lll.inClaNm == "" || this.addformData_lll.dataType == "" || this.addformData_lll.isEmpoty == "" || this.addformData_lll.fld_type == "") {
@@ -657,7 +660,7 @@ export default {
                     if(res == "success"){
                         this.Message.success('保存成功');
                         this.$emit("getTableData_LLL");
-                        this.$emit("getMenuData_Add_LLL");
+                        // this.$emit("getMenuData_Add_LLL");
                         this.closeModal();
                     }
                 })
@@ -719,14 +722,6 @@ export default {
                     this.editformData_lll.dataType = this.dataTypes[2].id;
                 }else if( this.editformData_lll.dataType == "数据字典"){
                     this.editformData_lll.dataType = this.dataTypes[3].id;
-                }else if( this.editformData_lll.isEmpoty == "否"){
-                    this.editformData_lll.isEmpoty = this.isEmpoty[0].id;
-                }else if( this.editformData_lll.isEmpoty == "是"){
-                    this.editformData_lll.isEmpoty =  this.isEmpoty[1].id;
-                }else if( this.editformData_lll.fld_type == "通用指标"){
-                    this.editformData_lll.fld_type = this.fld_types[0].id;
-                }else if( this.editformData_lll.fld_type == "突发指标"){
-                    this.editformData_lll.fld_type = this.fld_types[1].id;
                 }
                 this.BaseRequest({
                     url: '/rcdDt/updatercddtfld',
@@ -736,15 +731,15 @@ export default {
                         'catg_id': "3",
                         'fld_name': this.editformData_lll.inClaNm,
                         'fld_data_type': this.editformData_lll.dataType,
-                        'fld_is_null': this.editformData_lll.isEmpoty,
-                        'fld_type':this.editformData_lll.fld_type,
+                        'fld_is_null': this.editformData_lll.isEmpoty=="否"?"0":"1",
+                        'fld_type':this.editformData_lll.fld_type=="通用指标"?"0":"1",
                         'dict_content_id': this.editformData_lll.datafidArry.join(","),
                     }
                 }).then((res) => {
                     if(res == "success"){
                         this.Message.success('修改成功');
                         this.$emit("getTableData_LLL");
-                        this.$emit("getMenuData_edit_LLL");
+                        // this.$emit("getMenuData_edit_LLL");
                         this.editShowModalPage_lll = false;
                     }
                 })
