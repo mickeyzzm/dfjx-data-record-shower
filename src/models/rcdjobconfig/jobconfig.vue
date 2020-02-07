@@ -19,19 +19,24 @@
       <el-table-column prop="job_name" label="填报任务名称" :resizable="false"></el-table-column>
       <el-table-column label="填报状态" :resizable="false">
         <template slot-scope="scope">
-          <span v-if="scope.row.job_status === 0">编辑中</span>
-          <span v-else-if="scope.row.job_status === 1">已发布</span>
+          <span v-if="scope.row.job_status === 0">正常</span>
+          <span v-else-if="scope.row.job_status === 1">失效</span>
+          <span v-else-if="scope.row.job_status === 2">锁定</span>
+          <span v-else-if="scope.row.job_status === 3">软删除</span>
+          <span v-else-if="scope.row.job_status === 4">已发布</span>
+          <span v-else-if="scope.row.job_status === 5">发布中</span>
         </template>
       </el-table-column>
       <el-table-column prop="job_start_dt" column-key="date" label="填报开始时间" :resizable="false"></el-table-column>
       <el-table-column prop="job_end_dt" column-key="date" label="填报结束时间" :resizable="false"></el-table-column>
       <el-table-column label="操作" width="500" :resizable="false">
         <template slot-scope="scope">
-          <el-button type="text" @click="editJobconfig(scope.row)" size="mini">编辑</el-button>
-          <el-button type="text" @click="unitconfig(scope.row)" size="mini">填报组维护</el-button>
-          <el-button type="text" @click="rcdusercg(scope.row)" size="mini">填报人维护</el-button>
-          <el-button type="text" @click="makeJob(scope.row)" size="mini">任务下发</el-button>
-          <el-button type="text" @click="detailJobconfig(scope.row)" size="mini">查看</el-button>
+          <el-button type="text" v-if="scope.row.job_status === 0" @click="editJobconfig(scope.row)" size="mini">编辑</el-button>
+          <el-button type="text" v-if="scope.row.job_status === 0" @click="unitconfig(scope.row)" size="mini">填报组维护</el-button>
+          <el-button type="text" v-if="scope.row.job_status === 0" @click="rcdusercg(scope.row)" size="mini">填报人维护</el-button>
+          <el-button type="text" v-if="scope.row.job_status === 0" @click="makeJob(scope.row)" size="mini">任务下发</el-button>
+          <el-button type="text" v-if="scope.row.job_status === 4" @click="detailJobconfig(scope.row)" size="mini">查看</el-button>
+          <el-button type="text" v-else-if="scope.row.job_status === 5" @click="detailJobconfig(scope.row)" size="mini">查看</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -98,7 +103,7 @@
           stripe>
           <el-table-column type="selection"></el-table-column>
           <el-table-column prop="user_id" width="130" label="填报人id" :resizable="false"></el-table-column>
-          <el-table-column prop="user_name" label="填报人名称" :resizable="false"></el-table-column>
+          <el-table-column prop="user_name_cn" label="填报人名称" :resizable="false"></el-table-column>
         </el-table>
         <div style="margin-top:30px;text-align:right;">
           <el-button type="primary" @click="rcdusercgDialog = false">取消</el-button>
@@ -161,9 +166,9 @@ export default {
       },
       jobNm: '',
       options: [
-        { name: '已下发', value: 0 },
-        { name: '编辑中', value: 1 },
-        { name: '审批中', value: 2 }
+        { name: '已下发', value: 4 },
+        { name: '编辑中', value: 0 },
+        { name: '审批中', value: 5 }
       ],
       jobStatus: '',
       tableData: [],
@@ -211,7 +216,6 @@ export default {
           job_status: this.jobStatus
         }
       }).then(data => {
-        console.log(data)
         this.tableData = data.dataList
         this.pagination.total = data.dataList.length
       })
