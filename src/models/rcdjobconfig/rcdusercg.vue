@@ -33,7 +33,7 @@
     ></el-pagination>
     <!-- 新增填报人弹窗 -->
     <el-dialog
-      title="新增填报人"
+      :title="title + '填报人'"
       :visible.sync="dialogVisible "
       :close-on-click-modal="false"
       @opened="opened"
@@ -99,7 +99,8 @@ export default {
       currentNode: '',
       userid: [],
       active: [],
-      currentRow: {}
+      currentRow: {},
+      title: ''
     }
   },
   methods: {
@@ -127,6 +128,7 @@ export default {
     },
     insertUser () {
       this.dialogVisible = true
+      this.title = '新增'
       this.$refs.multipleTable.clearSelection()
     },
     // 提交新增填报人
@@ -175,16 +177,18 @@ export default {
     },
     // 点击节点获取对应表
     useroriginassignlist (node) {
-      this.BaseRequest({
-        url: '/reporting/useroriginassignlist',
-        method: 'get',
-        params: {origin_id: node.id}
-      }).then(data => {
-        if (data.length > 0) {
-          this.currentNode = node.id
-          this.rcdusercgTable = data
-        }
-      })
+      if (node.children.length === 0) {
+        this.BaseRequest({
+          url: '/reporting/useroriginassignlist',
+          method: 'get',
+          params: {origin_id: node.id}
+        }).then(data => {
+          if (data.length > 0) {
+            this.currentNode = node.id
+            this.rcdusercgTable = data
+          }
+        })
+      }
     },
     // 删除
     deleteUser (row) {
@@ -216,6 +220,7 @@ export default {
     editUser (row) {
       this.currentRow = row
       this.dialogVisible = true
+      this.title = '修改'
       this.BaseRequest({
         url: '/reporting/useroriginassignlist',
         method: 'get',

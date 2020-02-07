@@ -30,7 +30,7 @@
           <el-button type="text" @click="editJobconfig(scope.row)" size="mini">编辑</el-button>
           <el-button type="text" @click="unitconfig(scope.row)" size="mini">填报组维护</el-button>
           <el-button type="text" @click="rcdusercg(scope.row)" size="mini">填报人维护</el-button>
-          <el-button type="text" size="mini">任务下发</el-button>
+          <el-button type="text" @click="makeJob(scope.row)" size="mini">任务下发</el-button>
           <el-button type="text" @click="detailJobconfig(scope.row)" size="mini">查看</el-button>
         </template>
       </el-table-column>
@@ -170,32 +170,6 @@ export default {
       unitconfigDialog: false,
       rcdusercgDialog: false,
       jobconfigDialog: false,
-      table: [
-        {
-          unitconfigNm: '一年级在读学生信息',
-          unitconfigState: 1
-        },
-        {
-          unitconfigNm: '二年级在读学生信息',
-          unitconfigState: 1
-        },
-        {
-          unitconfigNm: '三年级在读学生信息',
-          unitconfigState: 1
-        },
-        {
-          unitconfigNm: '四年级在读学生信息',
-          unitconfigState: 1
-        },
-        {
-          unitconfigNm: '五年级在读学生信息',
-          unitconfigState: 1
-        },
-        {
-          unitconfigNm: '六年级在读学生信息',
-          unitconfigState: 1
-        }
-      ],
       transferTable: [],
       value: [],
       ary1: [],
@@ -237,6 +211,7 @@ export default {
           job_status: this.jobStatus
         }
       }).then(data => {
+        console.log(data)
         this.tableData = data.dataList
         this.pagination.total = data.dataList.length
       })
@@ -470,6 +445,30 @@ export default {
     // 选择用户改变
     handlecheck (value) {
       this.currentData = value
+    },
+    // 任务下发
+    makeJob (row) {
+      this.$confirm('确认要下发该任务吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        closeOnClickModal: false,
+        type: 'warning'
+      }).then(() => {
+        this.BaseRequest({
+          url: 'record/process/makeJob',
+          method: 'get',
+          params: {jobId: row.job_id}
+        }).then(data => {  
+          if (data == 'SUCCESS') {
+            this.$message.success('任务发布成功')
+            this.rcdjobconfigList()
+          } else {
+            this.$message.error('任务发布失败')
+          }   
+        })
+      }).catch(() => {
+        return false
+      })
     },
     // 页数改变
     handleSizeChange (val) {
