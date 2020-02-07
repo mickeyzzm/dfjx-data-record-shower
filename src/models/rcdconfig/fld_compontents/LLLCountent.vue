@@ -473,6 +473,7 @@ export default {
                     })
                     this.listlalla.push(item.dict_id)
                 })
+                 this.test();
             })
         },
         getDataDicTableDataAdd(dicPageNum_LLL){//三级菜单 新增 数据字典table数据
@@ -663,7 +664,6 @@ export default {
             }
         },
         openEditModal_lll(row) {//三级编辑
-            this.test();
             this.editShowModalPage_lll = true;
             this.typeCode = row.fld_id;
             this.editformData_lll.subfidClass = row.proj_name;

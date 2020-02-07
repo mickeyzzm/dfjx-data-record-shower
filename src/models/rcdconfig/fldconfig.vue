@@ -53,18 +53,11 @@
                   }
               ],
               treeId: 1,
-              // treeData: [
-              //     {
-              //         label: '指标体系',
-              //         fld_id:0,
-              //         children: []
-              //     }
-              // ],
               flgTreeData: [
                 // {
-                //   label: '指标体系',
-                //   id:0,
-                //   children: []
+                  // label: '指标体系',
+                  // id:0,
+                  // children: []
                 // }
               ],
               activeRcdt: [],
@@ -113,7 +106,7 @@
                   url: '/rcdDt/leftrcddtproj',
                   method: 'get'
               }).then(data => {
-                // console.log(data,"人11")
+                  // console.log(data,"leftrcddtproj")
                   if (data.length > 0) {
                   data.map(item => {
                       this.flgTreeData.push({
@@ -135,7 +128,7 @@
                   method: 'get',
                   params: {proj_id: projId}
               }).then(data => {
-                // console.log(data,"22")
+                // console.log(data,"leftrcddtcatg")
                   if (data.length > 0) {
                   this.flgTreeData.map(item => {
                       if (item.proj_id === projId) {
@@ -145,7 +138,7 @@
                           item.children.push({
                           label: element.catg_name,
                           catg_id: element.catg_id,
-                          children: []
+                          // children: []
                           })
                       })
                       }
@@ -161,7 +154,7 @@
                   method: 'get',
                   params: {catg_id: catgId}
               }).then(data => {
-                // console.log(data,"333")
+                // console.log(data,"leftrcddtfld")
                   if (data.length > 0) {
                   this.flgTreeData.map(item => {
                       if (item.children.length > 0) {
@@ -265,19 +258,11 @@
               }
           },
           currentChangeHandle_LL(val){
-              if(!this.page_res_LL[this.pageIndex_LL]){
-                this.page_res_LL[this.pageIndex_LL] = this.tableData_ll;
-              }
               this.pageIndex_LL = val;
-              // 获取table数据
               this.getTableData_LL(val);
           },
           currentChangeHandle_LLL(val){
-              if(!this.page_res_LLL[this.pageIndex_LLL]){
-                this.page_res_LLL[this.pageIndex_LLL] = this.tableData_lll;
-              }
               this.pageIndex_LLL = val;
-              // 获取table数据
               this.getTableData_LLL(val);
           },
       },

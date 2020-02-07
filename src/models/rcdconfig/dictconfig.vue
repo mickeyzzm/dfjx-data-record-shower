@@ -11,6 +11,7 @@
       ></el-tree>
     </el-aside>
     <el-main>
+      <!-- 第一级菜单 -->
         <div v-show="boxContent">
             <div style="text-align:left;margin-bottom:10px">
             <el-button @click="addUnitconfigBox" size="mini" type="primary">新增字典</el-button>
@@ -24,19 +25,19 @@
                 size="mini"
                 border
                 stripe>
-                <el-table-column 
+                <el-table-column
                     prop="dict_id"
-                    width="100" 
-                    label="字典编号" 
+                    width="100"
+                    label="字典编号"
                     :resizable="false">
                 </el-table-column>
-                <el-table-column 
+                <el-table-column
                     prop="dict_name"
-                    label="字典名称" 
+                    label="字典名称"
                     :resizable="false">
                 </el-table-column>
-                <el-table-column 
-                    label="操作" 
+                <el-table-column
+                    label="操作"
                     :resizable="false">
                     <template slot-scope="scope">
                         <el-button size="mini" type="text" @click="openEditModalBox(scope.row)">编辑</el-button>
@@ -52,6 +53,7 @@
                 layout="total, prev, pager, next, jumper">
             </el-pagination>
         </div>
+        <!-- 第二级菜单 -->
         <div v-show="itemContent">
             <div style="text-align:left;margin-bottom:10px">
             <el-button @click="addUnitconfig" size="mini" type="primary">新增字典内容</el-button>
@@ -65,29 +67,29 @@
                 size="mini"
                 border
                 stripe>
-                <el-table-column 
+                <el-table-column
                     prop="dict_content_id"
-                    width="100" 
-                    label="字典内容编号" 
+                    width="100"
+                    label="字典内容编号"
                     :resizable="false">
                 </el-table-column>
-                <el-table-column 
+                <el-table-column
                     prop="dict_content_name"
-                    label="字典内容名称" 
+                    label="字典内容名称"
                     :resizable="false">
                 </el-table-column>
-                <el-table-column 
+                <el-table-column
                     prop="dict_content_value"
-                    label="字典内容值" 
+                    label="字典内容值"
                     :resizable="false">
                 </el-table-column>
-                <el-table-column 
+                <el-table-column
                     prop="dict_name"
-                    label="所属字典" 
+                    label="所属字典"
                     :resizable="false">
                 </el-table-column>
-                <el-table-column 
-                    label="操作" 
+                <el-table-column
+                    label="操作"
                     :resizable="false">
                     <template slot-scope="scope">
                         <el-button size="mini" type="text" @click="openEditModal(scope.row)">编辑</el-button>
@@ -139,7 +141,7 @@
             <el-form-item size="mini" label="字典内容值：">
               <el-input style="width:50%" v-model="addformData.dicConValue" placeholder="请输入字典内容值"></el-input>
             </el-form-item>
-            
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="closeModal">取 消</el-button>
@@ -187,7 +189,7 @@ export default {
             addShowModalPageBox:false,
             editShowModalPageBox:false,
             treeData: [
-                { 
+                {
                     label: '数据字典',
                     id:0,
                     children: []
@@ -215,6 +217,7 @@ export default {
             dict_id:"",
             dict_content_id:"",
             editformDataBoxDict_id:"",
+            nodeLL:[],
         }
     },
     methods: {
@@ -266,13 +269,13 @@ export default {
               this.loading = false;
             })
         },
-        getTableData_LL(pageNum_LL,dict_id){//二级table数据
+        getTableData_LL(pageNum_LL){//二级table数据
             this.itemContent = true;
             this.boxContent = false;
             this.tableData = [];
-            if(!dict_id){
-                dict_id = "";
-            }
+            // if(!dict_id){
+            //     dict_id = "1";
+            // }
             if (pageNum_LL && pageNum_LL !== '') {
                 this.pageIndex_LL = pageNum_LL;
             } else {
@@ -284,16 +287,17 @@ export default {
                 params: {
                     'currPage': pageNum_LL,
                     'pageSize': 10,
-                    'dict_id': dict_id,
+                    'dict_id': this.dict_id,
                 }
             }).then((response) => {
+              console.log(response,"response")
                 this.loading = true;
                 if (response) {
-                  if(this.page_res_LL[this.pageIndex_LL]){
-                      this.tableData = this.page_res_LL[this.pageIndex_LL];
-                  }else {
+                  // if(this.page_res_LL[this.pageIndex_LL]){
+                  //     this.tableData = this.page_res_LL[this.pageIndex_LL];
+                  // }else {
                       this.tableData = response.dataList;
-                  }
+                  // }
                   this.totalPage_LL = response.totalNum;
                   this.pageIndex_LL = response.currPage;
               } else {
@@ -304,11 +308,10 @@ export default {
             })
         },
         currentChangeHandle_L (val) { // 一级当前页
-            if(!this.page_res_L[this.pageIndex_L]){
-               this.page_res_L[this.pageIndex_L] = this.tableData0;
-            }
+            // if(!this.page_res_L[this.pageIndex_L]){
+            //    this.page_res_L[this.pageIndex_L] = this.tableData0;
+            // }
             this.pageIndex_L = val;
-            // 获取table数据
             this.getTableData_L(val);
         },
         currentChangeHandle_LL (val) { //二级当前页
@@ -317,10 +320,12 @@ export default {
             // }
             this.pageIndex_LL = val;
             // 获取table数据
-            this.getTableData_LL(val,this.dict_id);
+            this.getTableData_LL(val);
         },
         handleNodeClick (node) {// 点击节点
             this.dict_id = node.id;
+            this.nodeLL = node;
+            // console.log(node,"node")
             if (node.id == 0) {
                 this.getTableData_L();
             } else if(node.id != 0 ){
@@ -343,7 +348,7 @@ export default {
         addSubmitDataFormBox () {//一级新增弹窗
             if (this.addformDataBox.dicNm == "" ) {
                 this.$notify({
-                    dangerouslyUseHTMLString: true,       
+                    dangerouslyUseHTMLString: true,
                     message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>字典名称'
                 })
             }else{
@@ -368,15 +373,15 @@ export default {
             this.editformDataBox.dicNm = row.dict_name;
             this.editformDataBoxDict_id = row.dict_id;
         },
-        editSubmitDataFormBox() {//一级编辑弹窗 
+        editSubmitDataFormBox() {//一级编辑弹窗
             if (this.editformDataBox.dicNm == "" ) {
                 this.$notify({
-                    dangerouslyUseHTMLString: true,       
+                    dangerouslyUseHTMLString: true,
                     message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>字典名称'
                 })
             }else{
                 this.BaseRequest({
-                    url: '/dictionary/updateDataDictionarybydictid',   
+                    url: '/dictionary/updateDataDictionarybydictid',
                     method: 'get',
                     params: {
                         'dict_id': this.editformDataBoxDict_id,
@@ -393,12 +398,13 @@ export default {
         },
         addUnitconfig () {//二级新增
             this.addShowModalPage = true;
-            this.addformData.subDic = this.tableData[0].dict_name;
+            this.addformData.subDic = this.nodeLL.label;
         },
         addSubmitDataForm() {//二级新增弹窗
+
             if (this.addformData.dicConNm == "" || this.addformData.dicConValue == "") {
                 this.$notify({
-                    dangerouslyUseHTMLString: true,       
+                    dangerouslyUseHTMLString: true,
                     message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>字典内容名称、字典内容值'
                 })
             }else{
@@ -426,10 +432,10 @@ export default {
             this.editformData.dicConNm = row.dict_content_name;
             this.editformData.dicConValue = row.dict_content_value;
         },
-        editSubmitDataForm() {//二级编辑弹窗 
+        editSubmitDataForm() {//二级编辑弹窗
             if (this.editformData.dicConNm == "" || this.editformData.dicConValue == "") {
                 this.$notify({
-                    dangerouslyUseHTMLString: true,       
+                    dangerouslyUseHTMLString: true,
                     message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>字典内容名称、字典内容值'
                 })
             }else{
