@@ -1,11 +1,12 @@
 <template>
   <div class="main">
     <div class="query">
-      <el-input v-model="jobNm" clearable size="mini" placeholder="请输入任务名称"></el-input>
-      <el-select v-model="jobStatus" clearable size="mini" placeholder="请选择任务状态">
+      <el-input v-model="jobNm" size="mini" placeholder="请输入任务名称"></el-input>
+      <el-select v-model="jobStatus" size="mini" placeholder="请选择任务状态">
         <el-option v-for="item in options" :key="item.value" :label="item.name" :value="item.value"></el-option>
       </el-select>
       <el-button type="primary" @click="rcdjobconfigList">查询</el-button>
+      <el-button type="primary" @click="clearOption">清空选项</el-button>
       <el-button type="primary" @click="addJobconfig">新增任务</el-button>
     </div>
     <el-table
@@ -219,6 +220,11 @@ export default {
         this.tableData = data.dataList
         this.pagination.total = data.dataList.length
       })
+    },
+    clearOption () {
+      this.jobNm = ''
+      this.jobStatus = ''
+      this.rcdjobconfigList()
     },
     // 新增任务
     addJobconfig () {
