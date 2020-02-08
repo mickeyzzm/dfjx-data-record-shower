@@ -14,7 +14,7 @@
     stripe>
       <el-table-column prop="user_id" width="100" label="填报人编号" :resizable="false"></el-table-column>
       <el-table-column prop="origin_name" label="填报人所属机构" :resizable="false"></el-table-column>
-      <el-table-column prop="user_name" label="填报人姓名" :resizable="false"></el-table-column>
+      <el-table-column prop="user_name_cn" label="填报人姓名" :resizable="false"></el-table-column>
       <el-table-column label="操作" :resizable="false">
         <template slot-scope="scope">
           <el-button type="text" size="mini" @click="editUser(scope.row)">编辑</el-button>

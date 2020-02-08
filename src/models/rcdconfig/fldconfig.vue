@@ -15,10 +15,11 @@
             <LCountent @getMenuData_Add_L="leftrcddtMenuSt" @getMenuData_edit_L="leftrcddtMenuSt"></LCountent>
         </div>
         <div v-show="itemContent_ll">
-            <LLCountent :tableData_ll = "tableData_ll"  :proj_id = "proj_id" @getMenuData_Add_LL="leftrcddtMenuNd" @getMenuData_edit_LL="leftrcddtMenuNd" @getTableData_LL="getTableData_LL" :pageIndex_LL = "pageIndex_LL" :pageSize_LL = "pageSize_LL" :totalPage_LL = "totalPage_LL" :page_res_LL = "page_res_LL" @currentChangeHandle_LL="currentChangeHandle_LL"></LLCountent>
+            <LLCountent :tableData_ll = "tableData_ll"  :proj_id = "proj_id" :nodeLabel="nodeLabel" @getMenuData_Add_LL="leftrcddtMenuNd" @getMenuData_edit_LL="leftrcddtMenuNd" @getTableData_LL="getTableData_LL" :pageIndex_LL = "pageIndex_LL" :pageSize_LL = "pageSize_LL" :totalPage_LL = "totalPage_LL" :page_res_LL = "page_res_LL" @currentChangeHandle_LL="currentChangeHandle_LL"></LLCountent>
         </div>
         <div v-show="itemContent_lll">
-            <LLLCountent :tableData_lll = "tableData_lll" :catg_id = "catg_id" @getMenuData_Add_LLL="leftrcddtMenuRd" @getMenuData_edit_LLL="leftrcddtMenuRd" @getTableData_LLL="getTableData_LLL" :pageIndex_LLL = "pageIndex_LLL" :pageSize_LLL = "pageSize_LLL" :totalPage_LLL = "totalPage_LLL" :page_res_LLL = "page_res_LLL" @currentChangeHandle_LLL="currentChangeHandle_LLL"></LLLCountent>
+            <!-- <LLLCountent :tableData_lll = "tableData_lll" :catg_id = "catg_id" :nodeLabel="nodeLabel" @getMenuData_Add_LLL="leftrcddtMenuRd" @getMenuData_edit_LLL="leftrcddtMenuRd" @getTableData_LLL="getTableData_LLL" :pageIndex_LLL = "pageIndex_LLL" :pageSize_LLL = "pageSize_LLL" :totalPage_LLL = "totalPage_LLL" :page_res_LLL = "page_res_LLL" @currentChangeHandle_LLL="currentChangeHandle_LLL"></LLLCountent> -->
+            <LLLCountent :tableData_lll = "tableData_lll" :catg_id = "catg_id" :nodeLabel="nodeLabel"  @getTableData_LLL="getTableData_LLL" :pageIndex_LLL = "pageIndex_LLL" :pageSize_LLL = "pageSize_LLL" :totalPage_LLL = "totalPage_LLL" :page_res_LLL = "page_res_LLL" @currentChangeHandle_LLL="currentChangeHandle_LLL"></LLLCountent>
         </div>
     </el-main>
   </el-container>
@@ -53,18 +54,11 @@
                   }
               ],
               treeId: 1,
-              // treeData: [
-              //     {
-              //         label: '指标体系',
-              //         fld_id:0,
-              //         children: []
-              //     }
-              // ],
               flgTreeData: [
                 // {
-                //   label: '指标体系',
-                //   id:0,
-                //   children: []
+                  // label: '指标体系',
+                  // id:0,
+                  // children: []
                 // }
               ],
               activeRcdt: [],
@@ -97,6 +91,7 @@
               ],
               proj_id:"",
               catg_id:"",
+              nodeLabel:"",
               loading:false,
           }
       },
@@ -113,7 +108,7 @@
                   url: '/rcdDt/leftrcddtproj',
                   method: 'get'
               }).then(data => {
-                // console.log(data,"人11")
+                  // console.log(data,"leftrcddtproj")
                   if (data.length > 0) {
                   data.map(item => {
                       this.flgTreeData.push({
@@ -135,7 +130,7 @@
                   method: 'get',
                   params: {proj_id: projId}
               }).then(data => {
-                // console.log(data,"22")
+                // console.log(data,"leftrcddtcatg")
                   if (data.length > 0) {
                   this.flgTreeData.map(item => {
                       if (item.proj_id === projId) {
@@ -145,7 +140,7 @@
                           item.children.push({
                           label: element.catg_name,
                           catg_id: element.catg_id,
-                          children: []
+                          // children: []
                           })
                       })
                       }
@@ -161,7 +156,7 @@
                   method: 'get',
                   params: {catg_id: catgId}
               }).then(data => {
-                // console.log(data,"333")
+                // console.log(data,"leftrcddtfld")
                   if (data.length > 0) {
                   this.flgTreeData.map(item => {
                       if (item.children.length > 0) {
@@ -248,6 +243,7 @@
               console.log(node,"node")
               this.proj_id = node.proj_id;
               this.catg_id = node.catg_id;
+               this.nodeLabel = node.label;
               if(node.id == 0){
                   this.boxContent_l = true;
                   this.itemContent_ll = false;
@@ -265,19 +261,11 @@
               }
           },
           currentChangeHandle_LL(val){
-              if(!this.page_res_LL[this.pageIndex_LL]){
-                this.page_res_LL[this.pageIndex_LL] = this.tableData_ll;
-              }
               this.pageIndex_LL = val;
-              // 获取table数据
               this.getTableData_LL(val);
           },
           currentChangeHandle_LLL(val){
-              if(!this.page_res_LLL[this.pageIndex_LLL]){
-                this.page_res_LLL[this.pageIndex_LLL] = this.tableData_lll;
-              }
               this.pageIndex_LLL = val;
-              // 获取table数据
               this.getTableData_LLL(val);
           },
       },

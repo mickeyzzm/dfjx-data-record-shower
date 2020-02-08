@@ -11,24 +11,24 @@
             size="mini"
             border
             stripe>
-            <el-table-column 
+            <el-table-column
                 prop="proj_id"
-                width="100" 
-                label="指标类别编码" 
+                width="100"
+                label="指标类别编码"
                 :resizable="false">
             </el-table-column>
-            <el-table-column 
+            <el-table-column
                 prop="catg_name"
-                label="指标类别名称" 
+                label="指标类别名称"
                 :resizable="false">
             </el-table-column>
-            <el-table-column 
+            <el-table-column
                 prop="proj_name"
-                label="所属基本类别" 
+                label="所属基本类别"
                 :resizable="false">
             </el-table-column>
-            <el-table-column 
-                label="操作" 
+            <el-table-column
+                label="操作"
                 :resizable="false">
                 <template slot-scope="scope">
                     <el-button size="mini"  type="text" @click="openEditModal_ll(scope.row)">编辑</el-button>
@@ -83,6 +83,9 @@ export default {
         proj_id:{
           proj_id:String,default:"",
         },
+        nodeLabel:{
+          nodeLabel:String,default:"",
+        },
         pageIndex_LL:{
           pageIndex_LL:Number,default:1,
         },
@@ -104,7 +107,7 @@ export default {
                 subfidClass: "",
                 inClaNm: "",
             },
-            editformData_ll: {    
+            editformData_ll: {
                 subfidClass: "",
                 inClaNm: "",
             },
@@ -117,12 +120,12 @@ export default {
         },
         addUnitconfig_ll () {//二级新增
             this.addShowModalPage_ll = true;
-            this.addformData_ll.subfidClass = this.tableData_ll[0].proj_name;
+            this.addformData_ll.subfidClass = this.nodeLabel;
         },
-        addSubmitDataForm_ll() {//二级新增弹窗  
+        addSubmitDataForm_ll() {//二级新增弹窗
             if (this.addformData_ll.inClaNm == "") {
                 this.$notify({
-                    dangerouslyUseHTMLString: true,    
+                    dangerouslyUseHTMLString: true,
                     message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>指标类别名称'
                 })
             }else{
@@ -149,10 +152,10 @@ export default {
             this.editformData_ll.inClaNm = row.catg_name;
             this.typeCode = row.catg_id;
         },
-        editSubmitDataForm_ll() {//二级编辑弹窗 
+        editSubmitDataForm_ll() {//二级编辑弹窗
             if ( this.editformData_ll.inClaNm == "") {
                 this.$notify({
-                    dangerouslyUseHTMLString: true,       
+                    dangerouslyUseHTMLString: true,
                     message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>指标类别名称'
                 })
             }else{
@@ -182,7 +185,7 @@ export default {
         },
     },
     created () {
-        
+
     }
 }
 </script>
