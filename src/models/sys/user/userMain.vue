@@ -2,8 +2,12 @@
   <div>
     <el-row class="search-row" :gutter="20">
       <el-col class="align-left" :span="17">
+        <el-cascader :change-on-select="true" v-model="seachOriginList" :clearable="true"
+                     :options="cityTree">
+        </el-cascader>
+        <el-input placeholder="请输入机构名称" style="width:180px"  v-model="searchOriginName"></el-input>
         <el-input placeholder="请输入待查询用户名" style="width:180px"  v-model="seachUserId"></el-input>
-        <el-button @click="getTableData(1)" >查询</el-button>
+        <el-button @click="getTableData(1)" type="success">查询</el-button>
         <el-button @click="openAddModal" type="primary">新增</el-button>
       </el-col>
     </el-row>
@@ -23,26 +27,41 @@
           <el-table-column
             prop="user_name_cn"
             align="left"
-            label="用户姓名">
+            label="用户名称">
           </el-table-column>
           <el-table-column
-            prop="reg_date"
+            prop="origin_province"
             align="left"
-            label="注册日期">
+            label="所属省">
           </el-table-column>
           <el-table-column
-            prop="last_login_time"
+            prop="origin_city"
             align="left"
-            label="最后登入日期">
+            label="所属市">
           </el-table-column>
+          <el-table-column
+            prop="origin_name"
+            align="left"
+            label="所属机构">
+          </el-table-column>
+          <!--<el-table-column-->
+          <!--prop="reg_date"-->
+          <!--align="left"-->
+          <!--label="注册日期">-->
+          <!--</el-table-column>-->
+          <!--<el-table-column-->
+          <!--prop="last_login_time"-->
+          <!--align="left"-->
+          <!--label="最后登入日期">-->
+          <!--</el-table-column>-->
           <el-table-column
             label="操作"
             align="center">
             <template slot-scope="scope">
-              <el-button type="text" @click="openEditModal(scope.row)" size="mini">编辑</el-button>
-              <el-button type="text" @click="openAuthModal(scope.row)" size="mini">权限</el-button>
-              <el-button type="text" @click="resetPwd(scope.row)" size="mini">重置密码</el-button>
-              <el-button type="text" @click="delUser(scope.row)" size="mini">删除</el-button>
+              <el-button type="text" @click="openEditModal(scope.row)" size="small">编辑</el-button>
+              <el-button type="text" @click="openAuthModal(scope.row)" size="small">权限</el-button>
+              <el-button type="text" @click="resetPwd(scope.row)" size="small">重置密码</el-button>
+              <el-button type="text" @click="delUser(scope.row)" size="small">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -56,26 +75,24 @@
 
     <!-- 新增、编辑 弹窗-->
     <el-dialog :title="modalPageTitle" :visible.sync="showModalPage" >
-      <el-form  class="modal-form" label-position="left" label-width="20%" :model="formData">
+      <el-form  class="modal-form" :label-position="left" label-width="20%" :model="formData">
         <!--
-        <el-form-item :size="mini" label="用户登陆名" >
+        <el-form-item :size="small" label="用户登陆名" >
           <el-input   auto-complete="off" ></el-input>
         </el-form-item>
         -->
-        <el-form-item size="mini" label="用户名称" >
+        <el-form-item :size="small" label="用户名称" >
           <el-input v-model="formData.user_name" auto-complete="off" ></el-input>
         </el-form-item>
 
-        <el-form-item size="mini" label="用户类型" >
+        <el-form-item :size="small" label="用户类型" >
           <el-select v-model="formData.user_type" style="width:100%;" placeholder="请选择用户类型">
-            <el-option label="管理员" value='3'></el-option>
-            <el-option label="填报用户" value='1'></el-option>
-            <el-option label="监管用户" value='2'></el-option>
-            <el-option label="审核用户" value='0'></el-option>
+            <el-option label="填报人" value='1'></el-option>
+            <el-option label="审核人" value='0'></el-option>
           </el-select>
         </el-form-item>
 
-        <el-form-item size="mini" label="用户状态" >
+        <el-form-item :size="small" label="用户状态" >
           <el-select v-model="formData.user_status" style="width:100%;" placeholder="请选择用户状态">
             <el-option label="正常" value='0'></el-option>
             <el-option label="锁定" value='1'></el-option>
@@ -83,6 +100,28 @@
             <el-option label="停用" value='4'></el-option>
           </el-select>
         </el-form-item>
+
+        <el-form-item label="真实姓名"  prop="office_phone">
+          <el-input  :disabled="true" v-model="formData.user_name_cn"></el-input>
+        </el-form-item>
+        <el-form-item label="办公电话"   prop="office_phone">
+          <el-input  :disabled="true" v-model="formData.office_phone"></el-input>
+        </el-form-item>
+        <el-form-item label="手机号" prop="mobile_phone">
+          <el-input  :disabled="true" v-model="formData.mobile_phone"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱地址"  prop="email">
+          <el-input  :disabled="true" v-model="formData.email"></el-input>
+        </el-form-item>
+        <el-form-item label="统一社保代码" prop="social_code">
+          <el-input  :disabled="true" v-model="formData.social_code"></el-input>
+        </el-form-item>
+
+        <el-form-item :size="small" label="所属机构" >
+          <treeselect v-model="formData.origin_id"  :options="options" />
+        </el-form-item>
+
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="closeModal">取 消</el-button>
@@ -92,11 +131,11 @@
 
     <!--用户权限设置-->
     <el-dialog title="用户权限" :visible.sync="showUserAuth" >
-      <el-form  class="modal-form" label-position="left" label-width="20%" :model="formData">
-        <el-form-item size="mini" label="用户名称" >
+      <el-form  class="modal-form" :label-position="left" label-width="20%" :model="formData">
+        <el-form-item :size="small" label="用户名称" >
           <el-input :disabled="true"  :value="formData.user_name" auto-complete="off" ></el-input>
         </el-form-item>
-        <el-form-item size="mini" label="角色" >
+        <el-form-item :size="small" label="角色" >
           <el-select v-model="user_role_id" style="width:100%;" placeholder="请选择角色">
             <el-option :key="roleData.user_role_id" v-for="roleData in allRoleList" :label="roleData.user_role_name" :value="roleData.user_role_id"></el-option>
           </el-select>
@@ -125,10 +164,11 @@
         originList: [],
         seachOriginList: [],
         searchOriginName: '',
+        cityTree:{},
         userType: 1,
         seachUserId: null,
         seachOriginId: null,
-        tableDataUrl: 'sys/user/listUserPage',
+        tableDataUrl: 'sys/custUser/listUserPage',
         currPageNum: 1,
         totalPage: 1,
         showModalPage: false,
@@ -142,6 +182,11 @@
           user_name: null,
           user_type: null,
           user_status: null,
+          origin_id: null,
+          mobile_phone:'',
+          office_phone:'',
+          email:'',
+          social_code:''
         },
         options:[]
 
@@ -158,6 +203,9 @@
         user_status: {
           required
         },
+        origin_id: {
+          required
+        }
       }
     },
     computed: {
@@ -192,12 +240,50 @@
           method: 'get',
           params: {currPage: pageNum,
             pageSize: 10,
-            user_name: this.seachUserId,
+            user_name_cn: this.seachUserId,
             searchOriginName: this.searchOriginName,
             searchOriginId:seachOriginId}
         }).then(reponse => {
           $this.totalPage = reponse.totalPage
           $this.refreshTableList(reponse.dataList)
+          const cityTree = []
+          reponse.first2Origin.forEach(proOrigin=>{
+            const province = proOrigin['province']
+            const citys = proOrigin['citys']
+            const children = []
+
+            citys.forEach(city=>{
+              children.push({value: city['origin_id'],
+                label: city['origin_name']})
+            })
+
+            cityTree.push({value: province['origin_id'],
+              label: province['origin_name'],
+              children: children})
+          })
+
+          $this.cityTree = cityTree
+        })
+      },
+      getOriginList () { // 弹出model触发、获取机构树状展示
+        this.BaseRequest({
+          url: 'sys/recordOrigin/listAllRecordOrigin',
+          method: 'get'
+        }).then(response => {
+          if (response != null && response.length > 0) {
+            this.options = response
+
+            function idToValue(origins){
+              origins.forEach(option=>{
+                option['value'] = option.id
+                if(option.children){
+                  idToValue(option.children)
+                }
+              })
+            }
+            idToValue(this.options)
+
+          }
         })
       },
       refreshTableList: function (dataList) {
@@ -231,7 +317,8 @@
           user_id: null,
           user_name: null,
           user_status: null,
-          user_type: null
+          user_type: null,
+          origin_id: null
         }
       },
       openEditModal: function (row) { // user edit
@@ -242,6 +329,22 @@
         this.formData.user_id = row.user_id
         this.formData.user_status = row.user_status
         this.formData.user_type = row.user_type
+        this.formData.user_name_cn = row.user_name_cn
+        this.formData.mobile_phone = row.mobile_phone
+        this.formData.office_phone = row.office_phone
+        this.formData.email = row.email
+        this.formData.social_code = row.social_code
+
+
+        // set options value
+        this.BaseRequest({
+          url: 'origin/getOriginByUser',
+          method: 'get',
+          params: {'userId': row.user_id}
+        }).then(reponse => {
+
+          this.formData.origin_id = reponse.origin_id
+        })
       },
       resetPwd(row){
         const userId = row.user_id
@@ -259,7 +362,7 @@
           });
 
           this.BaseRequest({
-            url:'cqnyUser/resetPwd',
+            url:'sys/custUser/resetPwd',
             method:'get',
             params:{'userId':userId}
           }).then(response=>{
@@ -285,10 +388,12 @@
             data: {'user_name': this.formData.user_name,
               'user_id': this.formData.user_id,
               'user_type': this.formData.user_type,
-              'user_status': this.formData.user_status}
+              'user_status': this.formData.user_status
+            }
           }).then(() => {
             this.Message.success('保存成功')
             // add user——origin relation
+            this.changeOrigin()
             this.getTableData()
             this.closeModal()
           })
@@ -299,15 +404,27 @@
             params: {'user_name': this.formData.user_name,
               'user_id': this.formData.user_id,
               'user_type': this.formData.user_type,
-              'user_status': this.formData.user_status}
+              'user_status': this.formData.user_status
+            }
           }).then((response) => {
             this.Message.success('保存成功')
             // add user——origin relation
             this.formData.user_id = response.user_id
+            this.changeOrigin()
             this.getTableData()
             this.closeModal()
           })
         }
+      },
+      changeOrigin(){
+        this.BaseRequest({
+          url:"origin/userOriginSave",
+          method:'get',
+          params:{"userId":this.formData.user_id,"originId":this.formData.origin_id}
+        }).then(response=>{
+          this.Message.success("保存成功")
+          this.closeModal()
+        })
       },
       openAuthModal: function (row) { // edit
         const $this = this
@@ -360,6 +477,7 @@
       this.userDataList = []
       this.getTableData(1)
       const $this = this
+      this.getOriginList()
       this.BaseRequest({
         url: 'sys/role/rolePageData',
         method: 'get',

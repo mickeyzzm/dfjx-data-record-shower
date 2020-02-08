@@ -143,7 +143,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item size="mini" label="数据字典：" v-show="showDatafid_edit">
-                    <el-input style="width:37%" v-model="editformData_lll.datafid" placeholder="请输入数据字典"></el-input>
+                    <el-input style="width:37%" v-model="editformData_lll.datafid" placeholder="请输入数据字典" disabled></el-input>
                     <el-button @click="datafidBtn_edit()" type="primary">选择</el-button>
                 </el-form-item>
             </el-form>
@@ -629,8 +629,9 @@ export default {
         },
         addUnitconfig_lll () {//三级新增
             this.addShowModalPage_lll = true;
+            var proj_label = sessionStorage.getItem("proj_label");
+            this.addformData_lll.subfidClass = proj_label;//指标基本类别
             this.addformData_lll.inClass = this.nodeLabel;//指标类别
-            this.addformData_lll.subfidClass = this.tableData_lll[0].proj_name;//指标基本类别
         },
         addSubmitDataForm_lll() {//三级新增弹窗
             if (this.addformData_lll.inClaNm == "" || this.addformData_lll.dataType == "" || this.addformData_lll.isEmpoty == "" || this.addformData_lll.fld_type == "") {
@@ -728,7 +729,7 @@ export default {
                     method: 'get',
                     params: {
                         'fld_id': this.typeCode,
-                        'catg_id': "3",
+                        'catg_id': this.catg_id,
                         'fld_name': this.editformData_lll.inClaNm,
                         'fld_data_type': this.editformData_lll.dataType,
                         'fld_is_null': this.editformData_lll.isEmpoty=="否"?"0":"1",
