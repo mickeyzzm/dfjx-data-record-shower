@@ -1,5 +1,5 @@
 <template>
-  <WorkMain :headerItems="['权限管理','功能查看']">
+  <div>
 
     <el-row class="table-row">
       <el-col :span="24">
@@ -43,8 +43,8 @@
                     :pageCount="totalPage">
     </WorkTablePager>
 
-  </WorkMain>
-</template>1
+  </div>
+</template>
 
 <script>
   import WorkTablePager from "@/models/public/WorkTablePager"

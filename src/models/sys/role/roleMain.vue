@@ -1,12 +1,12 @@
 <template>
-  <WorkMain :headerItems="['角色管理','角色列表']">
+  <div>
     <el-row class="search-row" :gutter="20">
       <el-col class="align-left" :span="17">
         <el-button @click="openAddModal" type="primary">新增</el-button>
       </el-col>
     </el-row>
 
-    <el-row class="table-row">
+    <el-row class="table-page-root-outoptions">
       <el-col :span="24">
         <el-table
           :data="userDataList"
@@ -61,7 +61,7 @@
       </div>
 
     </el-dialog>
-  </WorkMain>
+  </div>
 </template>
 
 <script>
@@ -256,16 +256,12 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import "@/styles/table-page.scss";
 
-  .el-row{
-    margin-top:20px;
+  .search-row{
+    margin:5px 0 0 0;
   }
-
   $seachRowHeight : 50px;
   $pagerRowHeight : 50px;
   $tableRowHeight : calc(100% - #{$seachRowHeight+$pagerRowHeight+10});
-  .search-row{
-    height:$seachRowHeight;
-  }
 
   .table-row{
     width:99%;

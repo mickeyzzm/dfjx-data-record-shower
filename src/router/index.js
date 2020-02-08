@@ -111,9 +111,9 @@ const routes = [
             ]
           },
           {
-            name: 'submitAUmanager',
-            path: '/record/submitAUmanager',
-            component: () => import('@/models/record/submitAUmanager')//机构管理
+            name: 'recordOriginManager',
+            path: '/sys/record/recordOriginManager',
+            component: () => import('@/models/record/recordOriginManager')//机构管理
           },
           {
             name: 'administrative',

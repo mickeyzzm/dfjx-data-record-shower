@@ -1,5 +1,5 @@
 <template>
-  <WorkMain :headerItems="['用户管理','用户列表']">
+  <div>
     <el-row class="search-row" :gutter="20">
       <el-col class="align-left" :span="17">
         <el-input placeholder="请输入待查询用户名" style="width:180px"  v-model="seachUserId"></el-input>
@@ -23,7 +23,7 @@
           <el-table-column
             prop="user_name_cn"
             align="left"
-            label="用户名称">
+            label="用户姓名">
           </el-table-column>
           <el-table-column
             prop="reg_date"
@@ -68,7 +68,10 @@
 
         <el-form-item size="mini" label="用户类型" >
           <el-select v-model="formData.user_type" style="width:100%;" placeholder="请选择用户类型">
-            <el-option label="管理员" value='1'></el-option>
+            <el-option label="管理员" value='3'></el-option>
+            <el-option label="填报用户" value='1'></el-option>
+            <el-option label="监管用户" value='2'></el-option>
+            <el-option label="审核用户" value='0'></el-option>
           </el-select>
         </el-form-item>
 
@@ -104,7 +107,7 @@
         <el-button type="primary" @click="saveUserRole()">确 定</el-button>
       </div>
     </el-dialog>
-  </WorkMain>
+  </div>
 </template>
 
 <script>
@@ -189,7 +192,7 @@
           method: 'get',
           params: {currPage: pageNum,
             pageSize: 10,
-            user_name_cn: this.seachUserId,
+            user_name: this.seachUserId,
             searchOriginName: this.searchOriginName,
             searchOriginId:seachOriginId}
         }).then(reponse => {
