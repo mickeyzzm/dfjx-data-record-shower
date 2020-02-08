@@ -15,6 +15,16 @@
   .query > .el-input,.el-select,.el-button {
     margin-right: 20px;
   }
+  .el-dropdown {
+    cursor: pointer;
+    margin-right:5px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    padding: 0 5px;
+    font-size: 12px;
+    background-color: #E9F5FF;
+    color: #00A0FF;
+  }
   /deep/ .el-dialog__header {
     border-bottom: 1px solid #c0c4cc;
   }

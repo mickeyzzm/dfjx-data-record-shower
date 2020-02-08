@@ -16,8 +16,8 @@
         <el-button :disabled="treeId === -1" @click="insertUnit" size="mini" type="primary">新增任务组</el-button>
       </div>
       <el-table :header-cell-style="{background:'#f6f6f7'}" :data="tableData" style="width: 90%" size="mini" border stripe>
-        <el-table-column type="index" width="100" label="指标编码" :resizable="false"></el-table-column>
-        <el-table-column prop="job_unit_name" label="指标名称" :resizable="false"></el-table-column>
+        <el-table-column type="index" width="100" label="任务组编码" :resizable="false"></el-table-column>
+        <el-table-column prop="job_unit_name" label="任务组名称" :resizable="false"></el-table-column>
         <el-table-column label="状态" :resizable="false">
           <template slot-scope="scope">
             <span

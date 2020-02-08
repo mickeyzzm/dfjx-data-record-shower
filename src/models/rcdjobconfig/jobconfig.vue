@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <div class="query">
-      <el-input v-model="jobNm" size="mini" placeholder="请输入任务名称"></el-input>
+      <el-input v-model="jobNm" clearable size="mini" placeholder="请输入任务名称"></el-input>
       <el-select v-model="jobStatus" size="mini" placeholder="请选择任务状态">
         <el-option v-for="item in options" :key="item.value" :label="item.name" :value="item.value"></el-option>
       </el-select>
@@ -123,6 +123,22 @@
           <el-form-item class="public" label="填报任务名称：">
             <el-input :readonly="isRead" v-model="FormData.job_name" placeholder="请输入填报任务名称"></el-input>
           </el-form-item>
+          <el-form-item v-if="!isShow" class="public" label="已选择任务组：">
+            <el-dropdown v-for="item in selectedUnit" :key="item.job_unit_id" trigger="click">
+              <span class="el-dropdown-link">
+                {{item.job_unit_name}}<i v-if="item.unitfld.length > 0" class="el-icon-caret-bottom el-icon--right"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item v-for="element in item.unitfld" :key="Math.abs(element.fld_id)" class="clearfix">
+                  {{element.fld_name}}
+                  <el-badge class="mark"/>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </el-form-item>
+          <!-- <el-form-item class="public" label="已指定填报人：">
+            <el-tag>填报人</el-tag>
+          </el-form-item> -->
           <el-form-item class="public" label="任务开始日期：">
             <el-date-picker
               size="mini"
@@ -130,7 +146,6 @@
               type="date"
               value-format="yyyy-MM-dd"
               :readonly="isRead"
-              style="width:100%"
               placeholder="请指定任务开始日期">
             </el-date-picker>
           </el-form-item>
@@ -141,7 +156,6 @@
               type="date"
               value-format="yyyy-MM-dd"
               :readonly="isRead"
-              style="width:100%"
               placeholder="请指定任务结束日期">
             </el-date-picker>
           </el-form-item>
@@ -201,7 +215,10 @@ export default {
       },
       currentAgency: '',
       currentData: [],
-      userid: []
+      userid: [],
+      selectedUnit: [],
+      selectedUser: [],
+      showJob_id: ''
     }
   },
   methods: {
@@ -283,6 +300,52 @@ export default {
       this.FormData = row
       this.isShow = false
       this.isRead = true
+      this.BaseRequest({
+        url: '/fillinatask/selectRcdJobUnitConfigyi',
+        method: 'get',
+        params: {job_id: row.job_id}
+      }).then(data => {
+        this.selectedUnit = []
+        if (data.length > 0) {
+          data.map(item => {
+            this.selectedUnit.push({
+              job_unit_id: item.job_unit_id,
+              job_unit_name: item.job_unit_name,
+              unitfld: []
+            })
+            this.BaseRequest({
+              url: '/reporting/selectrcdjobunitfld',
+              method: 'get',
+              params: {
+                job_unit_id: item.job_unit_id
+              }
+            }).then(unitfld => {
+              if (unitfld.length > 0) {
+                this.selectedUnit.map(element => {
+                  if (element.job_unit_id == item.job_unit_id) {
+                    element.unitfld = unitfld
+                    console.log(this.selectedUnit)
+                  }
+                })
+              }
+            })
+          })
+        }
+      })
+      // this.BaseRequest({
+      //   url: '/fillinatask/huixianrcdjobpersonassign',
+      //   method: 'get',
+      //   params: {job_id: row.job_id}
+      // }).then(data => {
+      //   this.selectedUser = data
+      // })
+    },
+    // 任务组邦迪指标查看
+    enterHandle (item) {
+      console.log(item)
+    },
+    leaveHandle () {
+      this.showJob_id = ''
     },
     // 任务窗口关闭
     jobconfigClose () {

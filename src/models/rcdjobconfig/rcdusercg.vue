@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <div class="query">
-      <el-input v-model="keyWorld" size="mini" style="width:15%;" placeholder="请输入填报人名称"></el-input>
+      <el-input v-model="keyWorld" clearable size="mini" style="width:15%;" placeholder="请输入填报人名称"></el-input>
       <el-button type="primary" @click="rcdusercgList">查询</el-button>
       <el-button type="primary" @click="insertUser">新增填报人</el-button>
     </div>
@@ -64,7 +64,7 @@
             >
             <el-table-column type="selection" :resizable="false"></el-table-column>
             <el-table-column prop="user_id" width="120" label="用户Id" :resizable="false"></el-table-column>
-            <el-table-column prop="user_name" label="用户名称" :resizable="false"></el-table-column>
+            <el-table-column prop="user_name_cn" label="用户名称" :resizable="false"></el-table-column>
           </el-table>
           <div style="text-align:right;margin-top:40px;">
             <el-button type="primary" @click="dialogVisible = false">取消</el-button>
@@ -129,7 +129,9 @@ export default {
     insertUser () {
       this.dialogVisible = true
       this.title = '新增'
-      this.$refs.multipleTable.clearSelection()
+      this.$nextTick(() => {
+        this.$refs.multipleTable.clearSelection()
+      })
     },
     // 提交新增填报人
     subRcdusercg () {
@@ -150,7 +152,9 @@ export default {
             this.rcdusercgList()
             this.dialogVisible = false
             this.$message.success('添加成功')
-            this.$refs.multipleTable.clearSelection()
+            this.$nextTick(() => {
+              this.$refs.multipleTable.clearSelection()
+            })
           } else {
             this.$message.error('添加失败')
           }
@@ -177,7 +181,7 @@ export default {
     },
     // 点击节点获取对应表
     useroriginassignlist (node) {
-      if (node.children.length === 0) {
+      if (node.id > 1) {
         this.BaseRequest({
           url: '/reporting/useroriginassignlist',
           method: 'get',
