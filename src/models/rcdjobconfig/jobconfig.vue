@@ -504,7 +504,7 @@ export default {
     // 获取机构下用户
     agencyUser () {
       this.BaseRequest({
-        url: '/reporting/useroriginassignlist',
+        url: '/reporting/useroriginassignlistsysorigin',
         method: 'get',
         params: {origin_id: this.currentAgency}
       }).then(data => {
