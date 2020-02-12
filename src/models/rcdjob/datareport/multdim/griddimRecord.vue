@@ -1,120 +1,86 @@
 <template>
   <div style="width: 100%">
-    <!--<el-form ref="form"  label-width="40%">-->
     <el-row style="text-align: left;margin:0 0 5px 0;">
       <el-col  :span="24">
         <el-button type="primary" size="small" @click="addOne">增加一条记录</el-button>
       </el-col>
     </el-row>
-    <div class="el-table el-table--fit el-table--striped el-table--border el-table--enable-row-hover el-table--enable-row-transition el-table--small">
-        <div class="el-table__header-wrapper">
-          <table style="width:100%;" cellspacing="0" cellpadding="0" border="0" class="el-table__header">
+    <div class="el-table el-table--fit el-table--striped el-table--border el-table--enable-row-hover el-table--enable-row-transition el-table--small" style="border: 0; background-color: transparent">
+        <div class="el-table__header-wrapper el-table__body-wrapper " style="overflow-x: auto !important;overflow-y: auto;" >
+          <table cellspacing="0" cellpadding="0" border="0" class="el-table__header">
             <thead class="has-gutter">
               <tr style="font-size: 14px;">
-                <th style="width:60px" colspan="1" rowspan="1" class="el-table_6_column_31  is-center   is-leaf">
-                  序号
+                <th colspan="1" rowspan="2" class="el-table_6_column_31  is-center   is-leaf " >
+                  &nbsp; &nbsp; &nbsp;序号 &nbsp; &nbsp; &nbsp;
                 </th>
-                <th v-for="unitFld in unitFlds" colspan="1" rowspan="1" class="el-table_6_column_31  is-center   is-leaf">
+                <th v-for="unitFldType in unitFldTypes" :colspan="unitFldType.unitFlds.length" rowspan="1" class="el-table_6_column_31  is-center   is-leaf ">
+                  <span style="font-weight: bold; ">{{unitFldType.catg_name}}</span>
+                </th>
+                <th  colspan="1" rowspan="2" class="el-table_6_column_31  is-center is-leaf">
+                  &nbsp; &nbsp; &nbsp;操作&nbsp; &nbsp; &nbsp;
+                </th>
+              </tr>
+
+              <tr style="font-size: 14px;">
+                <th v-for="unitFld in unitFlds" colspan="1" rowspan="1" class="el-table_6_column_31  is-center is-leaf"  style="min-width:225px">
                   {{unitFld.fld_name}}
-                </th>
-                <th style="width:100px" colspan="1" rowspan="1" class="el-table_6_column_31  is-center   is-leaf">
-                  操作
                 </th>
               </tr>
             </thead>
-          </table>
-        </div>
-
-        <div class="el-table__body-wrapper is-scrolling-none">
-          <table style="width:100%;" cellspacing="0" cellpadding="0" border="0" class="el-table__body">
             <tbody>
-              <tr v-for="(reportDataLine,rowLineNumber) in reportDataLineArray" class="el-table__row mini-font-size">
-                <td style="width:60px" colspan="1" rowspan="1" class="  is-center   ">
-                  {{rowLineNumber+1}}
-                </td>
-                <td v-for="unitFld in unitFlds" colspan="1" rowspan="1" class="is-center">
-                  <div class="cell">
-                    <div class="el-form-item" style="margin: auto;">
-                      <div class="el-form-item__content">
-                        <div v-if="unitFld.fld_data_type==0||unitFld.fld_data_type==1" class="el-input el-input--mini "
-                             v-bind:class="{ 'el-input-group el-input-group--append':(unitFld.fld_point!=null&&unitFld.fld_point!='') }">
-                          <input placeholder="请输入" v-model="reportDataLine['f'+unitFld.fld_id]" class="el-input__inner"></input>
-                          <div v-if="unitFld.fld_point!=null&&unitFld.fld_point!=''" class="el-input-group__append">{{unitFld.fld_point}}</div>
-                        </div>
-                        <!--<el-input  v-if="unitFld.fld_data_type==0||unitFld.fld_data_type==1" size="mini" v-model="reportDataLineArray[rowLineNumber][unitFld.fld_id]" >-->
-                          <!--<template v-if="unitFld.fld_point!=null&&unitFld.fld_point!=''" slot="append">{{unitFld.fld_point}}</template>-->
-                        <!--</el-input>-->
-                        <el-date-picker v-if="unitFld.fld_data_type==2" size="mini" align="left"
-                                        v-model="reportDataLine[unitFld.fld_id]"
-                                        type="date"
-                                        placeholder="选择日期">
-                        </el-date-picker>
-
-                        <el-select @change="refreshData" v-model="reportDataLine['f'+unitFld.fld_id]" v-if="unitFld.fld_data_type==3">
-                          <el-option v-for="dictObj in fldDicts['f'+unitFld.fld_id]"
-                                     :key="dictObj.dict_content_value"
-                                     :label="dictObj.dict_content_name"
-                                     :value="dictObj.dict_content_value">
-                          </el-option>
-                        </el-select>
-
-                        <div v-if="validateResultObj[rowLineNumber]!=null&&validateResultObj[rowLineNumber][unitFld.fld_id]!=null"
-                             style="padding:0;margin:0;font-size:8px;color:red;">{{validateResultObj[rowLineNumber][unitFld.fld_id]}}</div>
+            <tr v-for="(reportDataLine,rowLineNumber) in reportDataLineArray" class="el-table__row mini-font-size " >
+              <td style="width:60px" colspan="1" rowspan="1" class="  is-center table-row" :class="{'table-row-color':(rowLineNumber%2==0)}">
+                {{rowLineNumber+1}}
+              </td>
+              <td v-for="unitFld in unitFlds" colspan="1" rowspan="1" class="is-center table-row " :class="{'table-row-color':(rowLineNumber%2==0)}">
+              <!--<td v-for="(unitFld,index) in unitFlds" colspan="1" rowspan="1" class="is-center table-row ">{{index}}-->
+                <div class="cell">
+                  <div class="el-form-item" style="margin: auto;">
+                    <div class="el-form-item__content">
+                      <div v-if="unitFld.fld_data_type==0||unitFld.fld_data_type==1" class="el-input el-input--mini "
+                           v-bind:class="{ 'el-input-group el-input-group--append':(unitFld.fld_point!=null&&unitFld.fld_point!='') }">
+                        <input placeholder="请输入" v-model="reportDataLine['f'+unitFld.fld_id]" class="el-input__inner"></input>
+                        <div v-if="unitFld.fld_point!=null&&unitFld.fld_point!=''" class="el-input-group__append">{{unitFld.fld_point}}</div>
                       </div>
+                      <!--<el-input  v-if="unitFld.fld_data_type==0||unitFld.fld_data_type==1" size="mini" v-model="reportDataLineArray[rowLineNumber][unitFld.fld_id]" >-->
+                      <!--<template v-if="unitFld.fld_point!=null&&unitFld.fld_point!=''" slot="append">{{unitFld.fld_point}}</template>-->
+                      <!--</el-input>-->
+                      <el-date-picker v-if="unitFld.fld_data_type==2" size="mini" align="left"
+                                      v-model="reportDataLine[unitFld.fld_id]"
+                                      type="date"
+                                      placeholder="选择日期">
+                      </el-date-picker>
+
+                      <el-select @change="refreshData" v-model="reportDataLine['f'+unitFld.fld_id]" v-if="unitFld.fld_data_type==3">
+                        <el-option v-for="dictObj in fldDicts['f'+unitFld.fld_id]"
+                                   :key="dictObj.dict_content_value"
+                                   :label="dictObj.dict_content_name"
+                                   :value="dictObj.dict_content_value">
+                        </el-option>
+                      </el-select>
+
+                      <div v-if="validateResultObj[rowLineNumber]!=null&&validateResultObj[rowLineNumber][unitFld.fld_id]!=null"
+                           style="padding:0;margin:0;font-size:8px;color:red;">{{validateResultObj[rowLineNumber][unitFld.fld_id]}}</div>
                     </div>
                   </div>
-                </td>
-                <td style="width:100px" colspan="1" rowspan="1" class="  is-center   ">
-                  <el-button type="text" size="small" @click="removeLine(rowLineNumber)">删除</el-button>
-                </td>
-              </tr>
+                </div>
+              </td>
+
+
+              <td colspan="1" rowspan="1" class="  is-center  table-row " :class="{'table-row-color':(rowLineNumber%2==0)}">
+                <el-button type="text" size="small" @click="removeLine(rowLineNumber)">删除</el-button>
+              </td>
+            </tr>
             </tbody>
+
           </table>
         </div>
+
+        <!--<div class="el-table__body-wrapper is-scrolling-none">-->
+          <!--<table style="width:100%;" cellspacing="0" cellpadding="0" border="0" class="el-table__body">-->
+          <!--</table>-->
+        <!--</div>-->
       </div>
-
-
-      <!--<el-table-->
-        <!--:data="reportDataLineArray"-->
-        <!--tooltip-effect="dark" size="mini"-->
-        <!--row-class-name="mini-font-size"-->
-        <!--border-->
-        <!--stripe-->
-        <!--style="width: 100%;">-->
-        <!--<el-table-column label="序号" type="index" width="60" align="center"></el-table-column>-->
-        <!--<el-table-column :key="unitFld.fld_id" v-for="unitFld in unitFlds" :label="unitFld.fld_name" width="200" >-->
-          <!--<template slot-scope="scope">-->
-            <!--&lt;!&ndash;<el-form-item label-width="0"	style="margin:auto auto" size="mini" :error="scope.row[col.dim_id+'-validateErrpr']">&ndash;&gt;-->
-            <!--<el-form-item label-width="0"	style="margin:auto auto" size="mini" >-->
-              <!--&lt;!&ndash;<el-tooltip class="item" effect="dark" :content="'鼠标划过内容'" placement="top">&ndash;&gt;-->
-                <!--<el-input v-if="unitFld.fld_data_type==0||unitFld.fld_data_type==1" size="mini" v-model="scope.row[unitFld.fld_id]" >-->
-                  <!--<template v-if="unitFld.fld_point!=null&&unitFld.fld_point!=''" slot="append">{{unitFld.fld_point}}</template>-->
-                <!--</el-input>-->
-                <!--<el-date-picker v-if="unitFld.fld_data_type==2" size="mini" align="left"-->
-                                <!--v-model="scope.row[unitFld.fld_id]"-->
-                                <!--type="date"-->
-                                <!--placeholder="选择日期">-->
-                <!--</el-date-picker>-->
-                <!--<el-select v-model="scope.row[unitFld.fld_id]" v-if="unitFld.fld_data_type==3">-->
-                  <!--<el-option v-for="dictObj in fldDicts[unitFld.fld_id]"-->
-                             <!--:key="dictObj.dict_content_value"-->
-                             <!--:label="dictObj.dict_content_name"-->
-                             <!--:value="dictObj.dict_content_value">-->
-                  <!--</el-option>-->
-                <!--</el-select>-->
-
-              <!--&lt;!&ndash;</el-tooltip>&ndash;&gt;-->
-            <!--</el-form-item>-->
-          <!--</template>-->
-        <!--</el-table-column>-->
-        <!--<el-table-column label="操作">-->
-          <!--<template slot-scope="scope">-->
-            <!--<el-button type="text" size="small" @click="removeLine(scope.row)">删除</el-button>-->
-          <!--</template>-->
-        <!--</el-table-column>-->
-
-      <!--</el-table>-->
-    <!--</el-form>-->
   </div>
 </template>
 
@@ -148,6 +114,7 @@
       return {
         lastStep:false,
         definedIndexs:[],
+        unitFldTypes:[],
         unitFlds:[],
         fldDicts:{},
         reportDataLineArray:[],
@@ -176,7 +143,18 @@
           if(loading){
             loading.close();
           }
-          this.unitFlds = response
+          if(response!=null){
+            let unitFldArray = []
+            this.unitFldTypes = response
+            response.forEach(unitTypeConfig=>{
+              unitTypeConfig.unitFlds.forEach(unitFld=>{
+                unitFldArray.push(unitFld)
+              })
+            })
+            this.unitFlds =unitFldArray
+
+          }
+
 
         }).catch(error=>{
             this.Message.success(error)
@@ -384,5 +362,13 @@
 <style scoped>
   .mini-font-size{
     font-size:12px;
+  }
+
+  .table-row{
+    background-color: white;
+  }
+
+  .table-row-color{
+    background-color: #F5F6FA;
   }
 </style>
