@@ -1,35 +1,39 @@
 <template>
   <div style="width: 100%">
-    <!--<el-form ref="form"  label-width="40%">-->
     <el-row style="text-align: left;margin:0 0 5px 0;">
       <el-col  :span="24">
         <el-button type="primary" size="small" @click="addOne">增加一条记录</el-button>
       </el-col>
     </el-row>
-    <div class="el-table el-table--fit el-table--striped el-table--border el-table--enable-row-hover el-table--enable-row-transition el-table--small">
-        <div class="el-table__header-wrapper el-table__body-wrapper " style="overflow: scroll !important;">
+    <div class="el-table el-table--fit el-table--striped el-table--border el-table--enable-row-hover el-table--enable-row-transition el-table--small" style="border: 0; background-color: transparent">
+        <div class="el-table__header-wrapper el-table__body-wrapper " style="overflow-x: auto !important;overflow-y: auto;" >
           <table cellspacing="0" cellpadding="0" border="0" class="el-table__header">
             <thead class="has-gutter">
               <tr style="font-size: 14px;">
-                <th colspan="1" rowspan="1" class="el-table_6_column_31  is-center   is-leaf" >
+                <th colspan="1" rowspan="2" class="el-table_6_column_31  is-center   is-leaf " >
                   &nbsp; &nbsp; &nbsp;序号 &nbsp; &nbsp; &nbsp;
                 </th>
-                <th v-for="unitFld in unitFlds" colspan="1" rowspan="1" class="el-table_6_column_31  is-center   is-leaf" >
+                <th v-for="unitFldType in unitFldTypes" :colspan="unitFldType.unitFlds.length" rowspan="1" class="el-table_6_column_31  is-center   is-leaf ">
+                  <span style="font-weight: bold; ">{{unitFldType.catg_name}}</span>
+                </th>
+                <th  colspan="1" rowspan="2" class="el-table_6_column_31  is-center is-leaf">
+                  &nbsp; &nbsp; &nbsp;操作&nbsp; &nbsp; &nbsp;
+                </th>
+              </tr>
+
+              <tr style="font-size: 14px;">
+                <th v-for="unitFld in unitFlds" colspan="1" rowspan="1" class="el-table_6_column_31  is-center is-leaf"  style="min-width:225px">
                   {{unitFld.fld_name}}
-                 </th>
-                <th style="width:100px" colspan="1" rowspan="1" class="el-table_6_column_31  is-center   is-leaf">
-                  &nbsp; &nbsp; &nbsp;
-                  操作
-                  &nbsp; &nbsp; &nbsp;
                 </th>
               </tr>
             </thead>
             <tbody>
-            <tr v-for="(reportDataLine,rowLineNumber) in reportDataLineArray" class="el-table__row mini-font-size">
-              <td style="width:60px" colspan="1" rowspan="1" class="  is-center   ">
+            <tr v-for="(reportDataLine,rowLineNumber) in reportDataLineArray" class="el-table__row mini-font-size " >
+              <td style="width:60px" colspan="1" rowspan="1" class="  is-center table-row" :class="{'table-row-color':(rowLineNumber%2==0)}">
                 {{rowLineNumber+1}}
               </td>
-              <td v-for="unitFld in unitFlds" colspan="1" rowspan="1" class="is-center" style="min-width: 180px;">
+              <td v-for="unitFld in unitFlds" colspan="1" rowspan="1" class="is-center table-row " :class="{'table-row-color':(rowLineNumber%2==0)}">
+              <!--<td v-for="(unitFld,index) in unitFlds" colspan="1" rowspan="1" class="is-center table-row ">{{index}}-->
                 <div class="cell">
                   <div class="el-form-item" style="margin: auto;">
                     <div class="el-form-item__content">
@@ -61,7 +65,9 @@
                   </div>
                 </div>
               </td>
-              <td colspan="1" rowspan="1" class="  is-center   ">
+
+
+              <td colspan="1" rowspan="1" class="  is-center  table-row " :class="{'table-row-color':(rowLineNumber%2==0)}">
                 <el-button type="text" size="small" @click="removeLine(rowLineNumber)">删除</el-button>
               </td>
             </tr>
@@ -108,6 +114,7 @@
       return {
         lastStep:false,
         definedIndexs:[],
+        unitFldTypes:[],
         unitFlds:[],
         fldDicts:{},
         reportDataLineArray:[],
@@ -136,7 +143,18 @@
           if(loading){
             loading.close();
           }
-          this.unitFlds = response
+          if(response!=null){
+            let unitFldArray = []
+            this.unitFldTypes = response
+            response.forEach(unitTypeConfig=>{
+              unitTypeConfig.unitFlds.forEach(unitFld=>{
+                unitFldArray.push(unitFld)
+              })
+            })
+            this.unitFlds =unitFldArray
+
+          }
+
 
         }).catch(error=>{
             this.Message.success(error)
@@ -344,5 +362,13 @@
 <style scoped>
   .mini-font-size{
     font-size:12px;
+  }
+
+  .table-row{
+    background-color: white;
+  }
+
+  .table-row-color{
+    background-color: #F5F6FA;
   }
 </style>

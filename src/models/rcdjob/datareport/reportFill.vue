@@ -728,7 +728,8 @@
   }
 </style>
 
-<style scoped>
+<style lang='scss' scoped>
+  @import '@/assets/scss/rcdjobconfig/jobconfig.scss';
   .fill-root{
     width:100%;
     height:100%;
@@ -747,11 +748,12 @@
     height:90%;
     margin:40px 0 0 0px;
     float: right;
-    overflow: auto;
+    /*overflow: auto;*/
   }
 
   .fill-context-full{
     width:100% !important;
+    margin-top:0px;
   }
 
   .fill-context-children{
