@@ -102,19 +102,19 @@
         </el-form-item>
 
         <el-form-item label="真实姓名"  prop="office_phone">
-          <el-input  :disabled="true" v-model="formData.user_name_cn"></el-input>
+          <el-input  v-model="formData.user_name_cn"></el-input>
         </el-form-item>
         <el-form-item label="办公电话"   prop="office_phone">
-          <el-input  :disabled="true" v-model="formData.office_phone"></el-input>
+          <el-input  v-model="formData.office_phone"></el-input>
         </el-form-item>
         <el-form-item label="手机号" prop="mobile_phone">
-          <el-input  :disabled="true" v-model="formData.mobile_phone"></el-input>
+          <el-input  v-model="formData.mobile_phone"></el-input>
         </el-form-item>
         <el-form-item label="邮箱地址"  prop="email">
-          <el-input  :disabled="true" v-model="formData.email"></el-input>
+          <el-input  v-model="formData.email"></el-input>
         </el-form-item>
         <el-form-item label="统一社保代码" prop="social_code">
-          <el-input  :disabled="true" v-model="formData.social_code"></el-input>
+          <el-input  v-model="formData.social_code"></el-input>
         </el-form-item>
 
         <el-form-item :size="small" label="所属机构" >
