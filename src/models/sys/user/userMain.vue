@@ -113,9 +113,9 @@
         <el-form-item label="邮箱地址"  prop="email">
           <el-input  v-model="formData.email"></el-input>
         </el-form-item>
-        <el-form-item label="统一社保代码" prop="social_code">
-          <el-input  v-model="formData.social_code"></el-input>
-        </el-form-item>
+        <!--<el-form-item label="统一社保代码" prop="social_code">-->
+          <!--<el-input  v-model="formData.social_code"></el-input>-->
+        <!--</el-form-item>-->
 
         <el-form-item :size="small" label="所属机构" >
           <treeselect v-model="formData.origin_id"  :options="options" />
@@ -180,6 +180,7 @@
         formData: {
           user_id:null,
           user_name: null,
+          user_name_cn: null,
           user_type: null,
           user_status: null,
           origin_id: null,
@@ -385,7 +386,12 @@
           this.BaseRequest({
             url: 'sys/user/updateSaveUser',
             method: 'POST',
-            data: {'user_name': this.formData.user_name,
+            data: {
+              'user_name': this.formData.user_name,
+              'user_name_cn': this.formData.user_name_cn,
+              'mobile_phone': this.formData.mobile_phone,
+              'office_phone': this.formData.office_phone,
+              'email': this.formData.email,
               'user_id': this.formData.user_id,
               'user_type': this.formData.user_type,
               'user_status': this.formData.user_status
@@ -401,7 +407,12 @@
           this.BaseRequest({
             url: 'sys/user/saveNewUser',
             method: 'get',
-            params: {'user_name': this.formData.user_name,
+            params: {
+              'user_name': this.formData.user_name,
+              'user_name_cn': this.formData.user_name_cn,
+              'mobile_phone': this.formData.mobile_phone,
+              'office_phone': this.formData.office_phone,
+              'email': this.formData.email,
               'user_id': this.formData.user_id,
               'user_type': this.formData.user_type,
               'user_status': this.formData.user_status
