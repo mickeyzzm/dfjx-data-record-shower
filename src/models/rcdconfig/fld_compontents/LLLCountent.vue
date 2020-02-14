@@ -90,6 +90,26 @@
                         </el-option>
                     </el-select>
                 </el-form-item>
+                <el-form-item size="mini" label="填报端：">
+                    <el-select style="width:50%" v-model="addformData_lll.fld_range">
+                        <el-option
+                            v-for="item in fld_range"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item size="mini" label="可见范围：">
+                    <el-select style="width:50%" v-model="addformData_lll.fld_visible">
+                        <el-option
+                            v-for="item in fld_visible"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item size="mini" label="数据字典：" v-show="showDatafid_add">
                    <el-input style="width:37%" v-model="addformData_lll.datafid" placeholder="请输入数据字典"></el-input>
                     <el-button @click="datafidBtn_add()" type="primary">选择</el-button>
@@ -136,6 +156,26 @@
                     <el-select style="width:50%" v-model="editformData_lll.fld_type">
                         <el-option
                             v-for="item in fld_types"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item size="mini" label="填报端：">
+                    <el-select style="width:50%" v-model="editformData_lll.fld_range">
+                        <el-option
+                            v-for="item in fld_range"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item size="mini" label="可见范围：">
+                    <el-select style="width:50%" v-model="editformData_lll.fld_visible">
+                        <el-option
+                            v-for="item in fld_visible"
                             :key="item.id"
                             :label="item.name"
                             :value="item.id">
@@ -386,6 +426,34 @@ export default {
                     id:"3",
                 }
             ],
+            fld_range:[
+                {
+                    name:"所有",
+                    id:"0",
+                },
+                {
+                    name:"移动端",
+                    id:"1",
+                },
+                {
+                    name:"PC端",
+                    id:"2",
+                }
+            ],
+            fld_visible:[
+                {
+                    name:"全部",
+                    id:"0",
+                },
+                {
+                    name:"移动端可见",
+                    id:"1",
+                },
+                {
+                    name:"PC端可见",
+                    id:"2",
+                }
+            ],
             addShowModalPage_lll:false,
             editShowModalPage_lll:false,
             addShowModalPage_dataFid:false,
@@ -399,16 +467,20 @@ export default {
                 isEmpoty:"",
                 fld_type:"",
                 datafid:"",
+                fld_range:"",
+                fld_visible:"",
                 datafidArry:[],
             },
             editformData_lll: {
-                subfidClass:"",
+                subfidClass: "",
                 inClass:"",
                 inClaNm:"",
                 dataType:"",
                 isEmpoty:"",
                 fld_type:"",
                 datafid:"",
+                fld_range:"",
+                fld_visible:"",
                 datafidArry:[],
             },
             treeId_Add: 1,
@@ -654,6 +726,8 @@ export default {
                         'fld_data_type': this.addformData_lll.dataType,
                         'fld_is_null': this.addformData_lll.isEmpoty,
                         'fld_type':this.addformData_lll.fld_type,
+                        'fld_range':this.addformData_lll.fld_range,
+                        'fld_visible':this.addformData_lll.fld_visible,
                         'dict_content_id': this.addformData_lll.datafidArry.join(","),
                     }
                 }).then((res) => {
@@ -673,6 +747,20 @@ export default {
             this.editformData_lll.subfidClass = row.proj_name;
             this.editformData_lll.inClass = row.catg_name;
             this.editformData_lll.inClaNm = row.fld_name;
+            if(row.fld_range == 0){
+                this.editformData_lll.fld_range = "全部";
+            }else if(row.fld_range == 1){
+                this.editformData_lll.fld_range = "移动端";
+            }else if(row.fld_range == 2){
+                this.editformData_lll.fld_range = "PC端";
+            }
+            if(row.fld_visible == 0){
+                this.editformData_lll.fld_visible = "全部";
+            }else if(row.fld_visible == 1){
+                this.editformData_lll.fld_visible = "移动端可见";
+            }else if(row.fld_visible == 2){
+                this.editformData_lll.fld_visible = "PC端可见";
+            }
             this.editformData_lll.isEmpoty = row.fld_is_null==0?"否":"是";
             this.editformData_lll.fld_type = row.fld_type==0?"通用指标":"突发指标";
             if(row.fld_data_type == 0){
@@ -695,6 +783,7 @@ export default {
                             this.testList.map(element => {
                                 if (item.dict_content_id === element.dict_content_id) {
                                     this.editformData_lll.datafid = element.dict_name;
+                                    return
                                 }
                             })
                         })
