@@ -36,6 +36,7 @@
           <el-button type="text" v-if="scope.row.job_status === 0" @click="unitconfig(scope.row)" size="mini">填报组维护</el-button>
           <el-button type="text" v-if="scope.row.job_status === 0" @click="rcdusercg(scope.row)" size="mini">填报人维护</el-button>
           <el-button type="text" v-if="scope.row.job_status === 0" @click="makeJob(scope.row)" size="mini">任务下发</el-button>
+          <el-button type="text" v-if="scope.row.job_status === 0" @click="deleteJob(scope.row)" size="mini">删除</el-button>
           <el-button type="text" v-if="scope.row.job_status === 4" @click="detailJobconfig(scope.row)" size="mini">查看</el-button>
           <el-button type="text" v-else-if="scope.row.job_status === 5" @click="detailJobconfig(scope.row)" size="mini">查看</el-button>
         </template>
@@ -136,9 +137,6 @@
               </el-dropdown-menu>
             </el-dropdown>
           </el-form-item>
-          <!-- <el-form-item class="public" label="已指定填报人：">
-            <el-tag>填报人</el-tag>
-          </el-form-item> -->
           <el-form-item class="public" label="任务开始日期：">
             <el-date-picker
               size="mini"
@@ -324,7 +322,6 @@ export default {
                 this.selectedUnit.map(element => {
                   if (element.job_unit_id == item.job_unit_id) {
                     element.unitfld = unitfld
-                    console.log(this.selectedUnit)
                   }
                 })
               }
@@ -332,17 +329,6 @@ export default {
           })
         }
       })
-      // this.BaseRequest({
-      //   url: '/fillinatask/huixianrcdjobpersonassign',
-      //   method: 'get',
-      //   params: {job_id: row.job_id}
-      // }).then(data => {
-      //   this.selectedUser = data
-      // })
-    },
-    // 任务组邦迪指标查看
-    enterHandle (item) {
-      console.log(item)
     },
     leaveHandle () {
       this.showJob_id = ''
@@ -417,7 +403,6 @@ export default {
       }).then(checkeddata => {
         this.agencyValue = []
         if (checkeddata.length > 0) {
-          // this.hlklhl(this.agency, checkeddata[0].origin_id)
           this.BaseRequest({
             url: '/reporting/useroriginassignlist',
             method: 'get',
@@ -440,19 +425,6 @@ export default {
         }
       })
     },
-    // 通过最后一层id找出所有父级
-    // hlklhl (agencyList, originId) {
-    //   for (let i = 0; i < agencyList.length; i++) {
-    //     let item = agencyList[i]
-    //     if (item.id == originId) {
-    //       console.log(item)
-    //     } else {
-    //       if (item.children) {
-    //         this.hlklhl(item.children, originId)
-    //       }
-    //     }
-    //   }
-    // },
     // 填报人确定
     subRcdusercg () {
       if (this.currentData.length > 0) {
@@ -539,6 +511,32 @@ export default {
             this.$message.error('任务发布失败')
           }   
         })
+      }).catch(() => {
+        return false
+      })
+    },
+    // 删除任务
+    deleteJob (row) {
+      this.$confirm('确认要删除该任务', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        if (row.job_status == 0) {
+          this.BaseRequest({
+            url: '/fillinatask/deletercdjobconfig',
+            method: 'get',
+            params: {job_id: row.job_id}
+          }).then(data => {
+            if (data == 'success') {
+              this.$message.success('删除成功')
+            } else {
+              this.$message.error('删除失败')
+            }
+          })
+        } else {
+          this.$message.warning('当前任务不能删除')
+        }
       }).catch(() => {
         return false
       })

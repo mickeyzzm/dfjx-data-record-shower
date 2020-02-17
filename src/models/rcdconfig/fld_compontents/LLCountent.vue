@@ -32,6 +32,7 @@
                 :resizable="false">
                 <template slot-scope="scope">
                     <el-button size="mini"  type="text" @click="openEditModal_ll(scope.row)">编辑</el-button>
+                    <el-button size="mini"  type="text" @click="deleteFld(scope.row)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -183,6 +184,27 @@ export default {
             this.addformData_ll.inClaNm = "";
             this.editformData_ll.inClaNm = "";
         },
+        deleteFld (row) {
+            this.$confirm('确认要删除该指标类别', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.BaseRequest({
+                    url: '/rcdDt/deletrcddtcatg',
+                    method: 'get',
+                    params: {catg_id: row.catg_id}
+                }).then(data => {
+                    if (data == 'success') {
+                        this.$message.success('删除成功')
+                    } else {
+                        this.$message.error('删除失败')
+                    }
+                })
+            }).catch(() => {
+                return false
+            })
+        }
     },
     created () {
 

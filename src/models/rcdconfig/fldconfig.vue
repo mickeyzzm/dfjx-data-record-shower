@@ -110,15 +110,16 @@
               }).then(data => {
                   // console.log(data,"leftrcddtproj")
                   if (data.length > 0) {
-                  data.map(item => {
-                      this.flgTreeData.push({
-                        label: item.proj_name,
-                        proj_id: item.proj_id,
-                        disabled: true,
-                        children: []
-                      })
-                      this.leftrcddtMenuNd(item.proj_id)
-                  })
+                    this.flgTreeData = []
+                    data.map(item => {
+                        this.flgTreeData.push({
+                            label: item.proj_name,
+                            proj_id: item.proj_id,
+                            disabled: true,
+                            children: []
+                        })
+                        this.leftrcddtMenuNd(item.proj_id)
+                    })
                   }
               })
           },
