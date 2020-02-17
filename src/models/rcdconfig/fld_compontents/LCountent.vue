@@ -245,8 +245,9 @@ export default {
                 }).then(data => {
                     if (data == 'success') {
                         this.$message.success('删除成功')
+                        this.getTableData_L()
                     } else {
-                        this.$message.error('删除失败')
+                        this.$message.error('删除失败，该基本类别下的指标已在任务中使用')
                     }
                 })
             }).catch(() => {

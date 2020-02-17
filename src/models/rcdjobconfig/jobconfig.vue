@@ -530,6 +530,7 @@ export default {
           }).then(data => {
             if (data == 'success') {
               this.$message.success('删除成功')
+              this.rcdjobconfigList()
             } else {
               this.$message.error('删除失败')
             }

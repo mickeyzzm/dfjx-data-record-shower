@@ -870,8 +870,9 @@ export default {
                 }).then(data => {
                     if (data == 'success') {
                         this.$message.success('删除成功')
+                        this.$emit("getTableData_LLL")
                     } else {
-                        this.$message.error('删除失败')
+                        this.$message.error('删除失败,该指标已在任务中使用。')
                     }
                 })
             }).catch(() => {
