@@ -38,6 +38,7 @@
                 :resizable="false">
                 <template slot-scope="scope">
                     <el-button size="mini" type="text" @click="openEditModal_lll(scope.row)">编辑</el-button>
+                    <el-button size="mini"  type="text" @click="deleteFld(scope.row)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -855,6 +856,28 @@ export default {
             this.addShowModalPage_dataFid = false;
             this.editShowModalPage_dataFid = false;
             this.treeId_Add = 1;
+        },
+        deleteFld (row) {
+            this.$confirm('确认要删除该指标', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.BaseRequest({
+                    url: '/rcdDt/deletercddtfld',
+                    method: 'get',
+                    params: {fld_id: row.fld_id}
+                }).then(data => {
+                    if (data == 'success') {
+                        this.$message.success('删除成功')
+                        this.$emit("getTableData_LLL")
+                    } else {
+                        this.$message.error('删除失败,该指标已在任务中使用。')
+                    }
+                })
+            }).catch(() => {
+                return false
+            })
         }
     },
     created () {
