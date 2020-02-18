@@ -57,7 +57,17 @@
             <el-option
               v-for="item in options"
               :key="item.value"
-              :label="item.name"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item class="public" label="任务组类型：">
+          <el-select style="width:100%" v-model="insertJobForm.job_unit_type">
+            <el-option
+              v-for="item in unittype"
+              :key="item.value"
+              :label="item.label"
               :value="item.value"
             ></el-option>
           </el-select>
@@ -114,11 +124,15 @@ export default {
       unitDialogVisible: false,
       flgDialogVisible: false,
       treeId: '',
+      insertJobForm: {job_unit_name: '', job_unit_type: 0, job_unit_active: 0},
       options: [
-        { name: '启用', value: 1 },
-        { name: '停用', value: 0 }
+        { label: '启用', value: 1 },
+        { label: '停用', value: 0 }
       ],
-      insertJobForm: {job_unit_name: '', job_unit_active: 0},
+      unittype: [
+        { label: '单项', value: 1 },
+        { label: '表格', value: 0 }
+      ],
       keyWorld: '',
       nodeList: [],
       jobUnitid: [],
@@ -151,7 +165,7 @@ export default {
     // 新增任务组
     insertUnit () {
       this.unitDialogVisible = true
-      this.insertJobForm = {job_unit_name: '', job_unit_active: 0}
+      this.insertJobForm = {job_unit_name: '', job_unit_type: 0, job_unit_active: 0}
     },
     // 任务组列表
     unitList () {

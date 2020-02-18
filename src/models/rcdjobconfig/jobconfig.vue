@@ -122,7 +122,7 @@
       width="35%">
       <el-form :model="FormData">
           <el-form-item class="public" label="填报任务名称：">
-            <el-input :readonly="isRead" v-model="FormData.job_name" placeholder="请输入填报任务名称"></el-input>
+            <el-input style="width:100%" :readonly="isRead" v-model="FormData.job_name" placeholder="请输入填报任务名称"></el-input>
           </el-form-item>
           <el-form-item v-if="!isShow" class="public" label="已选择任务组：">
             <el-dropdown v-for="item in selectedUnit" :key="item.job_unit_id" trigger="click">
@@ -139,6 +139,7 @@
           </el-form-item>
           <el-form-item class="public" label="任务开始日期：">
             <el-date-picker
+              style="width:100%"
               size="mini"
               v-model="FormData.job_start_dt"
               type="date"
@@ -147,8 +148,9 @@
               placeholder="请指定任务开始日期">
             </el-date-picker>
           </el-form-item>
-          <el-form-item class="public" style="margin-bottom:30px;" label="任务结束日期：">
+          <el-form-item class="public textss" style="margin-bottom:30px;" label="任务结束日期：">
             <el-date-picker
+              style="width:100%"
               size="mini"
               v-model="FormData.job_end_dt"
               type="date"

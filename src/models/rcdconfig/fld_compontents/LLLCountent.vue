@@ -736,7 +736,7 @@ export default {
                     if(res == "success"){
                         this.Message.success('保存成功');
                         this.$emit("getTableData_LLL");
-                        // this.$emit("getMenuData_Add_LLL");
+                        this.$emit("getMenuData_Add_LLL");
                         this.closeModal();
                     }
                 })
@@ -830,7 +830,7 @@ export default {
                     if(res == "success"){
                         this.Message.success('修改成功');
                         this.$emit("getTableData_LLL");
-                        // this.$emit("getMenuData_edit_LLL");
+                        this.$emit("getMenuData_edit_LLL");
                         this.editShowModalPage_lll = false;
                     }
                 })
@@ -871,6 +871,7 @@ export default {
                     if (data == 'success') {
                         this.$message.success('删除成功')
                         this.$emit("getTableData_LLL")
+                        this.$emit('success')
                     } else {
                         this.$message.error('删除失败,该指标已在任务中使用。')
                     }
