@@ -28,49 +28,30 @@
               </tr>
             </thead>
             <tbody>
-            <tr v-for="(reportDataLine,rowLineNumber) in reportDataLineArray" class="el-table__row mini-font-size " >
-              <td style="width:60px" colspan="1" rowspan="1" class="  is-center table-row" :class="{'table-row-color':(rowLineNumber%2==0)}">
-                {{rowLineNumber+1}}
-              </td>
-              <td v-for="unitFld in unitFlds" colspan="1" rowspan="1" class="is-center table-row " :class="{'table-row-color':(rowLineNumber%2==0)}">
-              <!--<td v-for="(unitFld,index) in unitFlds" colspan="1" rowspan="1" class="is-center table-row ">{{index}}-->
-                <div class="cell">
-                  <div class="el-form-item" style="margin: auto;">
-                    <div class="el-form-item__content">
-                      <div v-if="unitFld.fld_data_type==0||unitFld.fld_data_type==1" class="el-input el-input--mini "
-                           v-bind:class="{ 'el-input-group el-input-group--append':(unitFld.fld_point!=null&&unitFld.fld_point!='') }">
-                        <input placeholder="请输入" v-model="reportDataLine['f'+unitFld.fld_id]" class="el-input__inner"></input>
-                        <div v-if="unitFld.fld_point!=null&&unitFld.fld_point!=''" class="el-input-group__append">{{unitFld.fld_point}}</div>
-                      </div>
-                      <!--<el-input  v-if="unitFld.fld_data_type==0||unitFld.fld_data_type==1" size="mini" v-model="reportDataLineArray[rowLineNumber][unitFld.fld_id]" >-->
-                      <!--<template v-if="unitFld.fld_point!=null&&unitFld.fld_point!=''" slot="append">{{unitFld.fld_point}}</template>-->
-                      <!--</el-input>-->
-                      <el-date-picker v-if="unitFld.fld_data_type==2" size="mini" align="left"
-                                      v-model="reportDataLine[unitFld.fld_id]"
-                                      type="date"
-                                      placeholder="选择日期">
-                      </el-date-picker>
-
-                      <el-select @change="refreshData" v-model="reportDataLine['f'+unitFld.fld_id]" v-if="unitFld.fld_data_type==3">
-                        <el-option v-for="dictObj in fldDicts['f'+unitFld.fld_id]"
-                                   :key="dictObj.dict_content_value"
-                                   :label="dictObj.dict_content_name"
-                                   :value="dictObj.dict_content_value">
-                        </el-option>
-                      </el-select>
-
-                      <div v-if="validateResultObj[rowLineNumber]!=null&&validateResultObj[rowLineNumber][unitFld.fld_id]!=null"
-                           style="padding:0;margin:0;font-size:8px;color:red;">{{validateResultObj[rowLineNumber][unitFld.fld_id]}}</div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-
-
-              <td colspan="1" rowspan="1" class="  is-center  table-row " :class="{'table-row-color':(rowLineNumber%2==0)}">
-                <el-button type="text" size="small" @click="removeLine(rowLineNumber)">删除</el-button>
-              </td>
-            </tr>
+              <GriddimRecordRow v-for="(reportDataLine,rowIndex) in dbDataLineArray"
+                                :key="'dbDataLineArray'+rowIndex"
+                                :reportDataLine="reportDataLine"
+                                :rowLineNumber="rowIndex"
+                                :dataArrayName="'dbDataLineArray'"
+                                :arrayIndex="rowIndex"
+                                :removeLine="removeLine"
+                                :reloadData="reloadData"
+                                :needRecordDel="true"
+                                :unitFlds="unitFlds"
+                                :fldDicts="fldDicts"
+                                :validateResultObj="validateResultObj"></GriddimRecordRow>
+              <GriddimRecordRow v-for="(reportDataLine,rowIndex) in newReportDataLine"
+                                :key="'newReportDataLine'+rowIndex"
+                                :reportDataLine="reportDataLine"
+                                :rowLineNumber="rowIndex"
+                                :dataArrayName="'newReportDataLine'"
+                                :arrayIndex="rowIndex"
+                                :removeLine="removeLine"
+                                :reloadData="reloadData"
+                                :needRecordDel="false"
+                                :unitFlds="unitFlds"
+                                :fldDicts="fldDicts"
+                                :validateResultObj="newDataValidateResultObj"></GriddimRecordRow>
             </tbody>
 
           </table>
@@ -86,12 +67,14 @@
 
 <script>
   import WorkMain from "@/models/public/WorkMain"
+  import GriddimRecordRow from "@/models/rcdjob/datareport/multdim/griddimRecordRow"
 
   export default {
     name: "GriddimRecord",
     describe:"多维静态报表填报单元",
     components: {
-      WorkMain
+      WorkMain,
+      GriddimRecordRow
     },
     props:{
       jobId:{
@@ -111,14 +94,22 @@
       }
     },
     data() {
+      /*
+       * upReportDataLine 更新了数据的行
+       * newReportDataLine 点击addone新增的行
+       * delReportDataLine 从旧数据中删除的行
+       */
       return {
         lastStep:false,
         definedIndexs:[],
         unitFldTypes:[],
         unitFlds:[],
         fldDicts:{},
-        reportDataLineArray:[],
+        dbDataLineArray:[],
+        newReportDataLine:[],
+        delReportDataLine:[],
         validateResultObj:{},
+        newDataValidateResultObj:{},
         hasMounted:false,
         cacheOptions:''
       }
@@ -135,9 +126,10 @@
           })
         }
         this.BaseRequest({
-          url:"/record/process/getFldByGroupId",
+          url:"/record/process/getClientFldByUnitId",
           params:{
-            groupId:this.unitId
+            groupId:this.unitId,
+            clientType:'PC'
           }
         }).then(response=>{
           if(loading){
@@ -194,17 +186,18 @@
           }
         }).then(response=>{
           const reportDataLineMap = new Object()
-          const reportDataLineArray = []
+          const dbDataLineArray = []
           if(response){
             response.forEach(reportData=>{
               const colum_id = reportData.colum_id
               const fld_id = reportData.fld_id
-              if(!reportDataLineArray[colum_id]){
-                reportDataLineArray[colum_id] = new Object()
+              if(!dbDataLineArray[colum_id]){
+                dbDataLineArray[colum_id] = new Object()
+                dbDataLineArray[colum_id].colum_id = colum_id
               }
-              reportDataLineArray[colum_id]["f"+fld_id] = reportData.record_data
+              dbDataLineArray[colum_id]["f"+fld_id] = reportData.record_data
             })
-            this.reportDataLineArray = reportDataLineArray
+            this.dbDataLineArray = dbDataLineArray
           }
         }).catch(error=>{
             this.Message.success(error)
@@ -213,40 +206,36 @@
       },
 
       addOne(){
-        const reportLineCount = this.reportDataLineArray.length
-        const reportDataLineArrayCopy = this.reportDataLineArray
+        const reportLineCount = this.newReportDataLine.length
+        const newReportDataLineCp = this.newReportDataLine
         const newLineDatas = new Object()
         this.unitFlds.forEach(unitFld=>{
           newLineDatas["f"+unitFld.fld_id] = ''
         })
-        reportDataLineArrayCopy[reportLineCount] = newLineDatas
-        this.reportDataLineArray = null
-        this.reportDataLineArray = reportDataLineArrayCopy
+        newReportDataLineCp[reportLineCount] = newLineDatas
+        this.newReportDataLine = null
+        this.newReportDataLine = newReportDataLineCp
       },
 
-      removeLine(lineNumber){
+      removeLine(arrayIndex,dataName,needRecordDel){
         let reportDataLineNew = new Array()
-        this.reportDataLineArray.forEach((reportDataLine,index)=>{
-          if(index!=lineNumber){
+        this[dataName].forEach((reportDataLine,index)=>{
+          if(index!=arrayIndex){
             reportDataLineNew.push(reportDataLine)
+          }else{
+            if(needRecordDel){
+              this.delReportDataLine.push(reportDataLine)
+            }
           }
         })
 
-        this.reportDataLineArray = reportDataLineNew
+        this[dataName] = reportDataLineNew
       },
 
-      refreshData(eventValue){
-        //element导致界面不刷新，需要主动修改data值让页面的watcher发现
-        const reportDataLineArrayCopy = this.reportDataLineArray
-        this.reportDataLineArray = null
-        this.reportDataLineArray = reportDataLineArrayCopy
-
-      },
-
-      getParseRecordData(){
+      getParseRecordData(dataLineArray){
         const reportJobDataList = new Array()
-        if(this.reportDataLineArray){
-          this.reportDataLineArray.forEach((reportDataLine,lineNumber)=>{
+        if(dataLineArray){
+          dataLineArray.forEach((reportDataLine,lineNumber)=>{
             this.unitFlds.forEach(unitFld=>{
               const reportDataValue = reportDataLine['f'+unitFld.fld_id]
               reportJobDataList.push({
@@ -262,11 +251,23 @@
         return reportJobDataList
       },
 
+      reloadData(dataName){
+        console.log(dataName)
+        const tmpData = this[dataName]
+        this[dataName] = null
+        this[dataName] = tmpData
+      },
+
       doSaveUnitContext(processName){
+        const dbDataList = this.getParseRecordData(this.dbDataLineArray)
+        const newDataList = this.getParseRecordData(this.newReportDataLine)
+        const delDataList = this.getParseRecordData(this.delReportDataLine)
         const gridDataObj = {
           report_id:this.reportId,
           job_id:this.jobId,
-          reportJobDataList:this.getParseRecordData()
+          reportJobInfos:dbDataList,
+          newReportJobInfos:newDataList,
+          delReportJobInfos:delDataList
         }
 
         this.BaseRequest({
@@ -287,8 +288,9 @@
       },
       doValidateUnitContext(processName){
         this.validateResultObj = {}
-
-        const recordDataList = this.getParseRecordData()
+        this.newDataValidateResultObj = {}
+        const dbDataList = this.getParseRecordData(this.dbDataLineArray)
+        const newDataList = this.getParseRecordData(this.newReportDataLine)
         // validateSimpleUnitContext
         const valloading = this.$loading({
           lock: true,
@@ -300,7 +302,8 @@
           url:"/record/process/validateGridDatas",
           method:'post',
           data:{
-            reportJobDataList:recordDataList
+            reportJobInfos:dbDataList,
+            newReportJobInfos:newDataList,
           }
         }).then(response=>{
           valloading.close();
@@ -311,9 +314,15 @@
           }
 
           let validateFailed = false
-          console.log(Object.keys(response).length)
-          if(response&&Object.keys(response).length>0){
-            this.validateResultObj = response
+          const reportJobDataValidate = response.reportJobDataValidate
+          const newDataValidateResultObj = response.newReportJobDataValidate
+          if(reportJobDataValidate&&Object.keys(reportJobDataValidate).length>0){
+            this.validateResultObj = reportJobDataValidate
+            validateFailed= true
+          }
+
+          if(newDataValidateResultObj&&Object.keys(newDataValidateResultObj).length>0){
+            this.newDataValidateResultObj = newDataValidateResultObj
             validateFailed= true
           }
 
