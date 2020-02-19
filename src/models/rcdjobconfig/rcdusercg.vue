@@ -40,7 +40,7 @@
       @close="isResquest = false"
       width="50%">
       <el-container>
-        <el-aside style="width:30%">
+        <el-aside style="width:40%">
           <el-tree
             :data="treeData"
             node-key="id"
@@ -94,7 +94,8 @@ export default {
       current: [],
       defaultProps: {
         children: 'children',
-        label: 'name'
+        label: 'label',
+        isLeaf: 'leaf'
       },
       currentNode: '',
       userid: [],
@@ -120,13 +121,14 @@ export default {
       })
     },
     opened () {
-      this.$nextTick(() => {
-        this.$refs.tree.setCurrentKey(this.currentRow.origin_id)
-      })
+      // this.$nextTick(() => {
+      //   this.$refs.tree.setCurrentKey(this.currentRow.origin_id)
+      // })
       this.active = []
       this.active.push(this.currentRow.origin_id)
     },
     insertUser () {
+      this.rcdusercgTable = []
       this.dialogVisible = true
       this.title = '新增'
       this.$nextTick(() => {
@@ -165,6 +167,7 @@ export default {
     },
     // 点击节点
     handleNodeClick (node) {
+      this.getOriginDatas(node)
       if (this.current.length > 0) {
         this.$confirm('检测有已经选择未提交的数据，是否保存?', '提示', {
           confirmButtonText: '保存',
@@ -222,6 +225,7 @@ export default {
     },
     // 修改填报人
     editUser (row) {
+      this.getOriginDatas()
       this.currentRow = row
       this.dialogVisible = true
       this.title = '修改'
@@ -259,12 +263,62 @@ export default {
       this.current = value
     },
     // 获取组织结构
-    getOriginDatas () {
+    getOriginDatas (node) {
       this.BaseRequest({
-        url: '/reporting/getOriginDatas',
-        method: 'get'
+        url: '/reporting/getOriginDatasorgId',
+        method: 'get',
+        params: {orgId: node ? node.id : 0}
       }).then(data => {
-        this.treeData = data.list
+        if (node) {
+          if (node.parentId == 0) {
+            this.treeData[0].children = []
+            data.map(item => {
+              this.treeData[0].children.push({
+                id: item.id,
+                label: item.label,
+                parentId: item.parentId,
+                children: []
+              })
+            })
+          } else if (node.parentId == 1) {
+            data.map(item => {
+              this.treeData[0].children.map(element => {
+                if (item.parentId == element.id) {
+                  element.children = data
+                  element.children.map(rcct => {
+                    this.$set(rcct, 'children', [])
+                  })
+                  return false
+                }
+              })
+            })
+          } else {
+            if (data.length > 0) {
+              data.map(item => {       
+                this.treeData[0].children.map(element => {
+                  if (element.children.length > 0) {
+                    element.children.map(rcct => {
+                      if (item.parentId == rcct.id) {
+                        rcct.children = data
+                        return false
+                      }
+                    })
+                  }
+                })
+              })
+            }
+          }
+        } else {
+          this.treeData = []
+          data.map(item => {
+            this.treeData.push({
+              id: item.id,
+              label: item.label,
+              parentId: item.parentId,
+              children: []
+            })
+          })
+        }
       })
     },
     // 页数改变

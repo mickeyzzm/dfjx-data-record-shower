@@ -137,7 +137,10 @@
               </el-dropdown-menu>
             </el-dropdown>
           </el-form-item>
-          <el-form-item class="public" label="任务开始日期：">
+          <el-form-item v-if="!isShow" class="public" label="已选择填报人：">
+            <el-tag style="margin-right:8px;box-sizing: border-box;" v-for="item in selectedUser" :key="item.user_id">{{item.user_name_cn}}</el-tag>
+          </el-form-item>
+          <el-form-item class="public text1" label="任务开始日期：">
             <el-date-picker
               style="width:100%"
               size="mini"
@@ -148,7 +151,7 @@
               placeholder="请指定任务开始日期">
             </el-date-picker>
           </el-form-item>
-          <el-form-item class="public textss" style="margin-bottom:30px;" label="任务结束日期：">
+          <el-form-item class="public text2" style="margin-bottom:30px;" label="任务结束日期：">
             <el-date-picker
               style="width:100%"
               size="mini"
@@ -300,6 +303,7 @@ export default {
       this.FormData = row
       this.isShow = false
       this.isRead = true
+      // 已选择得任务组
       this.BaseRequest({
         url: '/fillinatask/selectRcdJobUnitConfigyi',
         method: 'get',
@@ -330,6 +334,16 @@ export default {
             })
           })
         }
+      })
+      // 已绑定得填报人
+      this.BaseRequest({
+        url: '/fillinatask/huixianrcdjobpersonassign',
+        method: 'get',
+        params: {
+          job_id: row.job_id
+        }
+      }).then(checkedUser => {
+        this.selectedUser = checkedUser
       })
     },
     leaveHandle () {
@@ -456,25 +470,66 @@ export default {
       }
     },
     // 获取组织结构
-    getOriginDatas () {
-      this.BaseRequest({
-        url: '/reporting/getOriginDatas',
-        method: 'get'
-      }).then(data => {
-        this.agency = this.OriginData(data.list)
-      })
-    },
-    // 递归处理组织结构
-    OriginData (data) {
-      for (let i = 0; i < data.length; i++) {
-        if (data[i].children.length < 1) {
-          data[i].children = undefined
-        } else {
-          this.OriginData(data[i].children)
-        }
-      }
-      return data
-    },
+    // getOriginDatas () {
+    //   this.BaseRequest({
+    //     url: '/reporting/getOriginDatasorgId',
+    //     method: 'get',
+    //     params: {orgId: 0}
+    //   }).then(data => {
+    //     if (node) {
+    //       if (node.parentId == 0) {
+    //         this.treeData[0].children = []
+    //         data.map(item => {
+    //           this.treeData[0].children.push({
+    //             id: item.id,
+    //             label: item.label,
+    //             parentId: item.parentId,
+    //             children: []
+    //           })
+    //         })
+    //       } else if (node.parentId == 1) {
+    //         data.map(item => {
+    //           this.treeData[0].children.map(element => {
+    //             if (item.parentId == element.id) {
+    //               element.children = []
+    //               element.children.push({
+    //                 id: item.id,
+    //                 label: item.label,
+    //                 parentId: item.parentId,
+    //                 children: []
+    //               })
+    //             }
+    //           })
+    //         })
+    //       } else {
+    //         if (data.length > 0) {
+    //           data.map(item => {       
+    //             this.treeData[0].children.map(element => {
+    //               if (element.children.length > 0) {
+    //                 element.children.map(rcct => {
+    //                   if (item.parentId == rcct.id) {
+    //                     rcct.children = data
+    //                     return false
+    //                   }
+    //                 })
+    //               }
+    //             })
+    //           })
+    //         }
+    //       }
+    //     } else {
+    //       this.treeData = []
+    //       data.map(item => {
+    //         this.treeData.push({
+    //           id: item.id,
+    //           label: item.label,
+    //           parentId: item.parentId,
+    //           children: []
+    //         })
+    //       })
+    //     }
+    //   })
+    // },
     // 获取机构下用户
     agencyUser () {
       this.BaseRequest({
@@ -555,7 +610,7 @@ export default {
   },
   created () {
     this.rcdjobconfigList()
-    this.getOriginDatas()
+    // this.getOriginDatas()
   }
 }
 </script>
