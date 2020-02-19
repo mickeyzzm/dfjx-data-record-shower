@@ -241,7 +241,7 @@
               reportJobDataList.push({
                 report_id:this.reportId,
                 unit_id:this.unitId,
-                colum_id:lineNumber,
+                colum_id:reportDataLine.colum_id?reportDataLine.colum_id:lineNumber,
                 fld_id:unitFld.fld_id,
                 record_data:reportDataValue
               })

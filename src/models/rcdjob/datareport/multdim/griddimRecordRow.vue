@@ -17,7 +17,7 @@
             <!--<template v-if="unitFld.fld_point!=null&&unitFld.fld_point!=''" slot="append">{{unitFld.fld_point}}</template>-->
             <!--</el-input>-->
             <el-date-picker v-if="unitFld.fld_data_type==2" size="mini" align="left"
-                            v-model="reportDataLine[unitFld.fld_id]"
+                            v-model="reportDataLine['f'+unitFld.fld_id]"
                             type="date"
                             placeholder="选择日期">
             </el-date-picker>
@@ -31,8 +31,8 @@
               </el-option>
             </el-select>
 
-            <div v-if="validateResultObj[rowLineNumber]!=null&&validateResultObj[rowLineNumber][unitFld.fld_id]!=null"
-                 style="padding:0;margin:0;font-size:8px;color:red;">{{validateResultObj[rowLineNumber][unitFld.fld_id]}}</div>
+            <div v-if="validateResultObj[reportDataLine.colum_id]!=null&&validateResultObj[reportDataLine.colum_id][unitFld.fld_id]!=null"
+                 style="padding:0;margin:0;font-size:8px;color:red;">{{validateResultObj[reportDataLine.colum_id][unitFld.fld_id]}}</div>
           </div>
         </div>
       </div>

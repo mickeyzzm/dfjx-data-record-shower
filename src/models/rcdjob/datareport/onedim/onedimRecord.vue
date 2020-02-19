@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div style="background-color: white;height:calc(100% - 50px);margin:20px 0 0 0 ;padding:30px 0 0 0;border-radius:10px;">
     <el-form ref="form"  label-width="40%">
-      <!--<el-form-item :key="unitFld.fld_id" size="mini" v-for="unitFld in unitFlds" :label="unitFld.fld_name" :error="dataColum.validate_error">-->
-      <el-form-item :key="unitFld.fld_id" size="mini" v-for="unitFld in unitFlds" :label="unitFld.fld_name">
+      <el-form-item :key="unitFld.fld_id" size="mini" v-for="unitFld in unitFlds" :label="unitFld.fld_name" :error="validateUnitDatas['f'+unitFld.fld_id]">
+      <!--<el-form-item :key="unitFld.fld_id" size="mini" v-for="unitFld in unitFlds" :label="unitFld.fld_name">-->
         <el-col :span="23">
             <!--<el-tooltip class="item" effect="dark" :content="dataColum.colum_desc" placement="top">-->
-              <el-input v-model="unitDatas['f'+unitFld.fld_id].record_data"
+              <el-input v-model="unitDatas['f'+unitFld.fld_id]['record_data']"
                         :disabled="isView=='Y'" style="width:50%;float: left;" >
                 <!--<template v-if="dataColum.colum_point!=null&&dataColum.colum_point!=''" slot="append">{{dataColum.colum_point}}</template>-->
               </el-input>
@@ -56,7 +56,8 @@
         dataObject:[],
         hasMounted:false,
         unitFlds:[],
-        unitDatas:{}
+        unitDatas:{},
+        validateUnitDatas:{}
       }
     },
     methods:{
@@ -113,17 +114,18 @@
           const reportDataLineMap = new Object()
           const dbDataLineArray = []
           if(response){
+            const unitDatasTmp = {}
             response.forEach(reportData=>{
               const colum_id = reportData.colum_id
               const fld_id = reportData.fld_id
-              this.unitDatas['f'+fld_id] = reportData
+              unitDatasTmp['f'+fld_id] = reportData
             //   if(!dbDataLineArray[colum_id]){
             //     dbDataLineArray[colum_id] = new Object()
             //     dbDataLineArray[colum_id].colum_id = colum_id
             //   }
             //   dbDataLineArray[colum_id]["f"+fld_id] = reportData.record_data
             })
-            // this.unitDatas = response
+            this.unitDatas = unitDatasTmp
           }
         }).catch(error=>{
             this.Message.success(error)
@@ -132,11 +134,12 @@
       },
       doSaveUnitContext(processName){
         this.BaseRequest({
-          url:"/reportCust/saveSimpleUnitContext",
+          url:"/record/process/saveSimpleDatas",
           method:'post',
           data:{
-            definedColums:this.definedColums,
-            columDatas:this.dataObject
+            report_id:this.reportId,
+            job_id:this.jobId,
+            reportJobInfos:Object.values(this.unitDatas)
           }
         }).then(response=>{
           // this.$emit("refreshSaveLoading",this.unitId,"保存成功")
@@ -153,37 +156,33 @@
       },
 
       doValidateUnitContext(processName){
+        this.validateUnitDatas = {}
+        let validateFailed = false
+        const validateUnitDatasTmp = {}
         this.BaseRequest({
-          url:"/reportCust/validateSimpleUnitContext",
+          url:"/record/process/validateSimpleDatas",
           method:'post',
           data:{
-            definedColums:this.definedColums,
-            columDatas:this.dataObject
+            reportJobInfos:Object.values(this.unitDatas)
           }
         }).then(response=>{
+          console.log(response)
+
           if(response){
+            const errorFldIds = Object.keys(response);
+            if(errorFldIds!=null&&errorFldIds.length>0){
+              validateFailed = true
+            }
+
+            errorFldIds.forEach(errorFldId=>{
+              validateUnitDatasTmp['f'+errorFldId] = response[errorFldId]
+            })
+
           }else{
             this.$emit("validateReportsCallBack",this.unitId,processName,"校验出现异常")
           }
 
-          let validateFailed = false
-          let failtMes = ""
-          if(response!=null){
-            const validateFailedKeys = Object.keys(response)
-            if(validateFailedKeys!=null&&validateFailedKeys.length>0){
-              validateFailed = true
-            }
-          }else{
-            response = {}
-          }
-
-          this.dataObject.forEach(columData=>{
-            if(response[columData.colum_id]){
-              columData.validate_error = response[columData.colum_id]
-            }else{
-              columData.validate_error = null
-            }
-          })
+          this.validateUnitDatas = validateUnitDatasTmp
 
           // this.$emit("checkStepAndSave",this.unitId,this.saveFlag)
           let failedMessage = null
@@ -191,9 +190,7 @@
             // this.$emit("refreshSaveLoading",this.unitId,"有输入错误")
             failedMessage = "有输入错误"
           }
-          const dataTmp = this.dataObject
-          this.dataObject = null
-          this.dataObject = dataTmp
+
           this.$emit("validateReportsCallBack",this.unitId,processName,failedMessage)
 
         });
