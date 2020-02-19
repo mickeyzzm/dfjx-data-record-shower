@@ -198,6 +198,7 @@ export default {
                     if (data == 'success') {
                         this.$message.success('删除成功')
                         this.$emit("getTableData_LL")
+                        this.$emit('success')
                     } else {
                         this.$message.error('删除失败，该指标类别下的指标已在任务中使用')
                     }
