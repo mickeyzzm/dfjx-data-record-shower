@@ -87,6 +87,7 @@
       }
     },
     data() {
+      return {}
     },
     methods:{
       refreshData(){
