@@ -397,7 +397,7 @@
               'user_status': this.formData.user_status
             }
           }).then(() => {
-            this.Message.success('保存成功')
+            // this.Message.success('保存成功')
             // add user——origin relation
             this.changeOrigin()
             this.getTableData()
@@ -418,7 +418,7 @@
               'user_status': this.formData.user_status
             }
           }).then((response) => {
-            this.Message.success('保存成功')
+            // this.Message.success('保存成功')
             // add user——origin relation
             this.formData.user_id = response.user_id
             this.changeOrigin()
