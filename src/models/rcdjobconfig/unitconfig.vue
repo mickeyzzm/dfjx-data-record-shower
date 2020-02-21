@@ -33,14 +33,12 @@
         </el-table-column>
       </el-table>
       <el-pagination
-        @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="pagination.currentPageIndex"
-        :page-sizes="[10, 15, 20]"
         :page-size="pagination.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
         :total="pagination.total"
-      ></el-pagination>
+        layout="total, prev, pager, next, jumper">
+    </el-pagination>
     </el-main>
     <!-- 新增任务组弹窗 -->
     <el-dialog
@@ -179,7 +177,9 @@ export default {
         }
       }).then(data => {
         this.tableData = data.dataList
-        this.pagination.total = this.tableData.length
+        this.pagination.total = data.totalNum
+        this.pagination.currentPageIndex = data.currPage
+        this.pagination.pageSize = data.pageSize
       })
     },
     // 提交新增
@@ -353,10 +353,6 @@ export default {
           this.flgDialogVisible = false
         }
       })
-    },
-    // 页数改变
-    handleSizeChange (val) {
-      this.pagination.pageSize = val
     },
     // 当前页改变
     handleCurrentChange (val) {

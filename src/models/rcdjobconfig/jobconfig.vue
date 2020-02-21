@@ -43,14 +43,12 @@
       </el-table-column>
     </el-table>
     <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="pagination.currentPageIndex"
-      :page-sizes="[10, 15, 20]"
-      :page-size="pagination.pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="pagination.total"
-    ></el-pagination>
+        @current-change="handleCurrentChange"
+        :current-page="pagination.currentPageIndex"
+        :page-size="pagination.pageSize"
+        :total="pagination.total"
+        layout="total, prev, pager, next, jumper">
+    </el-pagination>
     <!-- 填报组弹窗 -->
     <el-dialog
       title="选择任务组"
@@ -83,12 +81,12 @@
         <span>请选择机构：</span>
         <el-cascader
           v-model="agencyValue"
+          :options="agency"
           style="width: 35%"
           :show-all-levels="false"
-          :props="defaultProps"
+          :props="props"
           placeholder="请选择机构"
           :filterable="true"
-          :options="agency"
           ref="mycascader"
           @change="handleChange">
         </el-cascader>
@@ -211,10 +209,10 @@ export default {
       isRead: false,
       title: '新增',
       currPage: {},
-      defaultProps: {
-        children: 'children',
-        label: 'name',
-        value: 'id'
+      gagid: 0,
+      props: {
+        value: 'id',
+        label: 'label'
       },
       currentAgency: '',
       currentData: [],
@@ -238,7 +236,9 @@ export default {
         }
       }).then(data => {
         this.tableData = data.dataList
-        this.pagination.total = data.dataList.length
+        this.pagination.total = data.totalNum
+        this.pagination.currentPageIndex = data.currPage
+        this.pagination.pageSize = data.pageSize
       })
     },
     clearOption () {
@@ -426,8 +426,8 @@ export default {
           }).then(data => {
             this.rcdusercgTable = data
             checkeddata.map(item => {
-              this.rcdusercgTable.map((element, index) => {
-                if (element.user_id === item.user_id) {
+              data.map((element, index) => {
+                if (item.user_id == element.user_id) {
                   this.$nextTick(() => {
                     this.$refs.multipleTable.toggleRowSelection(this.rcdusercgTable[index])
                   })
@@ -470,66 +470,15 @@ export default {
       }
     },
     // 获取组织结构
-    // getOriginDatas () {
-    //   this.BaseRequest({
-    //     url: '/reporting/getOriginDatasorgId',
-    //     method: 'get',
-    //     params: {orgId: 0}
-    //   }).then(data => {
-    //     if (node) {
-    //       if (node.parentId == 0) {
-    //         this.treeData[0].children = []
-    //         data.map(item => {
-    //           this.treeData[0].children.push({
-    //             id: item.id,
-    //             label: item.label,
-    //             parentId: item.parentId,
-    //             children: []
-    //           })
-    //         })
-    //       } else if (node.parentId == 1) {
-    //         data.map(item => {
-    //           this.treeData[0].children.map(element => {
-    //             if (item.parentId == element.id) {
-    //               element.children = []
-    //               element.children.push({
-    //                 id: item.id,
-    //                 label: item.label,
-    //                 parentId: item.parentId,
-    //                 children: []
-    //               })
-    //             }
-    //           })
-    //         })
-    //       } else {
-    //         if (data.length > 0) {
-    //           data.map(item => {       
-    //             this.treeData[0].children.map(element => {
-    //               if (element.children.length > 0) {
-    //                 element.children.map(rcct => {
-    //                   if (item.parentId == rcct.id) {
-    //                     rcct.children = data
-    //                     return false
-    //                   }
-    //                 })
-    //               }
-    //             })
-    //           })
-    //         }
-    //       }
-    //     } else {
-    //       this.treeData = []
-    //       data.map(item => {
-    //         this.treeData.push({
-    //           id: item.id,
-    //           label: item.label,
-    //           parentId: item.parentId,
-    //           children: []
-    //         })
-    //       })
-    //     }
-    //   })
-    // },
+    getOriginDatas (value) {
+      this.BaseRequest({
+        url: '/reporting/getOriginDatas',
+        method: 'get',
+        params: {orgId: 0}
+      }).then(data => {
+        this.agency = data
+      })
+    },
     // 获取机构下用户
     agencyUser () {
       this.BaseRequest({
@@ -599,18 +548,15 @@ export default {
         return false
       })
     },
-    // 页数改变
-    handleSizeChange (val) {
-      this.pagination.pageSize = val
-    },
     // 当前页改变
     handleCurrentChange (val) {
       this.pagination.currentPageIndex = val
+      this.rcdjobconfigList()
     }
   },
   created () {
     this.rcdjobconfigList()
-    // this.getOriginDatas()
+    this.getOriginDatas()
   }
 }
 </script>

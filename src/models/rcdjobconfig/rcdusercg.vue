@@ -23,14 +23,12 @@
       </el-table-column>
     </el-table>
     <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="pagination.currentPageIndex"
-      :page-sizes="[10, 15, 20]"
-      :page-size="pagination.pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="pagination.total"
-    ></el-pagination>
+        @current-change="handleCurrentChange"
+        :current-page="pagination.currentPageIndex"
+        :page-size="pagination.pageSize"
+        :total="pagination.total"
+        layout="total, prev, pager, next, jumper">
+    </el-pagination>
     <!-- 新增填报人弹窗 -->
     <el-dialog
       :title="title + '填报人'"
@@ -42,7 +40,8 @@
       <el-container>
         <el-aside style="width:40%">
           <el-tree
-            :data="treeData"
+            :load="loadNode"
+            lazy
             node-key="id"
             @node-click="handleNodeClick"
             :default-expanded-keys="active"
@@ -101,7 +100,8 @@ export default {
       userid: [],
       active: [],
       currentRow: {},
-      title: ''
+      title: '',
+      currentTreeid: ''
     }
   },
   methods: {
@@ -117,7 +117,9 @@ export default {
         }
       }).then(data => {
         this.tableData = data.dataList
-        this.pagination.total = data.dataList.length
+        this.pagination.total = data.totalNum
+        this.pagination.currentPageIndex = data.currPage
+        this.pagination.pageSize = data.pageSize
       })
     },
     opened () {
@@ -167,7 +169,7 @@ export default {
     },
     // 点击节点
     handleNodeClick (node) {
-      this.getOriginDatas(node)
+      this.currentTreeid = node.id
       if (this.current.length > 0) {
         this.$confirm('检测有已经选择未提交的数据，是否保存?', '提示', {
           confirmButtonText: '保存',
@@ -225,7 +227,6 @@ export default {
     },
     // 修改填报人
     editUser (row) {
-      this.getOriginDatas()
       this.currentRow = row
       this.dialogVisible = true
       this.title = '修改'
@@ -263,78 +264,60 @@ export default {
       this.current = value
     },
     // 获取组织结构
-    getOriginDatas (node) {
-      this.BaseRequest({
-        url: '/reporting/getOriginDatasorgId',
-        method: 'get',
-        params: {orgId: node ? node.id : 0}
-      }).then(data => {
-        if (node) {
-          if (node.parentId == 0) {
-            this.treeData[0].children = []
-            data.map(item => {
-              this.treeData[0].children.push({
-                id: item.id,
-                label: item.label,
-                parentId: item.parentId,
-                children: []
-              })
-            })
-          } else if (node.parentId == 1) {
-            data.map(item => {
-              this.treeData[0].children.map(element => {
-                if (item.parentId == element.id) {
-                  element.children = data
-                  element.children.map(rcct => {
-                    this.$set(rcct, 'children', [])
-                  })
-                  return false
-                }
-              })
-            })
-          } else {
-            if (data.length > 0) {
-              data.map(item => {       
-                this.treeData[0].children.map(element => {
-                  if (element.children.length > 0) {
-                    element.children.map(rcct => {
-                      if (item.parentId == rcct.id) {
-                        rcct.children = data
-                        return false
-                      }
-                    })
-                  }
-                })
+    loadNode (node, resolve) {
+      if (node.level === 0) {
+        this.BaseRequest({
+          url: '/reporting/getOriginDatasorgId',
+          method: 'get',
+          params: {orgId: 0}
+        }).then(data => {
+          resolve(data)
+        })
+      } else if (node.level === 1) {
+        this.$nextTick(() => {
+          this.BaseRequest({
+            url: '/reporting/getOriginDatasorgId',
+            method: 'get',
+            params: {orgId: this.currentTreeid}
+          }).then(data => {
+            resolve(data)
+          })
+        })
+      } else if (node.level === 2) {
+        this.$nextTick(() => {
+          this.BaseRequest({
+            url: '/reporting/getOriginDatasorgId',
+            method: 'get',
+            params: {orgId: this.currentTreeid}
+          }).then(data => {
+            resolve(data)
+          })
+        })
+      } else if (node.level === 3) {
+        this.$nextTick(() => {
+          this.BaseRequest({
+            url: '/reporting/getOriginDatasorgId',
+            method: 'get',
+            params: {orgId: this.currentTreeid}
+          }).then(data => {
+            resolve(data)
+            if (node.childNodes.length > 0) {
+              node.childNodes.map(item => {
+                item.isLeaf = true
               })
             }
-          }
-        } else {
-          this.treeData = []
-          data.map(item => {
-            this.treeData.push({
-              id: item.id,
-              label: item.label,
-              parentId: item.parentId,
-              children: []
-            })
           })
-        }
-      })
-    },
-    // 页数改变
-    handleSizeChange (val) {
-      this.pagination.pageSize = val
+        })
+      }
     },
     // 当前页改变
     handleCurrentChange (val) {
       this.pagination.currentPageIndex = val
+      this.rcdusercgList()
     }
   },
   created () {
     this.rcdusercgList()
-  },
-  mounted () {
-    this.getOriginDatas()
   }
 }
 </script>
