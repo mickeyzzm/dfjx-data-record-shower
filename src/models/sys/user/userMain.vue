@@ -81,11 +81,32 @@
           <el-input   auto-complete="off" ></el-input>
         </el-form-item>
         -->
-        <el-form-item :size="small" label="用户名称" >
+        <el-form-item label="用户名称" >
           <el-input v-model="formData.user_name" auto-complete="off" ></el-input>
         </el-form-item>
 
-        <el-form-item :size="small" label="用户类型" >
+        <el-form-item label="真实姓名" >
+          <div class="el-input el-input--mini ">
+            <input placeholder="请输入" v-model="formData.user_name_cn" class="el-input__inner"></input>
+          </div>
+        </el-form-item>
+        <el-form-item label="办公电话">
+          <div class="el-input el-input--mini ">
+            <input placeholder="请输入" v-model="formData.office_phone" class="el-input__inner"></input>
+          </div>
+        </el-form-item>
+        <el-form-item label="手机号">
+          <div class="el-input el-input--mini ">
+            <input placeholder="请输入" v-model="formData.mobile_phone" class="el-input__inner"></input>
+          </div>
+        </el-form-item>
+        <el-form-item label="邮箱地址" >
+          <div class="el-input el-input--mini ">
+            <input placeholder="请输入" v-model="formData.email" class="el-input__inner"></input>
+          </div>
+        </el-form-item>
+
+        <el-form-item label="用户类型" >
           <el-select v-model="formData.user_type" style="width:100%;" placeholder="请选择用户类型">
             <el-option label="填报人" value='1'></el-option>
             <el-option label="审核人" value='0'></el-option>
@@ -99,19 +120,6 @@
             <el-option label="密码过期" value="3"></el-option>
             <el-option label="停用" value='4'></el-option>
           </el-select>
-        </el-form-item>
-
-        <el-form-item label="真实姓名"  prop="office_phone">
-          <el-input  v-model="formData.user_name_cn"></el-input>
-        </el-form-item>
-        <el-form-item label="办公电话"   prop="office_phone">
-          <el-input  v-model="formData.office_phone"></el-input>
-        </el-form-item>
-        <el-form-item label="手机号" prop="mobile_phone">
-          <el-input  v-model="formData.mobile_phone"></el-input>
-        </el-form-item>
-        <el-form-item label="邮箱地址"  prop="email">
-          <el-input  v-model="formData.email"></el-input>
         </el-form-item>
         <!--<el-form-item label="统一社保代码" prop="social_code">-->
           <!--<el-input  v-model="formData.social_code"></el-input>-->
@@ -298,7 +306,7 @@
           type: 'warning'
         }).then(() => {
           this.BaseRequest({
-            url: 'sys/user/delUserByUserId',
+            url: 'sys/custUser/delUserByUserId',
             method: 'get',
             params: {'user_id': row.user_id}
           }).then(() => {
@@ -397,10 +405,9 @@
               'user_status': this.formData.user_status
             }
           }).then(() => {
-            this.Message.success('保存成功')
+            // this.Message.success('保存成功')
             // add user——origin relation
             this.changeOrigin()
-            this.getTableData()
             this.closeModal()
           })
         } else { // insert
@@ -418,11 +425,10 @@
               'user_status': this.formData.user_status
             }
           }).then((response) => {
-            this.Message.success('保存成功')
+            // this.Message.success('保存成功')
             // add user——origin relation
             this.formData.user_id = response.user_id
             this.changeOrigin()
-            this.getTableData()
             this.closeModal()
           })
         }
@@ -434,6 +440,7 @@
           params:{"userId":this.formData.user_id,"originId":this.formData.origin_id}
         }).then(response=>{
           this.Message.success("保存成功")
+          this.getTableData()
           this.closeModal()
         })
       },

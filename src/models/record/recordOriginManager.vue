@@ -5,7 +5,7 @@
         <el-button @click="openAddModal" type="primary">新增</el-button>
       </el-col>
     </el-row>
-    <el-row class="table-row">
+    <el-row class="table-page-root-outoptions">
       <el-col :span="24">
         <el-table
           :data="originDataList"
@@ -33,18 +33,13 @@
             :formatter="formatterSuperName"
           >
           </el-table-column>
+
           <el-table-column
             label="操作"
-            align="left"
-          >
+            align="center">
             <template slot-scope="scope">
-              <el-button
-                size="mini"
-                @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-              <el-button
-                size="mini"
-                type="danger"
-                @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+              <el-button type="text" @click="handleEdit(scope.$index, scope.row)" size="small">编辑</el-button>
+              <el-button type="text" @click="handleDelete(scope.$index, scope.row)" size="small">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -57,67 +52,24 @@
     </WorkTablePager>
     <!-- 新增、编辑 弹窗-->
     <el-dialog :title="dialogTitle" :visible.sync="showModalPage" >
-      <el-row :gutter="16">
-        <el-col :sm="12" >
-          <el-row>
-            <el-input
-              placeholder="输入机构名称快速查找机构"
-              v-model="filterText">
-            </el-input>
-            <el-tree
-              accordion
-              class="filter-tree"
-              :data="data"
-              :props="defaultProps"
-              ref="searchConditionRef"
-              :filter-node-method="filterNode"
-              @node-click="handleNodeClick">
-            </el-tree>
-
-          </el-row>
-        </el-col>
-        <el-col :sm="12">
-          <el-row>
-            <el-col :span="6" :offset="1">上级机构</el-col>
-            <el-col :span="17">
-              <el-input placeholder="上级机构" v-model="formSubmitData.parent_origin_name" class="input-with-select" readonly="true"></el-input>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="6" :offset="1">机构名称</el-col>
-            <el-col :span="17">
-              <el-input placeholder="机构名称" v-model="formSubmitData.origin_name" class="input-with-select" ></el-input>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="6" :offset="1">机构类型</el-col>
-            <el-col :span="17">
-              <el-select v-model="formSubmitData.origin_type" placeholder="请选择机构类型">
-                <el-option
-                  v-for="item in originType"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-
-              </el-select>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="6" :offset="1">机构状态</el-col>
-            <el-col :span="17">
-              <el-select v-model="formSubmitData.origin_status" placeholder="请选择机构状态">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select>
-            </el-col>
-          </el-row>
-        </el-col>
-      </el-row>
+      <el-form class="modal-form" label-width="20%" :model="formData">
+        <el-form-item label="上级机构" >
+          <treeselect v-model="formSubmitData.parent_origin_id"  :options="originOptions" />
+        </el-form-item>
+        <el-form-item label="机构名称" >
+          <el-input placeholder="机构名称" v-model="formSubmitData.origin_name" class="input-with-select" ></el-input>
+        </el-form-item>
+        <el-form-item label="机构状态" >
+          <el-select v-model="formSubmitData.origin_status" placeholder="请选择机构状态">
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="closeModal">取 消</el-button>
         <el-button type="primary" @click="handleInsert">确 定</el-button>
@@ -130,6 +82,9 @@
   import WorkTablePager from '@/models/public/WorkTablePager'
   import WorkMain from '@/models/public/WorkMain'
   import { required } from 'vuelidate/lib/validators'
+  import Treeselect from '@riophae/vue-treeselect'
+  import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+
   export default {
     name: 'SubmitAUmanager',
     data () {
@@ -156,7 +111,7 @@
           label: 'label'
         },
         filterText: '',
-        data: [],
+        originOptions: [],
         options: [{
           value: '1',
           label: '正常'
@@ -186,10 +141,10 @@
     },
     validations: {// 提交前的验证
       formSubmitData: {
-        origin_name: {
+        parent_origin_id: {
           required
         },
-        origin_type: {
+        origin_name: {
           required
         },
         origin_status: {
@@ -202,6 +157,7 @@
 
     },
     components: {
+      Treeselect,
       WorkTablePager,
       WorkMain
     },
@@ -245,17 +201,6 @@
       closeModal: function () {
         this.showModalPage = false
         this.isEditModal = false
-      },
-      getOriginList () { // 弹出model触发、获取机构树状展示
-        this.BaseRequest({
-          url: 'sys/recordOrigin/listAllRecordOrigin',
-          method: 'get'
-        }).then(response => {
-          if (response != null && response.length > 0) {
-            this.data = []
-            this.data = response
-          }
-        })
       },
       handleNodeClick (data) { // 点击树的节点进行赋值
         this.formSubmitData.parent_origin_id = data.id
@@ -310,6 +255,7 @@
           origin_name: null,
           parent_origin_id: null,
           parent_origin_name: null,
+          origin_type: '0',
           origin_status: null
         }
       },
@@ -321,7 +267,7 @@
           type: 'warning'
         }).then(() => {
           this.BaseRequest({
-            url: '/submitAU/delById',
+            url: '/sys/recordOrigin/delById',
             method: 'get',
             params: {'originId': row.origin_id}
           }).then(() => {
@@ -336,10 +282,39 @@
         if (checkResult) {
           this.$notify({
             dangerouslyUseHTMLString: true,
-            message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>机构名称、机构类型、机构状态'
+            message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>上级机构、机构名称、机构状态'
           })
         }
         return checkResult
+      },
+      getOriginList () { // 弹出model触发、获取机构树状展示
+        this.BaseRequest({
+          url: 'sys/recordOrigin/listAllRecordOrigin',
+          method: 'get'
+        }).then(response => {
+          if (response != null && response.length > 0) {
+            let originOptionsTmp = response
+
+            function idToValue(origins){
+              origins.forEach(option=>{
+                option['value'] = option.id
+                if(option.children){
+                  idToValue(option.children)
+                }
+              })
+            }
+            idToValue(originOptionsTmp)
+            // this.originOptions = {
+            //   children:originOptionsTmp,
+            //   id:"0",
+            //   label:"无",
+            //   originType:"0",
+            //   parentId:"0",
+            //   value:"0"
+            // }
+            this.originOptions = originOptionsTmp
+          }
+        })
       }
     },
     mounted: function () { // 初始化
@@ -352,24 +327,9 @@
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import "@/styles/table-page.scss";
-
-  .el-row{
-    margin-top:20px;
-  }
-
-  $seachRowHeight : 50px;
-  $pagerRowHeight : 50px;
-  $tableRowHeight : calc(100% - #{$seachRowHeight+$pagerRowHeight+10});
   .search-row{
     margin:5px 0 0 0;
   }
 
-  .table-row{
-    height:$tableRowHeight;
-    overflow: auto;
-  }
 
-  .pager-row{
-    height:$pagerRowHeight;
-  }
 </style>
