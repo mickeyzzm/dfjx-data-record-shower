@@ -118,9 +118,14 @@
       :close-on-click-modal="false"
       @close="jobconfigClose"
       width="35%">
-      <el-form :model="FormData">
-          <el-form-item class="public" label="填报任务名称：">
-            <el-input style="width:100%" :readonly="isRead" v-model="FormData.job_name" placeholder="请输入填报任务名称"></el-input>
+      <el-form
+        :rules="rules"
+        ref="ruleForm"
+        :hide-required-asterisk="hide_asterisk"
+        :show-message="false"
+        :model="FormData">
+          <el-form-item class="public" label="填报任务名称：" prop="job_name">
+            <el-input style="width:100%" clearable :readonly="isRead" v-model="FormData.job_name" placeholder="请输入填报任务名称"></el-input>
           </el-form-item>
           <el-form-item v-if="!isShow" class="public" label="已选择任务组：">
             <el-dropdown v-for="item in selectedUnit" :key="item.job_unit_id" trigger="click">
@@ -138,7 +143,7 @@
           <el-form-item v-if="!isShow" class="public" label="已选择填报人：">
             <el-tag style="margin-right:8px;box-sizing: border-box;" v-for="item in selectedUser" :key="item.user_id">{{item.user_name_cn}}</el-tag>
           </el-form-item>
-          <el-form-item class="public text1" label="任务开始日期：">
+          <el-form-item class="public text1" label="任务开始日期：" prop="job_start_dt">
             <el-date-picker
               style="width:100%"
               size="mini"
@@ -149,7 +154,7 @@
               placeholder="请指定任务开始日期">
             </el-date-picker>
           </el-form-item>
-          <el-form-item class="public text2" style="margin-bottom:30px;" label="任务结束日期：">
+          <el-form-item class="public text2" style="margin-bottom:30px;" label="任务结束日期：" prop="job_end_dt">
             <el-date-picker
               style="width:100%"
               size="mini"
@@ -182,8 +187,8 @@ export default {
       },
       jobNm: '',
       options: [
-        { name: '已下发', value: 4 },
-        { name: '编辑中', value: 0 },
+        { name: '已发布', value: 4 },
+        { name: '正常', value: 0 },
         { name: '审批中', value: 5 }
       ],
       jobStatus: '',
@@ -204,6 +209,11 @@ export default {
         job_start_dt: '',
         job_end_dt: ''
       },
+      rules: {
+        job_name: [{required: true, trigger: 'blur'}],
+        job_start_dt: [{required: true, trigger: 'blur'}],
+        job_end_dt: [{required: true, trigger: 'blur'}]
+      },
       isShow: true,
       isSave: false,
       isRead: false,
@@ -219,7 +229,8 @@ export default {
       userid: [],
       selectedUnit: [],
       selectedUser: [],
-      showJob_id: ''
+      showJob_id: '',
+      hide_asterisk: false
     }
   },
   methods: {
@@ -249,56 +260,95 @@ export default {
     // 新增任务
     addJobconfig () {
       this.title = '新增'
+      this.hide_asterisk = false
       this.jobconfigDialog = true
+      this.$nextTick(() => {
+        this.$refs.ruleForm.clearValidate()
+      })
     },
     // 新增任务确定
     subJobconfig () {
-      this.BaseRequest({
-        url: '/fillinatask/insertrcdjobconfig',
-        method: 'get',
-        params: this.FormData
-      }).then(data => {
-        if (data === 'success') {
-          this.rcdjobconfigList()
-          this.$message.success('新增成功')
-          this.jobconfigDialog = false
+      this.$refs.ruleForm.validate(vaild => {
+        if (vaild) {
+          if (this.FormData.job_start_dt < this.FormData.job_end_dt) {
+            this.BaseRequest({
+              url: '/fillinatask/insertrcdjobconfig',
+              method: 'get',
+              params: this.FormData
+            }).then(data => {
+              if (data === 'success') {
+                this.rcdjobconfigList()
+                this.$message.success('新增成功')
+                this.jobconfigDialog = false
+              } else {
+                this.$message.error('新增失败')
+                this.jobconfigDialog = false
+              }
+            })
+          } else {
+            this.$message.error('结束日期不能早于开始时间')
+          }
         } else {
-          this.$message.error('新增失败')
-          this.jobconfigDialog = false
+          this.$message.error('请检查必要信息填写完整!')
         }
       })
     },
     // 任务编辑
     editJobconfig (row) {
+      this.BaseRequest({
+        url: '/fillinatask/selectrcdjobconfigjobid',
+        method: 'get',
+        params: {
+          job_id: row.job_id
+        }
+      }).then(data => {
+        this.FormData = data[0]
+      })
       this.title = '修改'
+      this.$nextTick(() => {
+        this.$refs.ruleForm.clearValidate()
+      })
       this.jobconfigDialog = true
-      this.FormData = row
       this.isSave = true
       this.current = row
     },
     // 保存修改
     saveJobconfig () {
-      this.BaseRequest({
-        url: '/fillinatask/updatercdjobconfig',
-        method: 'get',
-        params: {
-          job_id: this.current.job_id,
-          ...this.FormData
-        }
-      }).then(data => {
-        if (data === 'success') {
-          this.rcdjobconfigList()
-          this.$message.success('修改成功')
-          this.jobconfigDialog = false
+      this.$refs.ruleForm.validate(vaild => {
+        if (vaild) {
+          if (this.FormData.job_start_dt < this.FormData.job_end_dt) {
+            this.BaseRequest({
+              url: '/fillinatask/updatercdjobconfig',
+              method: 'get',
+              params: {
+                job_id: this.current.job_id,
+                ...this.FormData
+              }
+            }).then(data => {
+              if (data === 'success') {
+                this.rcdjobconfigList()
+                this.$message.success('修改成功')
+                this.jobconfigDialog = false
+              } else {
+                this.$message.error('修改失败')
+                this.jobconfigDialog = false
+              }
+            })
+          } else {
+            this.$message.error('结束日期不能早于开始时间')
+          }
         } else {
-          this.$message.error('修改失败')
-          this.jobconfigDialog = false
+          this.$message.error('请检查必要信息填写完整!')
         }
       })
     },
     // 任务详情
     detailJobconfig (row) {
+      this.$nextTick(() => {
+        this.$refs.ruleForm.clearValidate()
+      })
       this.title = '查看'
+      this.hide_asterisk = true
       this.jobconfigDialog = true
       this.FormData = row
       this.isShow = false
@@ -343,6 +393,7 @@ export default {
           job_id: row.job_id
         }
       }).then(checkedUser => {
+        console.log(checkedUser)
         this.selectedUser = checkedUser
       })
     },

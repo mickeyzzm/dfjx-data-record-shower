@@ -28,6 +28,7 @@
         <el-table-column label="操作" :resizable="false">
           <template slot-scope="scope">
             <el-button type="text" size="mini" @click="fldconfig(scope.row)">指标</el-button>
+            <el-button type="text" size="mini" @click="editUnit(scope.row)">编辑</el-button>
             <el-button type="text" size="mini" @click="deletercdjobunitconfig(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -42,12 +43,17 @@
     </el-main>
     <!-- 新增任务组弹窗 -->
     <el-dialog
-      title="新增任务组"
+      :title="title + '任务'"
       :visible.sync="unitDialogVisible"
       :close-on-click-modal="false"
       width="30%">
-      <el-form :model="insertJobForm">
-        <el-form-item class="public" label="任务组名称：">
+      <el-form
+        :rules="rules"
+        ref="ruleForm"
+        :hide-required-asterisk="true"
+        :show-message="false"
+        :model="insertJobForm">
+        <el-form-item class="public" label="任务组名称：" prop="job_unit_name">
           <el-input v-model="insertJobForm.job_unit_name" placeholder="请输入任务组名称"></el-input>
         </el-form-item>
         <el-form-item class="public" label="任务组状态：">
@@ -72,7 +78,8 @@
         </el-form-item>
         <el-form-item class="canel">
           <el-button @click="unitDialogVisible = false" type="primary">取消</el-button>
-          <el-button @click="subUnitconfig" type="primary">确定</el-button>
+          <el-button @click="subUnitconfig" v-if="isShow" type="primary">确定</el-button>
+          <el-button @click="updateUnit" v-if="!isShow" type="primary">确定</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -122,7 +129,14 @@ export default {
       unitDialogVisible: false,
       flgDialogVisible: false,
       treeId: '',
-      insertJobForm: {job_unit_name: '', job_unit_type: 0, job_unit_active: 0},
+      insertJobForm: {
+        job_unit_name: '',
+        job_unit_type: 1,
+        job_unit_active: 0
+      },
+      rules: {
+        job_unit_name: [{required: true, trigger: 'blur'}]
+      },
       options: [
         { label: '启用', value: 1 },
         { label: '停用', value: 0 }
@@ -136,7 +150,9 @@ export default {
       jobUnitid: [],
       activeList: [],
       current: {},
-      activeRcdt: []
+      activeRcdt: [],
+      isShow: true,
+      title: ''
     }
   },
   methods: {
@@ -160,11 +176,6 @@ export default {
         })
       })
     },
-    // 新增任务组
-    insertUnit () {
-      this.unitDialogVisible = true
-      this.insertJobForm = {job_unit_name: '', job_unit_type: 0, job_unit_active: 0}
-    },
     // 任务组列表
     unitList () {
       this.BaseRequest({
@@ -182,22 +193,83 @@ export default {
         this.pagination.pageSize = data.pageSize
       })
     },
+    // 新增任务组
+    insertUnit () {
+      this.title = '新增'
+      this.isShow = true
+      this.$nextTick(() => {
+        this.$refs.ruleForm.clearValidate()
+      })
+      this.unitDialogVisible = true
+      this.insertJobForm = {job_unit_name: '', job_unit_type: 0, job_unit_active: 0}
+    },
     // 提交新增
     subUnitconfig () {
+      this.$refs.ruleForm.validate(vaild => {
+        if (vaild) {
+          this.BaseRequest({
+            url: '/reporting/insertrcdjobunitconfig',
+            method: 'get',
+            params: {
+              job_id: this.treeId ? this.treeId : 1,
+              ...this.insertJobForm
+            }
+          }).then(data => {
+            this.unitDialogVisible = false
+            if (data === 'success') {
+              this.unitList()
+              this.$message.success('新增成功')
+            } else {
+              this.$message.error('新增失败')
+            }
+          })
+        } else {
+          this.$message.error('任务组名称不能为空!')
+        }
+      })
+    },
+    // 修改任务组
+    editUnit (row) {
       this.BaseRequest({
-        url: '/reporting/insertrcdjobunitconfig',
+        url: '/reporting/selectrcdjobunitconfigByjobunitid',
         method: 'get',
         params: {
-          job_id: this.treeId ? this.treeId : 1,
-          ...this.insertJobForm
+          job_unit_id: row.job_unit_id
         }
       }).then(data => {
-        this.unitDialogVisible = false
-        if (data === 'success') {
-          this.unitList()
-          this.$message.success('新增成功')
+        this.insertJobForm = data[0]
+      })
+      this.title = '修改'
+      this.isShow = false
+      this.$nextTick(() => {
+        this.$refs.ruleForm.clearValidate()
+      })
+      this.unitDialogVisible = true
+    },
+    // 提交修改
+    updateUnit () {
+      this.$refs.ruleForm.validate(vaild => {
+        if (vaild) {
+          this.BaseRequest({
+            url: '/reporting/updatercdjobunitconfig',
+            method: 'get',
+            params: {
+              job_unit_id: this.insertJobForm.job_unit_id,
+              job_unit_name: this.insertJobForm.job_unit_name,
+              job_unit_type: this.insertJobForm.job_unit_type,
+              job_unit_active: this.insertJobForm.job_unit_active
+            }
+          }).then(data => {
+            this.unitDialogVisible = false
+            if (data === 'success') {
+              this.unitList()
+              this.$message.success('修改成功')
+            } else {
+              this.$message.error('修改失败')
+            }
+          })
         } else {
-          this.$message.error('新增失败')
+          this.$message.error('任务组名称不能为空!')
         }
       })
     },
@@ -357,6 +429,7 @@ export default {
     // 当前页改变
     handleCurrentChange (val) {
       this.pagination.currentPageIndex = val
+      this.unitList()
     }
   },
   created () {

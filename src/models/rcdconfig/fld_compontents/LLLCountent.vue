@@ -429,7 +429,7 @@ export default {
             ],
             fld_range:[
                 {
-                    name:"所有",
+                    name:"全部",
                     id:"0",
                 },
                 {
@@ -712,7 +712,7 @@ export default {
                     dangerouslyUseHTMLString: true,
                     message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>指标名称、数据类型、是否可空、指标类型'
                 })
-            }else if(this.addformData_lll.dataType == 2 && this.addformData_lll.datafid == ""){
+            }else if(this.addformData_lll.dataType == 3 && this.addformData_lll.datafid == ""){
                     this.$notify({
                         dangerouslyUseHTMLString: true,
                         message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>数据字典'
@@ -732,17 +732,19 @@ export default {
                         'dict_content_id': this.addformData_lll.datafidArry.join(","),
                     }
                 }).then((res) => {
-                  console.log(res,"LLL")
                     if(res == "success"){
                         this.Message.success('保存成功');
                         this.$emit("getTableData_LLL");
-                        this.$emit("getMenuData_Add_LLL");
                         this.closeModal();
                     }
                 })
             }
         },
         openEditModal_lll(row) {//三级编辑
+        console.log(row,"row")
+        console.log(row.fld_type,"通用hi表")
+        console.log(row.fld_type,"通用hi表")
+        console.log(row.fld_is_null,"是哦否")
             this.editShowModalPage_lll = true;
             this.typeCode = row.fld_id;
             this.editformData_lll.subfidClass = row.proj_name;
@@ -793,7 +795,6 @@ export default {
             }
         },
         editSubmitDataForm_lll(row){//三级编辑弹窗
-            // console.log(this.editformData_lll)
             if (this.editformData_lll.inClaNm == "" || this.editformData_lll.dataType == "" || this.editformData_lll.isEmpoty == "" || this.editformData_lll.fld_type == "") {
                 this.$notify({
                     dangerouslyUseHTMLString: true,
@@ -814,6 +815,26 @@ export default {
                 }else if( this.editformData_lll.dataType == "数据字典"){
                     this.editformData_lll.dataType = this.dataTypes[3].id;
                 }
+                if(this.editformData_lll.fld_range == "全部"){
+                    this.editformData_lll.fld_range = this.fld_range[0].id;
+                }else if( this.editformData_lll.fld_range == "移动端"){
+                    this.editformData_lll.fld_range = this.fld_range[1].id;
+                }else if( this.editformData_lll.fld_range == "PC端"){
+                    this.editformData_lll.fld_range = this.fld_range[2].id;
+                }
+                if(this.editformData_lll.fld_visible == "全部"){
+                    this.editformData_lll.fld_visible = this.fld_visible[0].id;
+                }else if( this.editformData_lll.fld_visible == "移动端可见"){
+                    this.editformData_lll.fld_visible = this.fld_visible[1].id;
+                }else if( this.editformData_lll.fld_visible == "PC端可见"){
+                    this.editformData_lll.fld_visible = this.fld_visible[2].id;
+                }
+                if(this.editformData_lll.isEmpoty == "否"){
+                    this.editformData_lll.isEmpoty = this.isEmpoty[0].id;
+                }else if( this.editformData_lll.isEmpoty == "是"){
+                    this.editformData_lll.isEmpoty = this.isEmpoty[1].id;
+                }
+                console.log(this.editformData_lll)
                 this.BaseRequest({
                     url: '/rcdDt/updatercddtfld',
                     method: 'get',
@@ -822,8 +843,10 @@ export default {
                         'catg_id': this.catg_id,
                         'fld_name': this.editformData_lll.inClaNm,
                         'fld_data_type': this.editformData_lll.dataType,
-                        'fld_is_null': this.editformData_lll.isEmpoty=="否"?"0":"1",
+                        'fld_is_null': this.editformData_lll.isEmpoty,
                         'fld_type':this.editformData_lll.fld_type=="通用指标"?"0":"1",
+                        'fld_range':this.editformData_lll.fld_range,
+                        'fld_visible':this.editformData_lll.fld_visible,
                         'dict_content_id': this.editformData_lll.datafidArry.join(","),
                     }
                 }).then((res) => {
@@ -871,7 +894,7 @@ export default {
                     if (data == 'success') {
                         this.$message.success('删除成功')
                         this.$emit("getTableData_LLL")
-                        this.$emit('success')
+                        // this.$emit('success')
                     } else {
                         this.$message.error('删除失败,该指标已在任务中使用。')
                     }

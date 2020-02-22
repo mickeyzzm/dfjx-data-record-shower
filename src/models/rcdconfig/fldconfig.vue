@@ -18,7 +18,7 @@
             <LLCountent @success="success" :tableData_ll = "tableData_ll"  :proj_id = "proj_id" :nodeLabel="nodeLabel" @getMenuData_Add_LL="success" @getMenuData_edit_LL="success" @getTableData_LL="getTableData_LL" :pageIndex_LL = "pageIndex_LL" :pageSize_LL = "pageSize_LL" :totalPage_LL = "totalPage_LL" :page_res_LL = "page_res_LL" @currentChangeHandle_LL="currentChangeHandle_LL"></LLCountent>
         </div>
         <div v-show="itemContent_lll">
-            <LLLCountent @success="success" :tableData_lll = "tableData_lll" :catg_id = "catg_id" :nodeLabel="nodeLabel" @getMenuData_Add_LLL="success" @getMenuData_edit_LLL="success" @getTableData_LLL="getTableData_LLL" :pageIndex_LLL = "pageIndex_LLL" :pageSize_LLL = "pageSize_LLL" :totalPage_LLL = "totalPage_LLL" :page_res_LLL = "page_res_LLL" @currentChangeHandle_LLL="currentChangeHandle_LLL"></LLLCountent>
+            <LLLCountent :tableData_lll = "tableData_lll" :catg_id = "catg_id" :nodeLabel="nodeLabel" @getTableData_LLL="getTableData_LLL" :pageIndex_LLL = "pageIndex_LLL" :pageSize_LLL = "pageSize_LLL" :totalPage_LLL = "totalPage_LLL" :page_res_LLL = "page_res_LLL" @currentChangeHandle_LLL="currentChangeHandle_LLL"></LLLCountent>
             <!-- <LLLCountent :tableData_lll = "tableData_lll" :catg_id = "catg_id" :nodeLabel="nodeLabel"  @getTableData_LLL="getTableData_LLL" :pageIndex_LLL = "pageIndex_LLL" :pageSize_LLL = "pageSize_LLL" :totalPage_LLL = "totalPage_LLL" :page_res_LLL = "page_res_LLL" @currentChangeHandle_LLL="currentChangeHandle_LLL"></LLLCountent> -->
         </div>
     </el-main>
@@ -107,38 +107,11 @@
                 if (item.proj_id === projId) {
                 item.children = []
                 data.map(element => {
-                    this.leftrcddtMenuRd(element.catg_id)
+                    // this.leftrcddtMenuRd(element.catg_id)
                     item.children.push({
                     label: element.catg_name,
-                    catg_id: element.catg_id,
-                    children: []
+                    catg_id: element.catg_id
                     })
-                })
-                }
-            })
-            }
-        })
-        },
-        // 关联指标三级菜单
-        leftrcddtMenuRd (catgId) {
-        this.BaseRequest({
-            url: '/rcdDt/leftrcddtfld',
-            method: 'get',
-            params: {catg_id: catgId}
-        }).then(data => {
-            if (data.length > 0) {
-            this.flgTreeData[0].children.map(item => {
-                if (item.children.length > 0) {
-                item.children.map(element => {
-                    if (element.catg_id === catgId) {
-                    element.children = []
-                    data.map(rcdt => {
-                        element.children.push({
-                        label: rcdt.fld_name,
-                        fld_id: rcdt.fld_id
-                        })
-                    })
-                    }
                 })
                 }
             })
@@ -209,7 +182,6 @@
             })
         },
         handleNodeClick (node) {// 点击节点
-            console.log(node,"node")
             this.proj_id = node.proj_id;
             this.catg_id = node.catg_id;
             this.nodeLabel = node.label;

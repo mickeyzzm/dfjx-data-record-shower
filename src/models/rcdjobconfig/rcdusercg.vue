@@ -67,7 +67,8 @@
           </el-table>
           <div style="text-align:right;margin-top:40px;">
             <el-button type="primary" @click="dialogVisible = false">取消</el-button>
-            <el-button style="margin-right:0;" type="primary" @click="subRcdusercg">确认</el-button>
+            <el-button v-if="!isShow" style="margin-right:0;" type="primary" @click="updaterUser">确认</el-button>
+            <el-button v-if="isShow" style="margin-right:0;" type="primary" @click="subRcdusercg">确认</el-button>
           </div>
         </el-main>
       </el-container>
@@ -101,7 +102,8 @@ export default {
       active: [],
       currentRow: {},
       title: '',
-      currentTreeid: ''
+      currentTreeid: '',
+      isShow: true
     }
   },
   methods: {
@@ -161,6 +163,36 @@ export default {
             })
           } else {
             this.$message.error('添加失败')
+          }
+        })
+      } else {
+        this.$message('未选择填报人')
+      }
+    },
+    // 修改填报人
+    updaterUser () {
+      if (this.current.length > 0) {
+        this.userid = []
+        this.current.map(item => {
+          this.userid.push(item.user_id)
+        })
+        this.BaseRequest({
+          url: '/reporting/insertrcdpersonconfig',
+          method: 'get',
+          params: {
+            origin_id: this.currentNode,
+            userid: this.userid.join(',')
+          }
+        }).then(data => {
+          if (data === 'success') {
+            this.rcdusercgList()
+            this.dialogVisible = false
+            this.$message.success('修改成功')
+            this.$nextTick(() => {
+              this.$refs.multipleTable.clearSelection()
+            })
+          } else {
+            this.$message.error('修改失败')
           }
         })
       } else {
