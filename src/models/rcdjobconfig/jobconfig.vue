@@ -344,15 +344,15 @@ export default {
     },
     // 任务详情
     detailJobconfig (row) {
+      this.title = '查看'
+      this.FormData = row
+      this.hide_asterisk = true
+      this.jobconfigDialog = true
+      this.isShow = false
+      this.isRead = true
       this.$nextTick(() => {
         this.$refs.ruleForm.clearValidate()
       })
-      this.title = '查看'
-      this.hide_asterisk = true
-      this.jobconfigDialog = true
-      this.FormData = row
-      this.isShow = false
-      this.isRead = true
       // 已选择得任务组
       this.BaseRequest({
         url: '/fillinatask/selectRcdJobUnitConfigyi',
@@ -393,8 +393,12 @@ export default {
           job_id: row.job_id
         }
       }).then(checkedUser => {
-        console.log(checkedUser)
-        this.selectedUser = checkedUser
+        checkedUser.map(item => {
+          if (item) {
+            this.selectedUser = checkedUser
+            return false
+          }
+        })
       })
     },
     leaveHandle () {
