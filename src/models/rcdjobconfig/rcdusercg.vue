@@ -77,6 +77,7 @@
 </template>
 
 <script>
+import { parse } from 'path'
 export default {
   data () {
     return {
@@ -103,7 +104,8 @@ export default {
       currentRow: {},
       title: '',
       currentTreeid: '',
-      isShow: true
+      isShow: true,
+      userList: []
     }
   },
   methods: {
@@ -134,7 +136,9 @@ export default {
     insertUser () {
       this.rcdusercgTable = []
       this.dialogVisible = true
+      this.isShow = true
       this.title = '新增'
+      this.current = []
       this.$nextTick(() => {
         this.$refs.multipleTable.clearSelection()
       })
@@ -142,28 +146,44 @@ export default {
     // 提交新增填报人
     subRcdusercg () {
       if (this.current.length > 0) {
-        this.userid = []
-        this.current.map(item => {
-          this.userid.push(item.user_id)
-        })
         this.BaseRequest({
-          url: '/reporting/insertrcdpersonconfig',
+          url: '/reporting/rcdpersonconfiglist',
           method: 'get',
           params: {
-            origin_id: this.currentNode,
-            userid: this.userid.join(',')
+            currPage: 1,
+            pageSize: 1000,
+            user_name: ''
           }
         }).then(data => {
-          if (data === 'success') {
-            this.rcdusercgList()
-            this.dialogVisible = false
-            this.$message.success('添加成功')
-            this.$nextTick(() => {
-              this.$refs.multipleTable.clearSelection()
-            })
-          } else {
-            this.$message.error('添加失败')
-          }
+          this.userList = []
+          data.dataList.map(item => {
+            this.userList.push(item.user_id)
+          })
+          this.userid = []
+          this.current.map(item => {
+            if (this.userList.lastIndexOf(parseInt(item.user_id)) == -1) {
+              this.userid.push(item.user_id)
+            }
+          })
+          this.BaseRequest({
+            url: '/reporting/insertrcdpersonconfig',
+            method: 'get',
+            params: {
+              origin_id: this.currentNode,
+              userid: this.userid.join(',')
+            }
+          }).then(data => {
+            if (data === 'success') {
+              this.rcdusercgList()
+              this.dialogVisible = false
+              this.$message.success('添加成功')
+              this.$nextTick(() => {
+                this.$refs.multipleTable.clearSelection()
+              })
+            } else {
+              this.$message.error('添加失败')
+            }
+          })
         })
       } else {
         this.$message('未选择填报人')
@@ -177,10 +197,10 @@ export default {
           this.userid.push(item.user_id)
         })
         this.BaseRequest({
-          url: '/reporting/insertrcdpersonconfig',
+          url: '/reporting/updatercdpersonconfig',
           method: 'get',
           params: {
-            origin_id: this.currentNode,
+            origin_id: this.currentRow.origin_id,
             userid: this.userid.join(',')
           }
         }).then(data => {
@@ -202,6 +222,7 @@ export default {
     // 点击节点
     handleNodeClick (node) {
       this.currentTreeid = node.id
+      // this.useroriginassignlist(node)
       if (this.current.length > 0) {
         this.$confirm('检测有已经选择未提交的数据，是否保存?', '提示', {
           confirmButtonText: '保存',
@@ -227,6 +248,25 @@ export default {
           if (data.length > 0) {
             this.currentNode = node.id
             this.rcdusercgTable = data
+            this.BaseRequest({
+              url: '/reporting/selectrcdpersonconfig',
+              method: 'get',
+              params: {
+                origin_id: node.id
+              }
+            }).then(checkeddata => {
+              if (checkeddata.length > 0) {
+                checkeddata.map(item => {
+                  this.rcdusercgTable.map((element, index) => {
+                    if (item.user_id == element.user_id) {
+                      this.$nextTick(() => {
+                        this.$refs.multipleTable.toggleRowSelection(this.rcdusercgTable[index])
+                      })
+                    }
+                  })
+                })
+              }
+            })
           }
         })
       }
@@ -261,7 +301,9 @@ export default {
     editUser (row) {
       this.currentRow = row
       this.dialogVisible = true
+      this.isShow = false
       this.title = '修改'
+      this.current = []
       this.BaseRequest({
         url: '/reporting/useroriginassignlist',
         method: 'get',

@@ -396,10 +396,10 @@ export default {
             checked:[],
             isEmpoty:[
                 {
-                    name:"否",
+                    name:"不可为空",
                     id:"0",
                 },{
-                    name:"是",
+                    name:"可为空",
                     id:"1",
                 }
             ],
@@ -741,10 +741,6 @@ export default {
             }
         },
         openEditModal_lll(row) {//三级编辑
-        console.log(row,"row")
-        console.log(row.fld_type,"通用hi表")
-        console.log(row.fld_type,"通用hi表")
-        console.log(row.fld_is_null,"是哦否")
             this.editShowModalPage_lll = true;
             this.typeCode = row.fld_id;
             this.editformData_lll.subfidClass = row.proj_name;
@@ -764,7 +760,11 @@ export default {
             }else if(row.fld_visible == 2){
                 this.editformData_lll.fld_visible = "PC端可见";
             }
-            this.editformData_lll.isEmpoty = row.fld_is_null==0?"否":"是";
+            if(row.fld_is_null == 0){
+                this.editformData_lll.isEmpoty = "不可为空";
+            }else if(row.fld_is_null == 1){
+                this.editformData_lll.isEmpoty = "可为空";
+            }
             this.editformData_lll.fld_type = row.fld_type==0?"通用指标":"突发指标";
             if(row.fld_data_type == 0){
                 this.editformData_lll.dataType = "字符串";
@@ -829,12 +829,16 @@ export default {
                 }else if( this.editformData_lll.fld_visible == "PC端可见"){
                     this.editformData_lll.fld_visible = this.fld_visible[2].id;
                 }
-                if(this.editformData_lll.isEmpoty == "否"){
+                if(this.editformData_lll.isEmpoty == "不可为空"){
                     this.editformData_lll.isEmpoty = this.isEmpoty[0].id;
-                }else if( this.editformData_lll.isEmpoty == "是"){
+                }else if( this.editformData_lll.isEmpoty == "可为空"){
                     this.editformData_lll.isEmpoty = this.isEmpoty[1].id;
                 }
-                console.log(this.editformData_lll)
+                if(this.editformData_lll.fld_type == "通用指标"){
+                    this.editformData_lll.fld_type = this.fld_types[0].id;
+                }else if( this.editformData_lll.fld_type == "突发指标"){
+                    this.editformData_lll.fld_type = this.fld_types[1].id;
+                }
                 this.BaseRequest({
                     url: '/rcdDt/updatercddtfld',
                     method: 'get',
@@ -844,7 +848,7 @@ export default {
                         'fld_name': this.editformData_lll.inClaNm,
                         'fld_data_type': this.editformData_lll.dataType,
                         'fld_is_null': this.editformData_lll.isEmpoty,
-                        'fld_type':this.editformData_lll.fld_type=="通用指标"?"0":"1",
+                        'fld_type':this.editformData_lll.fld_type,
                         'fld_range':this.editformData_lll.fld_range,
                         'fld_visible':this.editformData_lll.fld_visible,
                         'dict_content_id': this.editformData_lll.datafidArry.join(","),

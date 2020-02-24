@@ -475,7 +475,7 @@ export default {
         this.agencyValue = []
         if (checkeddata.length > 0) {
           this.BaseRequest({
-            url: '/reporting/useroriginassignlist',
+            url: '/reporting/useroriginassignlistsysorigin',
             method: 'get',
             params: {origin_id: checkeddata[0].origin_id}
           }).then(data => {
