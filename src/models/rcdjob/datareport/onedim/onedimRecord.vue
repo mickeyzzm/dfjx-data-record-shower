@@ -5,10 +5,29 @@
       <!--<el-form-item :key="unitFld.fld_id" size="mini" v-for="unitFld in unitFlds" :label="unitFld.fld_name">-->
         <el-col :span="23">
             <!--<el-tooltip class="item" effect="dark" :content="dataColum.colum_desc" placement="top">-->
-              <el-input v-model="unitDatas['f'+unitFld.fld_id]['record_data']"
-                        :disabled="isView=='Y'" style="width:50%;float: left;" >
+              <el-input v-if="unitFld.fld_data_type==0||unitFld.fld_data_type==1" v-model="unitDatas['f'+unitFld.fld_id]['record_data']"
+                        :disabled="isView=='Y'||unitFld.fld_range=='1'" style="width:50%;float: left;" >
                 <!--<template v-if="dataColum.colum_point!=null&&dataColum.colum_point!=''" slot="append">{{dataColum.colum_point}}</template>-->
               </el-input>
+
+
+              <el-date-picker v-if="unitFld.fld_data_type==2" size="mini" align="left" style="width:50%;float: left;"
+                              v-model="unitDatas['f'+unitFld.fld_id]['record_data']" :disabled="isView=='Y'||unitFld.fld_range=='1'"
+                              type="date"
+                              value-format="yyyy-MM-dd"
+                              placeholder="选择日期">
+              </el-date-picker>
+
+
+            <el-select @change="refreshData" v-model="unitDatas['f'+unitFld.fld_id]['record_data']" v-if="unitFld.fld_data_type==3"
+                       :disabled="isView=='Y'||unitFld.fld_range=='1'" style="width:50%;float: left;">
+              <!--<el-select v-model="reportDataLine['f'+unitFld.fld_id]" v-if="unitFld.fld_data_type==3">-->
+              <el-option v-for="dictObj in fldDicts['f'+unitFld.fld_id]"
+                         :key="dictObj.dict_content_value"
+                         :label="dictObj.dict_content_name"
+                         :value="dictObj.dict_content_value">
+              </el-option>
+            </el-select>
             <!--</el-tooltip>-->
         </el-col>
       </el-form-item>
@@ -57,6 +76,7 @@
         hasMounted:false,
         unitFlds:[],
         unitDatas:{},
+        fldDicts:{},
         validateUnitDatas:{}
       }
     },
@@ -200,11 +220,35 @@
       },
       setSaveFlag(saveFlag){
         this.saveFlag = saveFlag
+      },
+
+      getUnitDictFldContent(){
+        this.BaseRequest({
+          url:"/record/process/getUnitDictFldContent",
+          params:{
+            groupId:this.unitId
+          }
+        }).then(response=>{
+          if(response){
+            const fldIds = Object.keys(response)
+            for(const fldIdIdex in fldIds){
+              const dictContentList = response[fldIds[fldIdIdex]]
+              this.fldDicts["f"+fldIds[fldIdIdex]] = dictContentList
+            }
+            this.getReportFldDatas()
+          }else{
+            this.getReportFldDatas()
+          }
+        }).catch(error=>{
+            this.Message.success(error)
+          }
+        );
       }
     },
     mounted:function(){
       this.getUnitFldsConfig()
-      this.getReportFldDatas()
+      this.getUnitDictFldContent()
+
     },
     activated(){
     }

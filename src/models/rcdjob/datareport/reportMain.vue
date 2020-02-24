@@ -1,5 +1,5 @@
 <template>
-  <WorkMain :headerItems="['报送管理','报表管理']">
+  <WorkMain :headerItems="['填报','数据填报']">
 
     <el-table
       :data="reportDataList"
@@ -9,9 +9,11 @@
       stripe>
       <el-table-column prop="report_id"   label="填报编号" :resizable="false"></el-table-column>
       <el-table-column prop="job_name"   label="任务名称" :resizable="false"></el-table-column>
-      <el-table-column prop="record_origin_id"   label="所属机构" :resizable="false"></el-table-column>
-      <el-table-column prop="record_user_id"   label="填报人" :resizable="false"></el-table-column>
+      <!--<el-table-column prop="record_origin_id"   label="所属机构" :resizable="false"></el-table-column>-->
+      <!--<el-table-column prop="record_user_name"   label="填报人" :resizable="false"></el-table-column>-->
       <el-table-column prop="record_status_cn"   label="填报状态" :resizable="false"></el-table-column>
+      <el-table-column prop="job_start_dt_str"   label="开始日期" :resizable="false"></el-table-column>
+      <el-table-column prop="job_end_dt_str"   label="结束日期" :resizable="false"></el-table-column>
       <el-table-column label="操作" width="400" :resizable="false">
         <template slot-scope="scope">
           <el-button type="text" @click="reportFill(scope.row)" size="mini">填报</el-button>
