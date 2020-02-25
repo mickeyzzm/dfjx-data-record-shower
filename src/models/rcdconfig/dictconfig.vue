@@ -41,6 +41,7 @@
                     :resizable="false">
                     <template slot-scope="scope">
                         <el-button size="mini" type="text" @click="openEditModalBox(scope.row)">编辑</el-button>
+                        <el-button size="mini" type="text" @click="deleteDicCon(scope.row)">删除</el-button>
                         <el-button size="mini" type="text" @click="editeDicCon(scope.row)">编辑字典内容</el-button>
                     </template>
                 </el-table-column>
@@ -93,6 +94,7 @@
                     :resizable="false">
                     <template slot-scope="scope">
                         <el-button size="mini" type="text" @click="openEditModal(scope.row)">编辑</el-button>
+                        <el-button size="mini" type="text" @click="deldteEditModal(scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -369,6 +371,7 @@ export default {
             }
         },
         openEditModalBox(row) {//一级编辑
+            console.log(row)
             this.editShowModalPageBox = true;
             this.editformDataBox.dicNm = row.dict_name;
             this.editformDataBoxDict_id = row.dict_id;
@@ -466,6 +469,59 @@ export default {
             this.addformData.dicConNm ="" ;
             this.addformData.dicConValue ="";
         },
+        deldteEditModal (row) {
+            this.$confirm('确认要删除该字典内容吗?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                closeOnClickModal: false,
+                type: 'warning'
+                }).then(() => {
+                this.BaseRequest({
+                    url: '/dictionary/deleteDataDictionary',
+                    method: 'get',
+                    params: {
+                        dict_content_id: row.dict_content_id
+                    }
+                }).then(data => {
+                    if (data === 'success') {
+                    this.$message.success('删除成功')
+                    this.getTableData_LL();
+                    this.closeModal();
+                    } else {
+                    this.$message.error('删除失败')
+                    }
+                })
+                }).catch(() => {
+                return false
+                })
+        },
+        deleteDicCon (row) {
+            this.$confirm('确认要删除该字典吗?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                closeOnClickModal: false,
+                type: 'warning'
+                }).then(() => {
+                this.BaseRequest({
+                    url: '/dictionary/deleteDataDictionarybydictid',
+                    method: 'get',
+                    params: {
+                        dict_id: row.dict_id
+                    }
+                }).then(data => {
+                    if (data === 'success') {
+                    this.$message.success('删除成功')
+                    this.getTableData_L();
+                    this.closeModal();
+                    this.getMenuData()
+                    } else {
+                    this.$message.error('删除失败')
+                    }
+                })
+                }).catch(() => {
+                    return false
+            })
+        }
     },
     created () {
         this.$nextTick(function () {

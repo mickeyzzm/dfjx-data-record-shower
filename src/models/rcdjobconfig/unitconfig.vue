@@ -230,21 +230,25 @@ export default {
     },
     // 修改任务组
     editUnit (row) {
-      this.BaseRequest({
-        url: '/reporting/selectrcdjobunitconfigByjobunitid',
-        method: 'get',
-        params: {
-          job_unit_id: row.job_unit_id
-        }
-      }).then(data => {
-        this.insertJobForm = data[0]
-      })
-      this.title = '修改'
-      this.isShow = false
-      this.$nextTick(() => {
-        this.$refs.ruleForm.clearValidate()
-      })
-      this.unitDialogVisible = true
+      if (!row.job_unit_active) {
+        this.BaseRequest({
+          url: '/reporting/selectrcdjobunitconfigByjobunitid',
+          method: 'get',
+          params: {
+            job_unit_id: row.job_unit_id
+          }
+        }).then(data => {
+          this.insertJobForm = data[0]
+        })
+        this.title = '修改'
+        this.isShow = false
+        this.$nextTick(() => {
+          this.$refs.ruleForm.clearValidate()
+        })
+        this.unitDialogVisible = true
+      } else {
+        this.$message.error('该任务组已在任务中启用！')
+      }
     },
     // 提交修改
     updateUnit () {
@@ -275,29 +279,33 @@ export default {
     },
     // 删除任务组
     deletercdjobunitconfig (row) {
-      this.$confirm('确认要删除该任务组吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        closeOnClickModal: false,
-        type: 'warning'
-      }).then(() => {
-        this.BaseRequest({
-          url: '/reporting/deletercdjobunitconfig',
-          method: 'get',
-          params: {
-            job_unit_id: row.job_unit_id
-          }
-        }).then(data => {
-          if (data === 'success') {
-            this.$message.success('删除成功')
-            this.unitList()
-          } else {
-            this.$message.error('删除失败')
-          }
+      if (!row.job_unit_active) {
+        this.$confirm('确认要删除该任务组吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          closeOnClickModal: false,
+          type: 'warning'
+        }).then(() => {
+          this.BaseRequest({
+            url: '/reporting/deletercdjobunitconfig',
+            method: 'get',
+            params: {
+              job_unit_id: row.job_unit_id
+            }
+          }).then(data => {
+            if (data === 'success') {
+              this.$message.success('删除成功')
+              this.unitList()
+            } else {
+              this.$message.error('删除失败')
+            }
+          })
+        }).catch(() => {
+          return false
         })
-      }).catch(() => {
-        return false
-      })
+      } else {
+        this.$message.error('该任务组已在任务中启用！')
+      }
     },
     // 左侧导航点击节点
     handleNodeClick (node) {
@@ -309,9 +317,13 @@ export default {
     },
     // 指标
     fldconfig (row) {
-      this.flgDialogVisible = true
-      this.current = row
-      this.selectrcdjobunitfld()
+      if (!row.job_unit_active) {
+        this.flgDialogVisible = true
+        this.current = row
+        this.selectrcdjobunitfld()
+      } else {
+        this.$message.error('该任务组已在任务中启用！')
+      }
     },
     // 关联指标一级菜单
     leftrcddtMenuSt () {

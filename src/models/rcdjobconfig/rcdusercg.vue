@@ -222,20 +222,7 @@ export default {
     // 点击节点
     handleNodeClick (node) {
       this.currentTreeid = node.id
-      // this.useroriginassignlist(node)
-      if (this.current.length > 0) {
-        this.$confirm('检测有已经选择未提交的数据，是否保存?', '提示', {
-          confirmButtonText: '保存',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.subRcdusercg()
-        }).catch(() => {
-          this.useroriginassignlist(node)
-        })
-      } else {
-        this.useroriginassignlist(node)
-      }
+      this.useroriginassignlist(node)
     },
     // 点击节点获取对应表
     useroriginassignlist (node) {
