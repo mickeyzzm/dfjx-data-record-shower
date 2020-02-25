@@ -741,6 +741,7 @@ export default {
             }
         },
         openEditModal_lll(row) {//三级编辑
+            console.log(row)
             this.editShowModalPage_lll = true;
             this.typeCode = row.fld_id;
             this.editformData_lll.subfidClass = row.proj_name;
@@ -761,9 +762,9 @@ export default {
                 this.editformData_lll.fld_visible = "PC端可见";
             }
             if(row.fld_is_null == 0){
-                this.editformData_lll.isEmpoty = "不可为空";
-            }else if(row.fld_is_null == 1){
                 this.editformData_lll.isEmpoty = "可为空";
+            }else if(row.fld_is_null == 1){
+                this.editformData_lll.isEmpoty = "不可为空";
             }
             this.editformData_lll.fld_type = row.fld_type==0?"通用指标":"突发指标";
             if(row.fld_data_type == 0){
@@ -829,9 +830,9 @@ export default {
                 }else if( this.editformData_lll.fld_visible == "PC端可见"){
                     this.editformData_lll.fld_visible = this.fld_visible[2].id;
                 }
-                if(this.editformData_lll.isEmpoty == "不可为空"){
+                if(this.editformData_lll.isEmpoty == "可为空"){
                     this.editformData_lll.isEmpoty = this.isEmpoty[0].id;
-                }else if( this.editformData_lll.isEmpoty == "可为空"){
+                }else if( this.editformData_lll.isEmpoty == "不可为空"){
                     this.editformData_lll.isEmpoty = this.isEmpoty[1].id;
                 }
                 if(this.editformData_lll.fld_type == "通用指标"){
