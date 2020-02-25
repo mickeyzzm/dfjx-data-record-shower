@@ -396,10 +396,10 @@ export default {
             checked:[],
             isEmpoty:[
                 {
-                    name:"不可为空",
+                    name:"可为空",
                     id:"0",
                 },{
-                    name:"可为空",
+                    name:"不可为空",
                     id:"1",
                 }
             ],
