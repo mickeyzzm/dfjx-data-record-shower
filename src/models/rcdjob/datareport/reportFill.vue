@@ -34,6 +34,7 @@
           <!--当前步骤是最后一步显示提交，已点下一步的步骤不显示下一步只显示保存-->
 
           <!--<el-button  @click="saveContext" type="danger">保存</el-button>-->
+          <el-button v-if="isView!='Y'" @click="backList" type="info">返回列表</el-button>
           <el-button v-if="isView!='Y'" @click="doSaveContext" type="danger">保存</el-button>
           <!--<el-button  @click="validateContext" type="success">校验</el-button>-->
           <el-button v-if="isView!='Y'" @click="doSaveAndValidate('VALIDATE')" type="success">校验</el-button>
@@ -197,6 +198,12 @@
         this.activeStepNum = unitNum
         // this.selectActiveStep(active_unit,true,'N')
       },
+      backList(){
+        this.$router.push({
+          path: "/rcdjob/datareport"
+        });
+      },
+
       //2019 04 26修改 应客户要求，去掉步骤逻辑，用户可随意点选任意填报步骤。
       //保存逻辑修改为只保存用户填写信息，不刷新公式信息，另外需要保存所有步骤的信息（用户填写步骤1 后切换到步骤3 步骤1没有点保存按钮 步骤3点了 需要将1的也保存）
       doSaveContext(){

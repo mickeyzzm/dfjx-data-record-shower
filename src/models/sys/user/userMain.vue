@@ -27,7 +27,7 @@
           <el-table-column
             prop="user_name_cn"
             align="left"
-            label="用户名称">
+            label="用户真实姓名">
           </el-table-column>
           <el-table-column
             prop="origin_province"
@@ -82,7 +82,9 @@
         </el-form-item>
         -->
         <el-form-item label="用户名称" >
-          <el-input v-model="formData.user_name" auto-complete="off" ></el-input>
+          <div class="el-input el-input--mini ">
+            <input placeholder="请输入" v-model="formData.user_name" class="el-input__inner"></input>
+          </div>
         </el-form-item>
 
         <el-form-item label="真实姓名" >
@@ -325,6 +327,7 @@
         this.formData = {
           user_id: null,
           user_name: null,
+          user_name_cn: null,
           user_status: null,
           user_type: null,
           origin_id: null
@@ -396,7 +399,7 @@
             method: 'POST',
             data: {
               'user_name': this.formData.user_name,
-              'user_name_cn': this.formData.user_name_cn,
+              'user_name_cn': this.formData.user_name_cn!=null?this.formData.user_name_cn:this.formData.user_name,
               'mobile_phone': this.formData.mobile_phone,
               'office_phone': this.formData.office_phone,
               'email': this.formData.email,
@@ -416,7 +419,7 @@
             method: 'get',
             params: {
               'user_name': this.formData.user_name,
-              'user_name_cn': this.formData.user_name_cn,
+              'user_name_cn': this.formData.user_name_cn!=null?this.formData.user_name_cn:this.formData.user_name,
               'mobile_phone': this.formData.mobile_phone,
               'office_phone': this.formData.office_phone,
               'email': this.formData.email,
@@ -459,6 +462,9 @@
             // set value for update
             $this.user_role_id = response[0]['user_role_id']
             $this.formData.user_role_id = response[0]['user_role_id']
+          }else{
+            $this.user_role_id = ''
+            $this.formData.user_role_id = null
           }
         })
       },
@@ -485,7 +491,7 @@
         if (checkResult) {
           this.$notify({
             dangerouslyUseHTMLString: true,
-            message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>用户名称、所属机构'
+            message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>用户名称、用户类型、用户状态、所属机构'
           })
         }
         return checkResult

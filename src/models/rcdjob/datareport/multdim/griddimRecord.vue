@@ -43,7 +43,7 @@
               <GriddimRecordRow v-for="(reportDataLine,rowIndex) in newReportDataLine"
                                 :key="'newReportDataLine'+rowIndex"
                                 :reportDataLine="reportDataLine"
-                                :rowLineNumber="rowIndex"
+                                :rowLineNumber="rowIndex+(dbDataLineArray!=null?dbDataLineArray.length:0)"
                                 :dataArrayName="'newReportDataLine'"
                                 :arrayIndex="rowIndex"
                                 :removeLine="removeLine"
@@ -168,7 +168,9 @@
               const dictContentList = response[fldIds[fldIdIdex]]
               this.fldDicts["f"+fldIds[fldIdIdex]] = dictContentList
             }
-
+            this.getReportFldDatas()
+          }else{
+            this.getReportFldDatas()
           }
         }).catch(error=>{
             this.Message.success(error)
@@ -344,7 +346,7 @@
     mounted:function(){
       this.getUnitFldsConfig()
       this.getUnitDictFldContent()
-      this.getReportFldDatas()
+
 
     },
     activated(){
