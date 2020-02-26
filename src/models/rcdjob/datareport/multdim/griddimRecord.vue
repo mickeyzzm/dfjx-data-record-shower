@@ -40,7 +40,7 @@
                                 :unitFlds="unitFlds"
                                 :fldDicts="fldDicts"
                                 :isView="isView"
-                                :validateResultObj="validateResultObj"></GriddimRecordRow>
+                                :validateResultObj="validateResultObj['c'+reportDataLine.colum_id]"></GriddimRecordRow>
               <GriddimRecordRow v-for="(reportDataLine,rowIndex) in newReportDataLine"
                                 :key="'newReportDataLine'+rowIndex"
                                 :reportDataLine="reportDataLine"
@@ -53,7 +53,7 @@
                                 :unitFlds="unitFlds"
                                 :fldDicts="fldDicts"
                                 :isView="isView"
-                                :validateResultObj="newDataValidateResultObj"></GriddimRecordRow>
+                                :validateResultObj="newDataValidateResultObj['c'+rowIndex]"></GriddimRecordRow>
             </tbody>
 
           </table>
@@ -321,12 +321,40 @@
           const reportJobDataValidate = response.reportJobDataValidate
           const newDataValidateResultObj = response.newReportJobDataValidate
           if(reportJobDataValidate&&Object.keys(reportJobDataValidate).length>0){
-            this.validateResultObj = reportJobDataValidate
+            const validateUnitDatasTmp = {}
+            const errorColums = Object.keys(reportJobDataValidate);
+
+            errorColums.forEach(errorColumId=>{
+              validateUnitDatasTmp['c'+errorColumId] = {}
+              const errorFlds = reportJobDataValidate[errorColumId]
+              if(errorFlds&&Object.keys(errorFlds).length>0){
+                const errorFldIds = Object.keys(errorFlds)
+                errorFldIds.forEach(errorFldId=>{
+                  validateUnitDatasTmp['c'+errorColumId]['f'+errorFldId] = errorFlds[errorFldId]
+                })
+              }
+            })
+            this.validateResultObj = validateUnitDatasTmp
+
             validateFailed= true
           }
 
           if(newDataValidateResultObj&&Object.keys(newDataValidateResultObj).length>0){
-            this.newDataValidateResultObj = newDataValidateResultObj
+            const validateUnitDatasTmp = {}
+            const errorColums = Object.keys(newDataValidateResultObj);
+
+            errorColums.forEach(errorColumId=>{
+              validateUnitDatasTmp['c'+errorColumId] = {}
+              const errorFlds = newDataValidateResultObj[errorColumId]
+              if(errorFlds&&Object.keys(errorFlds).length>0){
+                const errorFldIds = Object.keys(errorFlds)
+                errorFldIds.forEach(errorFldId=>{
+                  validateUnitDatasTmp['c'+errorColumId]['f'+errorFldId] = errorFlds[errorFldId]
+                })
+              }
+            })
+            this.newDataValidateResultObj = validateUnitDatasTmp
+
             validateFailed= true
           }
 

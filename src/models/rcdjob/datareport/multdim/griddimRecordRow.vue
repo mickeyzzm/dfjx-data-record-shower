@@ -32,9 +32,8 @@
                          :value="dictObj.dict_content_value">
               </el-option>
             </el-select>
-
-            <div v-if="validateResultObj[reportDataLine.colum_id]!=null&&validateResultObj[reportDataLine.colum_id][unitFld.fld_id]!=null"
-                 style="padding:0;margin:0;font-size:8px;color:red;">{{validateResultObj[reportDataLine.colum_id][unitFld.fld_id]}}</div>
+            <div v-if="validateResultObj!=null&&validateResultObj['f'+unitFld.fld_id]!=null"
+                 style="padding:0;margin:0;font-size:8px;color:red;">{{validateResultObj['f'+unitFld.fld_id]}}</div>
           </div>
         </div>
       </div>
