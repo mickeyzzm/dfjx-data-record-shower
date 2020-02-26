@@ -199,9 +199,16 @@
         // this.selectActiveStep(active_unit,true,'N')
       },
       backList(){
-        this.$router.push({
-          path: "/rcdjob/datareport"
-        });
+        if(this.back&&this.back=='review'){
+          this.$router.push({
+            path: "/rcdjob/dtRpReview"
+          });
+        }else{
+          this.$router.push({
+            path: "/rcdjob/datareport"
+          });
+        }
+
       },
 
       //2019 04 26修改 应客户要求，去掉步骤逻辑，用户可随意点选任意填报步骤。
@@ -710,6 +717,10 @@
       this.jobId = this.$route.query.jobId
       if(this.$route.query.isView!=null&&this.$route.query.isView!=''){
         this.isView = this.$route.query.isView
+      }
+
+      if(this.$route.query.back!=null&&this.$route.query.back!=''){
+        this.back = this.$route.query.back
       }
 
       if(this.$route.params.auth!=null&&this.$route.params.auth!=''){
