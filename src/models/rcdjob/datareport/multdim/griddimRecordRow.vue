@@ -9,8 +9,9 @@
         <div class="el-form-item" style="margin: auto;">
           <div class="el-form-item__content">
             <div v-if="unitFld.fld_data_type==0||unitFld.fld_data_type==1" class="el-input el-input--mini "
-                 v-bind:class="{ 'el-input-group el-input-group--append':(unitFld.fld_point!=null&&unitFld.fld_point!='') }">
-              <input placeholder="请输入" v-model="reportDataLine['f'+unitFld.fld_id]" class="el-input__inner"></input>
+                 v-bind:class="{ 'el-input-group el-input-group--append':(unitFld.fld_point!=null&&unitFld.fld_point!=''),
+                                 'is-disabled': (isView=='Y'||unitFld.fld_range=='1')}">
+              <input :disabled="isView=='Y'||unitFld.fld_range=='1'" placeholder="请输入" v-model="reportDataLine['f'+unitFld.fld_id]" class="el-input__inner"></input>
               <div v-if="unitFld.fld_point!=null&&unitFld.fld_point!=''" class="el-input-group__append">{{unitFld.fld_point}}</div>
             </div>
             <!--<el-input  v-if="unitFld.fld_data_type==0||unitFld.fld_data_type==1" size="mini" v-model="reportDataLineArray[rowLineNumber][unitFld.fld_id]" >-->
@@ -18,11 +19,12 @@
             <!--</el-input>-->
             <el-date-picker v-if="unitFld.fld_data_type==2" size="mini" align="left"
                             v-model="reportDataLine['f'+unitFld.fld_id]"
+                            :disabled="isView=='Y'||unitFld.fld_range=='1'"
                             type="date"
                             placeholder="选择日期">
             </el-date-picker>
 
-            <el-select @change="refreshData" v-model="reportDataLine['f'+unitFld.fld_id]" v-if="unitFld.fld_data_type==3">
+            <el-select :disabled="isView=='Y'||unitFld.fld_range=='1'" @change="refreshData" v-model="reportDataLine['f'+unitFld.fld_id]" v-if="unitFld.fld_data_type==3">
             <!--<el-select v-model="reportDataLine['f'+unitFld.fld_id]" v-if="unitFld.fld_data_type==3">-->
               <el-option v-for="dictObj in fldDicts['f'+unitFld.fld_id]"
                          :key="dictObj.dict_content_value"
@@ -39,7 +41,7 @@
     </td>
 
 
-    <td colspan="1" rowspan="1" class="  is-center  table-row " :class="{'table-row-color':(rowLineNumber%2==0)}">
+    <td v-if="isView=='N'" colspan="1" rowspan="1" class="  is-center  table-row " :class="{'table-row-color':(rowLineNumber%2==0)}">
       <el-button type="text" size="small" @click="removeLine(arrayIndex,dataArrayName,needRecordDel)">删除</el-button>
     </td>
 
@@ -84,6 +86,9 @@
       },
       validateResultObj:{
         type:Object
+      },
+      isView:{
+        type:String
       }
     },
     data() {

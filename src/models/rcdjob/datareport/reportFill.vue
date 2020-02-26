@@ -34,7 +34,7 @@
           <!--当前步骤是最后一步显示提交，已点下一步的步骤不显示下一步只显示保存-->
 
           <!--<el-button  @click="saveContext" type="danger">保存</el-button>-->
-          <el-button v-if="isView!='Y'" @click="backList" type="info">返回列表</el-button>
+          <el-button @click="backList" type="info">返回列表</el-button>
           <el-button v-if="isView!='Y'" @click="doSaveContext" type="danger">保存</el-button>
           <!--<el-button  @click="validateContext" type="success">校验</el-button>-->
           <el-button v-if="isView!='Y'" @click="doSaveAndValidate('VALIDATE')" type="success">校验</el-button>
@@ -129,7 +129,7 @@
       return {
         reportId:"",
         jobId:"",
-        isView:'N',
+        // isView:'N',
         auth:'N',//是否为审批用户查看
         reportStats:'',
         activeStepNum:0,

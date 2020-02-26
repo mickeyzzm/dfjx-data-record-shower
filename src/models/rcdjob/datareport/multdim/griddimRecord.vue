@@ -1,6 +1,6 @@
 <template>
   <div style="width: 100%">
-    <el-row style="text-align: left;margin:0 0 5px 0;">
+    <el-row v-if="isView=='N'" style="text-align: left;margin:0 0 5px 0;">
       <el-col  :span="24">
         <el-button type="primary" size="small" @click="addOne">增加一条记录</el-button>
       </el-col>
@@ -16,7 +16,7 @@
                 <th v-for="unitFldType in unitFldTypes" :colspan="unitFldType.unitFlds.length" rowspan="1" class="el-table_6_column_31  is-center   is-leaf ">
                   <span style="font-weight: bold; ">{{unitFldType.catg_name}}</span>
                 </th>
-                <th  colspan="1" rowspan="2" class="el-table_6_column_31  is-center is-leaf">
+                <th v-if="isView=='N'" colspan="1" rowspan="2" class="el-table_6_column_31  is-center is-leaf">
                   &nbsp; &nbsp; &nbsp;操作&nbsp; &nbsp; &nbsp;
                 </th>
               </tr>
@@ -39,6 +39,7 @@
                                 :needRecordDel="true"
                                 :unitFlds="unitFlds"
                                 :fldDicts="fldDicts"
+                                :isView="isView"
                                 :validateResultObj="validateResultObj"></GriddimRecordRow>
               <GriddimRecordRow v-for="(reportDataLine,rowIndex) in newReportDataLine"
                                 :key="'newReportDataLine'+rowIndex"
@@ -51,6 +52,7 @@
                                 :needRecordDel="false"
                                 :unitFlds="unitFlds"
                                 :fldDicts="fldDicts"
+                                :isView="isView"
                                 :validateResultObj="newDataValidateResultObj"></GriddimRecordRow>
             </tbody>
 

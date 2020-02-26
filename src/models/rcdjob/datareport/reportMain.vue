@@ -16,8 +16,9 @@
       <el-table-column prop="job_end_dt_str"   label="结束日期" :resizable="false"></el-table-column>
       <el-table-column label="操作" width="400" :resizable="false">
         <template slot-scope="scope">
-          <el-button type="text" @click="reportFill(scope.row)" size="mini">填报</el-button>
-          <el-button type="text" @click="submitReport(scope.row)" size="mini">提交</el-button>
+          <el-button v-if="scope.row.record_status!='0'" type="text" @click="reportView(scope.row)" size="mini">查看</el-button>
+          <el-button v-if="scope.row.record_status=='0'" type="text" @click="reportFill(scope.row)" size="mini">填报</el-button>
+          <el-button v-if="scope.row.record_status=='0'" type="text" @click="submitReport(scope.row)" size="mini">提交</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -64,6 +65,11 @@
             this.totalPage = response.totalPage
           }
         })
+      },
+      reportView(reportData){
+        this.$router.push({
+          path: "/rcdjob/datareport/reportFill?reportId="+reportData.report_id+"&jobId="+reportData.job_id+"&isView=Y"
+        });
       },
       reportFill(reportData){
         this.$router.push({
