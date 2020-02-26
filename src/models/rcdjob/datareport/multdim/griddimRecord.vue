@@ -1,6 +1,6 @@
 <template>
   <div style="width: 100%">
-    <el-row style="text-align: left;margin:0 0 5px 0;">
+    <el-row v-if="isView=='N'" style="text-align: left;margin:0 0 5px 0;">
       <el-col  :span="24">
         <el-button type="primary" size="small" @click="addOne">增加一条记录</el-button>
       </el-col>
@@ -16,7 +16,7 @@
                 <th v-for="unitFldType in unitFldTypes" :colspan="unitFldType.unitFlds.length" rowspan="1" class="el-table_6_column_31  is-center   is-leaf ">
                   <span style="font-weight: bold; ">{{unitFldType.catg_name}}</span>
                 </th>
-                <th  colspan="1" rowspan="2" class="el-table_6_column_31  is-center is-leaf">
+                <th v-if="isView=='N'" colspan="1" rowspan="2" class="el-table_6_column_31  is-center is-leaf">
                   &nbsp; &nbsp; &nbsp;操作&nbsp; &nbsp; &nbsp;
                 </th>
               </tr>
@@ -39,7 +39,8 @@
                                 :needRecordDel="true"
                                 :unitFlds="unitFlds"
                                 :fldDicts="fldDicts"
-                                :validateResultObj="validateResultObj"></GriddimRecordRow>
+                                :isView="isView"
+                                :validateResultObj="validateResultObj['c'+reportDataLine.colum_id]"></GriddimRecordRow>
               <GriddimRecordRow v-for="(reportDataLine,rowIndex) in newReportDataLine"
                                 :key="'newReportDataLine'+rowIndex"
                                 :reportDataLine="reportDataLine"
@@ -51,7 +52,8 @@
                                 :needRecordDel="false"
                                 :unitFlds="unitFlds"
                                 :fldDicts="fldDicts"
-                                :validateResultObj="newDataValidateResultObj"></GriddimRecordRow>
+                                :isView="isView"
+                                :validateResultObj="newDataValidateResultObj['c'+rowIndex]"></GriddimRecordRow>
             </tbody>
 
           </table>
@@ -319,12 +321,40 @@
           const reportJobDataValidate = response.reportJobDataValidate
           const newDataValidateResultObj = response.newReportJobDataValidate
           if(reportJobDataValidate&&Object.keys(reportJobDataValidate).length>0){
-            this.validateResultObj = reportJobDataValidate
+            const validateUnitDatasTmp = {}
+            const errorColums = Object.keys(reportJobDataValidate);
+
+            errorColums.forEach(errorColumId=>{
+              validateUnitDatasTmp['c'+errorColumId] = {}
+              const errorFlds = reportJobDataValidate[errorColumId]
+              if(errorFlds&&Object.keys(errorFlds).length>0){
+                const errorFldIds = Object.keys(errorFlds)
+                errorFldIds.forEach(errorFldId=>{
+                  validateUnitDatasTmp['c'+errorColumId]['f'+errorFldId] = errorFlds[errorFldId]
+                })
+              }
+            })
+            this.validateResultObj = validateUnitDatasTmp
+
             validateFailed= true
           }
 
           if(newDataValidateResultObj&&Object.keys(newDataValidateResultObj).length>0){
-            this.newDataValidateResultObj = newDataValidateResultObj
+            const validateUnitDatasTmp = {}
+            const errorColums = Object.keys(newDataValidateResultObj);
+
+            errorColums.forEach(errorColumId=>{
+              validateUnitDatasTmp['c'+errorColumId] = {}
+              const errorFlds = newDataValidateResultObj[errorColumId]
+              if(errorFlds&&Object.keys(errorFlds).length>0){
+                const errorFldIds = Object.keys(errorFlds)
+                errorFldIds.forEach(errorFldId=>{
+                  validateUnitDatasTmp['c'+errorColumId]['f'+errorFldId] = errorFlds[errorFldId]
+                })
+              }
+            })
+            this.newDataValidateResultObj = validateUnitDatasTmp
+
             validateFailed= true
           }
 

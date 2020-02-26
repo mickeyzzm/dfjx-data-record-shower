@@ -34,7 +34,7 @@
           <!--当前步骤是最后一步显示提交，已点下一步的步骤不显示下一步只显示保存-->
 
           <!--<el-button  @click="saveContext" type="danger">保存</el-button>-->
-          <el-button v-if="isView!='Y'" @click="backList" type="info">返回列表</el-button>
+          <el-button @click="backList" type="info">返回列表</el-button>
           <el-button v-if="isView!='Y'" @click="doSaveContext" type="danger">保存</el-button>
           <!--<el-button  @click="validateContext" type="success">校验</el-button>-->
           <el-button v-if="isView!='Y'" @click="doSaveAndValidate('VALIDATE')" type="success">校验</el-button>
@@ -129,7 +129,7 @@
       return {
         reportId:"",
         jobId:"",
-        isView:'N',
+        // isView:'N',
         auth:'N',//是否为审批用户查看
         reportStats:'',
         activeStepNum:0,
@@ -306,7 +306,8 @@
       },
       confirmReadMe(){
         if(this.agreeReadMe){
-          this.showReadMe = false
+          // this.showReadMe = false
+          this.doSubmitContext('VALIDATE')
         }else{
           this.Message("请勾选下方同意选项")
         }
@@ -340,7 +341,6 @@
             report_leader_name:this.signInfomations.reportLeaderName
           }
         }).then(response=>{
-          console.log(response)
           if(response&&response=='SUCCESS'){
             this.showSignInfos = false
             this.showReadMe = true
@@ -363,7 +363,7 @@
             background: 'rgba(0, 0, 0, 0.7)'
           })
           $this.unitEntities.forEach(unitEntity=>{
-            const unitId = unitEntity.unit_id
+            const unitId = unitEntity.job_unit_id
             const reportContextRef = $this.$refs['reportContextRef'+unitId][0]
             reportContextRef.doSubmitContext(processName)
           })
@@ -415,6 +415,7 @@
         }
       },
       saveAndValidateCallBack(unitId,unitName,saveException,processName){
+        console.log("saveAndValidateCallBack is running....")
         this.doneCount = this.doneCount+1
         if(saveException){
           if(processName=='VALIDATE'){
@@ -556,6 +557,7 @@
             });
             if(processName=="SAVE"){
               // this.doRefreshFomular("YES")
+              this.reportCommitAuth()
             }else if(processName=="VALIDATE"){
               this.doSubmitContext("SAVE")
             }
@@ -573,7 +575,7 @@
           background: 'rgba(0, 0, 0, 0.7)'
         });
         this.BaseRequest({
-          url:"/reportCust/doCommitAuth",
+          url:"/record/process/doCommitAuth",
           method:'get',
           params:{
             reportId:reportId
@@ -586,7 +588,7 @@
             message: "您的报表已提交审批，请等待上级审批"
           });
           this.$router.push({
-            path: "/record/report/reportMain"
+            path: "/rcdjob/datareport"
           });
         });
       },
