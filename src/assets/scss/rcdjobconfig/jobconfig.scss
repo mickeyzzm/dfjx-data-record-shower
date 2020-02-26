@@ -25,6 +25,14 @@
     background-color: #E9F5FF;
     color: #00A0FF;
   }
+  .el-main {
+    padding: 0;
+    margin-left: 20px;
+  }
+  .el-aside {
+    padding-right: 20px;
+    box-sizing: border-box;
+  }
   /deep/ .el-dialog__header {
     border-bottom: 1px solid #c0c4cc;
   }
