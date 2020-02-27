@@ -75,41 +75,62 @@
       :visible.sync="rcdusercgDialog"
       custom-class="selrcdusercg"
       :close-on-click-modal="false"
-      width="55%">
-      <div style="width:80%;">
-        <div style="text-align:left;margin-bottom:30px;">
-        <span>请选择机构：</span>
-        <el-cascader
-          v-model="agencyValue"
-          :options="agency"
-          style="width: 35%"
-          :show-all-levels="false"
-          :props="props"
-          placeholder="请选择机构"
-          :filterable="true"
-          ref="mycascader"
-          @change="handleChange">
-        </el-cascader>
-        <el-button type="primary" @click="agencyUser">获取机构下用户</el-button>
-        </div>
-        <el-table
+      width="80%">
+      <el-container>
+        <el-aside width="70%">
+          <el-tag size="small">待选择填报人</el-tag>
+          <el-table
           :data="rcdusercgTable"
-          style="width:100%"
+          style="width: 100%;margin-top:10px;"
+          :header-cell-style="{background:'#f6f6f7'}"
+          @selection-change="handlecheck"
+          size="mini"
+          border
+          stripe>
+            <el-table-column type="selection" :resizable="false"></el-table-column>
+            <el-table-column prop="user_id" label="填报人编号" :resizable="false"></el-table-column>
+            <el-table-column prop="origin_name" label="填报人所属机构" :resizable="false"></el-table-column>
+            <el-table-column prop="user_name_cn" label="填报人姓名" :resizable="false"></el-table-column>
+            <el-table-column label="操作" :resizable="false">
+              <template slot-scope="scope">
+                <el-button type="text" size="mini" @click="editUser(scope.row)">编辑</el-button>
+                <el-button type="text" size="mini" @click="deleteUser(scope.row)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-pagination
+              @current-change="handleCurrentChangeUser"
+              :current-page="paginationUser.currentPageIndexUser"
+              :page-size="paginationUser.pageSizeUser"
+              :total="paginationUser.totalUser"
+              layout="total, prev, pager, next, jumper">
+          </el-pagination>
+          <div style="text-align: right;margin-top: 10px;">
+            <el-button type="primary" @click="rcdusercgDialog = false">取消</el-button>
+            <el-button type="primary" @click="subRcdusercg" >确定</el-button>
+          </div>
+        </el-aside>
+        <el-main>
+          <el-tag type="success" size="small">已选择填报人</el-tag>
+          <el-table
+          :data="checkedUser.slice((checkedUserPage.currentPageIndex -1) * checkedUserPage.pageSize, checkedUserPage.currentPageIndex * checkedUserPage.pageSize)"
+          style="width: 100%;margin-top:10px;"
           :header-cell-style="{background:'#f6f6f7'}"
           size="mini"
-          @selection-change="handlecheck"
           border
-          ref="multipleTable"
           stripe>
-          <el-table-column type="selection"></el-table-column>
-          <el-table-column prop="user_id" width="130" label="填报人id" :resizable="false"></el-table-column>
-          <el-table-column prop="user_name_cn" label="填报人名称" :resizable="false"></el-table-column>
-        </el-table>
-        <div style="margin-top:30px;text-align:right;">
-          <el-button type="primary" @click="rcdusercgDialog = false">取消</el-button>
-          <el-button style="margin-right:0;" type="primary" @click="subRcdusercg">确认</el-button>
-        </div>
-      </div>
+            <el-table-column prop="user_id" label="填报人编号" :resizable="false"></el-table-column>
+            <el-table-column prop="user_name_cn" label="填报人姓名" :resizable="false"></el-table-column>
+          </el-table>
+          <el-pagination
+              @current-change="handleUser"
+              :current-page="checkedUserPage.currentPageIndex"
+              :page-size="checkedUserPage.pageSize"
+              :total="checkedUserPage.total"
+              layout="total, prev, pager, next, jumper">
+          </el-pagination>
+        </el-main>
+      </el-container>
     </el-dialog>
     <!-- 新建、编辑、查看任务 -->
     <el-dialog
@@ -185,6 +206,16 @@ export default {
         currentPageIndex: 1,
         pageSize: 10
       },
+      paginationUser: {
+        totalUser: 0,
+        currentPageIndexUser: 1,
+        pageSizeUser: 10
+      },
+      checkedUserPage: {
+        total: 0,
+        currentPageIndex: 1,
+        pageSize: 10
+      },
       jobNm: '',
       options: [
         { name: '已发布', value: 4 },
@@ -201,8 +232,6 @@ export default {
       ary1: [],
       ary2: [],
       isResquest: false,
-      agency: [],
-      agencyValue: [],
       rcdusercgTable: [],
       FormData: {
         job_name: '',
@@ -230,7 +259,10 @@ export default {
       selectedUnit: [],
       selectedUser: [],
       showJob_id: '',
-      hide_asterisk: false
+      hide_asterisk: false,
+      checkedUser: [],
+      current: [],
+      selectedUser_id: []
     }
   },
   methods: {
@@ -271,6 +303,7 @@ export default {
       this.$refs.ruleForm.validate(vaild => {
         if (vaild) {
           if (this.FormData.job_start_dt < this.FormData.job_end_dt) {
+            this.jobconfigDialog = false
             this.BaseRequest({
               url: '/fillinatask/insertrcdjobconfig',
               method: 'get',
@@ -279,10 +312,8 @@ export default {
               if (data === 'success') {
                 this.rcdjobconfigList()
                 this.$message.success('新增成功')
-                this.jobconfigDialog = false
               } else {
                 this.$message.error('新增失败')
-                this.jobconfigDialog = false
               }
             })
           } else {
@@ -462,91 +493,102 @@ export default {
         }
       })
     },
+    // 获取填报人列表
+    rcdusercgList () {
+      this.BaseRequest({
+        url: '/reporting/rcdpersonconfiglist',
+        method: 'get',
+        params: {
+          currPage: this.paginationUser.currentPageIndexUser,
+          pageSize: this.paginationUser.pageSizeUser,
+          user_name: ''
+        }
+      }).then(data => {
+        this.rcdusercgTable = data.dataList
+        this.paginationUser.totalUser = data.totalNum
+        this.paginationUser.currentPageIndexUser = data.currPage
+        this.paginationUser.pageSizeUser = data.pageSize
+      })
+    },
+    // 已经绑定的填报人
+    getCheckedUser (row) {
+      this.BaseRequest({
+        url: '/fillinatask/huixianrcdjobpersonassign',
+        method: 'get',
+        params: {
+          job_id: row.job_id
+        }
+      }).then(checkedUser => {
+        this.checkedUser = checkedUser
+        this.checkedUserPage.total = checkedUser.length
+      })
+    },
     // 选择填报人
     rcdusercg (row) {
       this.rcdusercgDialog = true
       this.current = row
-      // 已经绑定的用户
-      this.BaseRequest({
-        url: '/fillinatask/huixianrcdjobpersonassign',
-        method: 'get',
-        params: {job_id: row.job_id}
-      }).then(checkeddata => {
-        this.agencyValue = []
-        if (checkeddata.length > 0) {
-          this.BaseRequest({
-            url: '/reporting/useroriginassignlistsysorigin',
-            method: 'get',
-            params: {origin_id: checkeddata[0].origin_id}
-          }).then(data => {
-            this.rcdusercgTable = data
-            checkeddata.map(item => {
-              data.map((element, index) => {
-                if (item.user_id == element.user_id) {
-                  this.$nextTick(() => {
-                    this.$refs.multipleTable.toggleRowSelection(this.rcdusercgTable[index])
-                  })
-                }
-              })
-            })
-          })
-        } else {
-          this.rcdusercgTable = []
-          this.agencyValue = []
-        }
-      })
+      this.rcdusercgList()
+      this.getCheckedUser(row)
     },
     // 填报人确定
     subRcdusercg () {
       if (this.currentData.length > 0) {
-        this.userid = []
-        this.currentData.map(item => {
-          this.userid.push(item.user_id)
-        })
-        this.BaseRequest({
-          url: '/fillinatask/insertrcdjobpersonassign',
-          method: 'get',
-          params: {
-            userid: this.userid.join(','),
-            job_id: JSON.stringify(this.current.job_id)
-          }
-        }).then(data => {
-          if (data === 'success') {
-            this.rcdjobconfigList()
-            this.$message.success('新增成功')
-            this.rcdusercgDialog = false
+        this.$nextTick(() => {
+          if (this.checkedUser.length > 0) {
+            this.selectedUser_id = []
+            this.checkedUser.map(item => {
+              this.selectedUser_id.push(item.user_id)
+            })
+            this.userid = []
+            this.currentData.map(item => {
+              if (this.selectedUser_id.lastIndexOf(item.user_id) == -1) {
+                this.userid.push(item.user_id)
+              }
+            })
+            this.BaseRequest({
+              url: '/fillinatask/insertrcdjobpersonassign',
+              method: 'get',
+              params: {
+                userid: this.userid.join(','),
+                job_id: JSON.stringify(this.current.job_id)
+              }
+            }).then(data => {
+              if (data === 'success') {
+                this.rcdjobconfigList()
+                this.$message.success('添加成功')
+                this.rcdusercgDialog = false
+              } else {
+                this.$message.error('添加失败')
+                this.rcdusercgDialog = false
+              }
+            })
           } else {
-            this.$message.error('新增失败')
-            this.rcdusercgDialog = false
+            this.userid = []
+            this.currentData.map(item => {
+              this.userid.push(item.user_id)
+            })
+            this.BaseRequest({
+              url: '/fillinatask/insertrcdjobpersonassign',
+              method: 'get',
+              params: {
+                userid: this.userid.join(','),
+                job_id: JSON.stringify(this.current.job_id)
+              }
+            }).then(data => {
+              if (data === 'success') {
+                this.rcdjobconfigList()
+                this.$message.success('添加成功')
+                this.rcdusercgDialog = false
+              } else {
+                this.$message.error('添加失败')
+                this.rcdusercgDialog = false
+              }
+            })
           }
         })
       } else {
         this.$message('未选择填报人')
       }
-    },
-    // 获取组织结构
-    getOriginDatas (value) {
-      this.BaseRequest({
-        url: '/reporting/getOriginDatas',
-        method: 'get',
-        params: {orgId: 0}
-      }).then(data => {
-        this.agency = data
-      })
-    },
-    // 获取机构下用户
-    agencyUser () {
-      this.BaseRequest({
-        url: '/reporting/useroriginassignlistsysorigin',
-        method: 'get',
-        params: {origin_id: this.currentAgency}
-      }).then(data => {
-        this.rcdusercgTable = data
-      })
-    },
-    // 选择机构时改变
-    handleChange (value) {
-      this.currentAgency = value[value.length - 1]
     },
     // 选择用户改变
     handlecheck (value) {
@@ -561,16 +603,50 @@ export default {
         type: 'warning'
       }).then(() => {
         this.BaseRequest({
-          url: 'record/process/makeJob',
+          url: '/fillinatask/huixianrcdjobpersonassign',
           method: 'get',
-          params: {jobId: row.job_id}
-        }).then(data => {  
-          if (data == 'SUCCESS') {
-            this.$message.success('任务发布成功')
-            this.rcdjobconfigList()
+          params: {
+            job_id: row.job_id
+          }
+        }).then(checkedUser => {
+          if (checkedUser.length > 0) {
+            this.BaseRequest({
+              url: '/fillinatask/selectRcdJobUnitConfigyi',
+              method: 'get',
+              params: {job_id: row.job_id}
+            }).then(data => {
+              if (data.length > 0) {
+                data.map(item => {
+                  this.BaseRequest({
+                    url: '/reporting/selectrcdjobunitfld',
+                    method: 'get',
+                    params: {
+                      job_unit_id: item.job_unit_id
+                    }
+                  }).then(flg => {
+                    if (flg.length > 0) {
+                      this.BaseRequest({
+                        url: 'record/process/makeJob',
+                        method: 'get',
+                        params: {jobId: row.job_id}
+                      }).then(data => {
+                        if (data == 'SUCCESS') {
+                          this.$message.success('任务发布成功')
+                          this.rcdjobconfigList()
+                        }
+                      })
+                    } else {
+                      this.$message.error('发布失败，请检查任务组是否关联指标。')
+                    }
+                  })
+                })
+              } else {
+                this.$message.error('发布失败，请检查任务组是否维护。')
+              }
+            })
           } else {
-            this.$message.error('任务发布失败')
-          }   
+            this.$message.error('发布失败，请检查填报人是否维护。')
+          }
         })
       }).catch(() => {
         return false
@@ -607,11 +683,17 @@ export default {
     handleCurrentChange (val) {
       this.pagination.currentPageIndex = val
       this.rcdjobconfigList()
+    },
+    handleCurrentChangeUser (val) {
+      this.paginationUser.currentPageIndexUser = val
+      this.rcdusercgList()
+    },
+    handleUser (val) {
+      this.checkedUserPage.currentPageIndex = val
     }
   },
   created () {
     this.rcdjobconfigList()
-    this.getOriginDatas()
   }
 }
 </script>
