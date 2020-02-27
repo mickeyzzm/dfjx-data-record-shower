@@ -13,7 +13,7 @@
     </el-aside>
     <el-main>
       <div style="text-align:left">
-        <el-button :disabled="treeId === -1" @click="insertUnit" size="mini" type="primary">新增任务组</el-button>
+        <el-button :disabled="isDisa" @click="insertUnit" size="mini" type="primary">新增任务组</el-button>
       </div>
       <el-table :header-cell-style="{background:'#f6f6f7'}" :data="tableData" style="width: 90%" size="mini" border stripe>
         <el-table-column type="index" width="100" label="任务组编码" :resizable="false"></el-table-column>
@@ -27,9 +27,9 @@
         </el-table-column>
         <el-table-column label="操作" :resizable="false">
           <template slot-scope="scope">
-            <el-button type="text" size="mini" @click="fldconfig(scope.row)">指标</el-button>
-            <el-button type="text" size="mini" @click="editUnit(scope.row)">编辑</el-button>
-            <el-button type="text" size="mini" @click="deletercdjobunitconfig(scope.row)">删除</el-button>
+            <el-button :disabled="isDisa" type="text" size="mini" @click="fldconfig(scope.row)">指标</el-button>
+            <el-button :disabled="isDisa" type="text" size="mini" @click="editUnit(scope.row)">编辑</el-button>
+            <el-button :disabled="isDisa" type="text" size="mini" @click="deletercdjobunitconfig(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -152,7 +152,9 @@ export default {
       current: {},
       activeRcdt: [],
       isShow: true,
-      title: ''
+      title: '',
+      currentData: {},
+      isDisa: false
     }
   },
   methods: {
@@ -163,11 +165,19 @@ export default {
         method: 'get'
       }).then(data => {
         if (data.length > 0) {
+          if (!this.currentData.job_id) {
+            this.unitList(data[0])
+            this.currentData = data[0]
+            if (this.currentData.job_status == 4) {
+              this.isDisa = true
+            }
+          }
           data.map(item => {
             this.treeData[0].children.push({
               label: item.job_name,
               job_id: item.job_id,
-              id: item.job_id
+              id: item.job_id,
+              job_status: item.job_status
             })
           })
         }
@@ -177,21 +187,38 @@ export default {
       })
     },
     // 任务组列表
-    unitList () {
-      this.BaseRequest({
-        url: '/reporting/rcdjobunitconfiglist',
-        method: 'get',
-        params: {
-          currPage: this.pagination.currentPageIndex,
-          pageSize: this.pagination.pageSize,
-          job_id: this.treeId ? this.treeId : 1
-        }
-      }).then(data => {
-        this.tableData = data.dataList
-        this.pagination.total = data.totalNum
-        this.pagination.currentPageIndex = data.currPage
-        this.pagination.pageSize = data.pageSize
-      })
+    unitList (data) {
+      if (!this.currentData.job_id) {
+        this.BaseRequest({
+          url: '/reporting/rcdjobunitconfiglist',
+          method: 'get',
+          params: {
+            currPage: this.pagination.currentPageIndex,
+            pageSize: this.pagination.pageSize,
+            job_id: data.job_id
+          }
+        }).then(data => {
+          this.tableData = data.dataList
+          this.pagination.total = data.totalNum
+          this.pagination.currentPageIndex = data.currPage
+          this.pagination.pageSize = data.pageSize
+        })
+      } else {
+        this.BaseRequest({
+          url: '/reporting/rcdjobunitconfiglist',
+          method: 'get',
+          params: {
+            currPage: this.pagination.currentPageIndex,
+            pageSize: this.pagination.pageSize,
+            job_id: this.currentData.job_id
+          }
+        }).then(data => {
+          this.tableData = data.dataList
+          this.pagination.total = data.totalNum
+          this.pagination.currentPageIndex = data.currPage
+          this.pagination.pageSize = data.pageSize
+        })
+      }
     },
     // 新增任务组
     insertUnit () {
@@ -207,6 +234,7 @@ export default {
     subUnitconfig () {
       this.$refs.ruleForm.validate(vaild => {
         if (vaild) {
+          this.unitDialogVisible = false
           this.BaseRequest({
             url: '/reporting/insertrcdjobunitconfig',
             method: 'get',
@@ -215,7 +243,6 @@ export default {
               ...this.insertJobForm
             }
           }).then(data => {
-            this.unitDialogVisible = false
             if (data === 'success') {
               this.unitList()
               this.$message.success('新增成功')
@@ -230,30 +257,27 @@ export default {
     },
     // 修改任务组
     editUnit (row) {
-      if (!row.job_unit_active) {
-        this.BaseRequest({
-          url: '/reporting/selectrcdjobunitconfigByjobunitid',
-          method: 'get',
-          params: {
-            job_unit_id: row.job_unit_id
-          }
-        }).then(data => {
-          this.insertJobForm = data[0]
-        })
-        this.title = '修改'
-        this.isShow = false
-        this.$nextTick(() => {
-          this.$refs.ruleForm.clearValidate()
-        })
-        this.unitDialogVisible = true
-      } else {
-        this.$message.error('该任务组已在任务中启用！')
-      }
+      this.BaseRequest({
+        url: '/reporting/selectrcdjobunitconfigByjobunitid',
+        method: 'get',
+        params: {
+          job_unit_id: row.job_unit_id
+        }
+      }).then(data => {
+        this.insertJobForm = data[0]
+      })
+      this.title = '修改'
+      this.isShow = false
+      this.$nextTick(() => {
+        this.$refs.ruleForm.clearValidate()
+      })
+      this.unitDialogVisible = true
     },
     // 提交修改
     updateUnit () {
       this.$refs.ruleForm.validate(vaild => {
         if (vaild) {
+          this.unitDialogVisible = false
           this.BaseRequest({
             url: '/reporting/updatercdjobunitconfig',
             method: 'get',
@@ -264,7 +288,6 @@ export default {
               job_unit_active: this.insertJobForm.job_unit_active
             }
           }).then(data => {
-            this.unitDialogVisible = false
             if (data === 'success') {
               this.unitList()
               this.$message.success('修改成功')
@@ -279,51 +302,50 @@ export default {
     },
     // 删除任务组
     deletercdjobunitconfig (row) {
-      if (!row.job_unit_active) {
-        this.$confirm('确认要删除该任务组吗?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          closeOnClickModal: false,
-          type: 'warning'
-        }).then(() => {
-          this.BaseRequest({
-            url: '/reporting/deletercdjobunitconfig',
-            method: 'get',
-            params: {
-              job_unit_id: row.job_unit_id
-            }
-          }).then(data => {
-            if (data === 'success') {
-              this.$message.success('删除成功')
-              this.unitList()
-            } else {
-              this.$message.error('删除失败')
-            }
-          })
-        }).catch(() => {
-          return false
+      this.$confirm('确认要删除该任务组吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        closeOnClickModal: false,
+        type: 'warning'
+      }).then(() => {
+        this.BaseRequest({
+          url: '/reporting/deletercdjobunitconfig',
+          method: 'get',
+          params: {
+            job_unit_id: row.job_unit_id
+          }
+        }).then(data => {
+          if (data === 'success') {
+            this.$message.success('删除成功')
+            this.unitList()
+          } else {
+            this.$message.error('删除失败')
+          }
         })
-      } else {
-        this.$message.error('该任务组已在任务中启用！')
-      }
+      }).catch(() => {
+        return false
+      })
     },
     // 左侧导航点击节点
     handleNodeClick (node) {
+      this.currentData = node
       this.treeId = node.job_id
       if (node.job_id === -1) {
+        this.isDisa = true
         return false
+      } else {
+        this.isDisa = false
+      }
+      if (node.job_status == 4) {
+        this.isDisa = true
       }
       this.unitList(node)
     },
     // 指标
     fldconfig (row) {
-      if (!row.job_unit_active) {
-        this.flgDialogVisible = true
-        this.current = row
-        this.selectrcdjobunitfld()
-      } else {
-        this.$message.error('该任务组已在任务中启用！')
-      }
+      this.flgDialogVisible = true
+      this.current = row
+      this.selectrcdjobunitfld()
     },
     // 关联指标一级菜单
     leftrcddtMenuSt () {
@@ -421,6 +443,7 @@ export default {
           this.jobUnitid.push(item.fld_id)
         }
       })
+      this.flgDialogVisible = false
       this.BaseRequest({
         url: '/reporting/rcdjobunitfld',
         method: 'get',
@@ -429,12 +452,10 @@ export default {
           jobunitid: JSON.stringify(this.current.job_unit_id)
         }
       }).then(data => {
-        if (data === 'success') {
-          this.flgDialogVisible = false
+        if (data === 'success') { 
           this.$message.success('添加成功')
         } else {
           this.$message.error('添加失败')
-          this.flgDialogVisible = false
         }
       })
     },
@@ -446,7 +467,6 @@ export default {
   },
   created () {
     this.leftTreeList()
-    this.unitList()
     this.leftrcddtMenuSt()
   }
 }
