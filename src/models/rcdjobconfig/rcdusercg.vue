@@ -165,6 +165,7 @@ export default {
               this.userid.push(item.user_id)
             }
           })
+          this.dialogVisible = false
           this.BaseRequest({
             url: '/reporting/insertrcdpersonconfig',
             method: 'get',
@@ -175,7 +176,6 @@ export default {
           }).then(data => {
             if (data === 'success') {
               this.rcdusercgList()
-              this.dialogVisible = false
               this.$message.success('添加成功')
               this.$nextTick(() => {
                 this.$refs.multipleTable.clearSelection()
@@ -196,6 +196,7 @@ export default {
         this.current.map(item => {
           this.userid.push(item.user_id)
         })
+        this.dialogVisible = false
         this.BaseRequest({
           url: '/reporting/updatercdpersonconfig',
           method: 'get',
@@ -206,7 +207,6 @@ export default {
         }).then(data => {
           if (data === 'success') {
             this.rcdusercgList()
-            this.dialogVisible = false
             this.$message.success('修改成功')
             this.$nextTick(() => {
               this.$refs.multipleTable.clearSelection()
@@ -364,11 +364,14 @@ export default {
             resolve(data)
             if (node.childNodes.length > 0) {
               node.childNodes.map(item => {
+                item.loading = false
                 item.isLeaf = true
               })
             }
           })
         })
+      } else if (node.level === 4) {
+        node.loading = false
       }
     },
     // 当前页改变

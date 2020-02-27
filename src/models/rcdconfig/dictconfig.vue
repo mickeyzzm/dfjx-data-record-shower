@@ -42,7 +42,7 @@
                     <template slot-scope="scope">
                         <el-button size="mini" type="text" @click="openEditModalBox(scope.row)">编辑</el-button>
                         <el-button size="mini" type="text" @click="deleteDicCon(scope.row)">删除</el-button>
-                        <el-button size="mini" type="text" @click="editeDicCon(scope.row)">编辑字典内容</el-button>
+                        <!-- <el-button size="mini" type="text" @click="editeDicCon(scope.row)">编辑字典内容</el-button> -->
                     </template>
                 </el-table-column>
             </el-table>
@@ -335,15 +335,15 @@ export default {
                 this.getTableData_LL(1,node.id);
             }
         },
-        editeDicCon(row){//编辑字典内容
-            this.boxContent = false;
-            this.treeId = row.dict_id;
-            this.$nextTick(function () {
-                this.$refs.tree.setCurrentKey(row.dict_id);
-                this.itemContent = true;
-                this.getTableData_LL(1,row.dict_id);
-            })
-        },
+        // editeDicCon(row){//编辑字典内容
+        //     this.boxContent = false;
+        //     this.treeId = row.dict_id;
+        //     this.$nextTick(function () {
+        //         this.$refs.tree.setCurrentKey(row.dict_id);
+        //         this.itemContent = true;
+        //         this.getTableData_LL(1,row.dict_id);
+        //     })
+        // },
         addUnitconfigBox () {//一级新增
             this.addShowModalPageBox = true;
         },
@@ -371,7 +371,6 @@ export default {
             }
         },
         openEditModalBox(row) {//一级编辑
-            console.log(row)
             this.editShowModalPageBox = true;
             this.editformDataBox.dicNm = row.dict_name;
             this.editformDataBoxDict_id = row.dict_id;
@@ -393,6 +392,7 @@ export default {
                 }).then((res) => {
                     if(res == "success"){
                         this.Message.success('保存成功');
+                        this.getMenuData()
                         this.getTableData_L(1);
                         this.closeModal();
                     }

@@ -35,7 +35,7 @@
           <el-button type="text" v-if="scope.row.job_status === 0" @click="editJobconfig(scope.row)" size="mini">编辑</el-button>
           <el-button type="text" v-if="scope.row.job_status === 0" @click="unitconfig(scope.row)" size="mini">填报组维护</el-button>
           <el-button type="text" v-if="scope.row.job_status === 0" @click="rcdusercg(scope.row)" size="mini">填报人维护</el-button>
-          <el-button type="text" v-if="scope.row.job_status === 0" @click="makeJob(scope.row)" size="mini">任务下发</el-button>
+          <el-button type="text" v-if="scope.row.job_status === 0" @click="makeJob(scope.row)" size="mini" :loading="makeJobLodding">{{makeJobLodding? '发布中' : '任务下发'}}</el-button>
           <el-button type="text" v-if="scope.row.job_status === 0" @click="deleteJob(scope.row)" size="mini">删除</el-button>
           <el-button type="text" v-if="scope.row.job_status === 4" @click="detailJobconfig(scope.row)" size="mini">查看</el-button>
           <el-button type="text" v-else-if="scope.row.job_status === 5" @click="detailJobconfig(scope.row)" size="mini">查看</el-button>
@@ -262,7 +262,8 @@ export default {
       hide_asterisk: false,
       checkedUser: [],
       current: [],
-      selectedUser_id: []
+      selectedUser_id: [],
+      makeJobLodding: false
     }
   },
   methods: {
@@ -348,6 +349,7 @@ export default {
       this.$refs.ruleForm.validate(vaild => {
         if (vaild) {
           if (this.FormData.job_start_dt < this.FormData.job_end_dt) {
+            this.jobconfigDialog = false
             this.BaseRequest({
               url: '/fillinatask/updatercdjobconfig',
               method: 'get',
@@ -359,10 +361,9 @@ export default {
               if (data === 'success') {
                 this.rcdjobconfigList()
                 this.$message.success('修改成功')
-                this.jobconfigDialog = false
+                
               } else {
                 this.$message.error('修改失败')
-                this.jobconfigDialog = false
               }
             })
           } else {
@@ -432,9 +433,6 @@ export default {
         })
       })
     },
-    leaveHandle () {
-      this.showJob_id = ''
-    },
     // 任务窗口关闭
     jobconfigClose () {
       this.FormData = {}
@@ -476,6 +474,7 @@ export default {
     },
     // 任务组确定
     subUnitconfig () {
+      this.unitconfigDialog = false
       this.BaseRequest({
         url: '/fillinatask/updateRcdJobUnitConfigyi',
         method: 'get',
@@ -485,11 +484,9 @@ export default {
         }
       }).then(data => {
         if (data === 'success') {
-          this.unitconfigDialog = false
           this.$message.success('添加成功')
         } else {
           this.$message.error('添加失败')
-          this.unitconfigDialog = false
         }
       })
     },
@@ -545,6 +542,7 @@ export default {
                 this.userid.push(item.user_id)
               }
             })
+            this.rcdusercgDialog = false
             this.BaseRequest({
               url: '/fillinatask/insertrcdjobpersonassign',
               method: 'get',
@@ -556,10 +554,8 @@ export default {
               if (data === 'success') {
                 this.rcdjobconfigList()
                 this.$message.success('添加成功')
-                this.rcdusercgDialog = false
               } else {
                 this.$message.error('添加失败')
-                this.rcdusercgDialog = false
               }
             })
           } else {
@@ -567,6 +563,7 @@ export default {
             this.currentData.map(item => {
               this.userid.push(item.user_id)
             })
+            this.rcdusercgDialog = false
             this.BaseRequest({
               url: '/fillinatask/insertrcdjobpersonassign',
               method: 'get',
@@ -578,10 +575,8 @@ export default {
               if (data === 'success') {
                 this.rcdjobconfigList()
                 this.$message.success('添加成功')
-                this.rcdusercgDialog = false
               } else {
                 this.$message.error('添加失败')
-                this.rcdusercgDialog = false
               }
             })
           }
@@ -602,6 +597,7 @@ export default {
         closeOnClickModal: false,
         type: 'warning'
       }).then(() => {
+        this.makeJobLodding = true
         this.BaseRequest({
           url: '/fillinatask/huixianrcdjobpersonassign',
           method: 'get',
@@ -631,20 +627,24 @@ export default {
                         params: {jobId: row.job_id}
                       }).then(data => {
                         if (data == 'SUCCESS') {
+                          this.makeJobLodding = false
                           this.$message.success('任务发布成功')
                           this.rcdjobconfigList()
                         }
                       })
                     } else {
+                      this.makeJobLodding = false
                       this.$message.error('发布失败，请检查任务组是否关联指标。')
                     }
                   })
                 })
               } else {
+                this.makeJobLodding = false
                 this.$message.error('发布失败，请检查任务组是否维护。')
               }
             })
           } else {
+            this.makeJobLodding = false
             this.$message.error('发布失败，请检查填报人是否维护。')
           }
         })
