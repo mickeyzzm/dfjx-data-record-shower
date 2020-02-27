@@ -1,5 +1,5 @@
 <template>
-  <WorkMain :headerItems="['填报','数据填报']">
+  <div>
 
     <el-table
       :data="reportDataList"
@@ -22,7 +22,7 @@
         </template>
       </el-table-column>
     </el-table>
-  </WorkMain>
+  </div>
 
 </template>
 

@@ -1,5 +1,16 @@
 <template>
-  <WorkMain :headerItems="['填报','填报数据审核']">
+  <div>
+    <div class="query">
+      <el-select clearable v-model="reportStatus" size="mini" placeholder="请选择填报状态">
+        <el-option  label="填报中" value="0"></el-option>
+        <el-option  label="审批中" value="1"></el-option>
+        <el-option  label="未到填写日期" value="7"></el-option>
+        <el-option  label="过期" value="8"></el-option>
+        <el-option  label="填报完成" value="9"></el-option>
+
+      </el-select>
+      <el-button type="primary" @click="getTableData(1)">查询</el-button>
+    </div>
 
     <el-table
       :data="reportDataList"
@@ -22,7 +33,7 @@
         </template>
       </el-table-column>
     </el-table>
-  </WorkMain>
+  </div>
 
 </template>
 
@@ -34,6 +45,7 @@
     data () {
       return {
         reportDataList:[],
+        reportStatus:null,
         eachPageNum:10,
         currPageNum:1,
         totalPage:1
@@ -56,7 +68,8 @@
           method: 'get',
           params: {
             currPage: pageNum,
-            pageSize: this.eachPageNum
+            pageSize: this.eachPageNum,
+            reportStatus:this.reportStatus?this.reportStatus:null
           }
         }).then(response => {
           console.log(response)
@@ -111,5 +124,15 @@
 </script>
 
 <style scoped>
-
+  .query {
+    text-align: left;
+    padding:10px 0;
+    margin-bottom: 20px;
+  }
+  .query > .el-input,.el-select {
+    width: 15%;
+  }
+  .query > .el-input,.el-select,.el-button {
+    margin-right: 20px;
+  }
 </style>

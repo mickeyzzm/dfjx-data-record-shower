@@ -1,5 +1,5 @@
 <template>
-  <WorkMain :headerItems="['报送管理','报表管理','报表填写']">
+  <div >
     <div class="fill-root">
       <div v-if="unitEntities.length>1" class="fill-steps">
         <el-steps process-status="finish"	direction="vertical" :active="activeStepNum">
@@ -110,7 +110,7 @@
 
 
 
-  </WorkMain>
+  </div>
 </template>
 
 <script>
