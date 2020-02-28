@@ -33,12 +33,18 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <!-- 分页 refreshData:点击页码上一页下一页时调用的方法、pageCount:总页数-->
+    <WorkTablePager @refreshData="getTableData"
+                    :pageCount="totalPage">
+    </WorkTablePager>
   </div>
 
 </template>
 
 <script>
   import WorkMain from "@/models/public/WorkMain"
+  import WorkTablePager from '@/models/public/WorkTablePager'
 
   export default {
     name: "DtRpReviewMain",
@@ -52,6 +58,7 @@
       }
     },
     components: {
+      WorkTablePager,
       WorkMain
     },
     methods: {
