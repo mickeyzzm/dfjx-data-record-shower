@@ -269,6 +269,7 @@
         const gridDataObj = {
           report_id:this.reportId,
           job_id:this.jobId,
+          client_type:'PC',
           reportJobInfos:dbDataList,
           newReportJobInfos:newDataList,
           delReportJobInfos:delDataList
@@ -308,6 +309,7 @@
           data:{
             reportJobInfos:dbDataList,
             newReportJobInfos:newDataList,
+            client_type:'PC'
           }
         }).then(response=>{
           valloading.close();

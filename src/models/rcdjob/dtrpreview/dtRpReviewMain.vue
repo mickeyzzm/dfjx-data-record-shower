@@ -1,13 +1,19 @@
 <template>
   <div>
     <div class="query">
+      <el-cascader size="mini" v-model="reportOrigin"
+        :options="originTree" :show-all-levels="false"
+        :props="{label:'origin_name',value:'origin_id', checkStrictly: true }"
+        clearable></el-cascader>
+
+      <el-input v-model="reportName" size="mini" placeholder="请输入任务名称"></el-input>
+
       <el-select clearable v-model="reportStatus" size="mini" placeholder="请选择填报状态">
         <el-option  label="填报中" value="0"></el-option>
-        <el-option  label="审批中" value="1"></el-option>
-        <el-option  label="未到填写日期" value="7"></el-option>
-        <el-option  label="过期" value="8"></el-option>
-        <el-option  label="填报完成" value="9"></el-option>
-
+        <el-option  label="审核中" value="1"></el-option>
+        <el-option  label="未开始" value="7"></el-option>
+        <el-option  label="已过期" value="8"></el-option>
+        <el-option  label="已完成" value="9"></el-option>
       </el-select>
       <el-button type="primary" @click="getTableData(1)">查询</el-button>
     </div>
@@ -52,9 +58,12 @@
       return {
         reportDataList:[],
         reportStatus:null,
+        reportOrigin:null,
+        reportName:null,
         eachPageNum:10,
         currPageNum:1,
-        totalPage:1
+        totalPage:1,
+        originTree:[]
       }
     },
     components: {
@@ -76,6 +85,8 @@
           params: {
             currPage: pageNum,
             pageSize: this.eachPageNum,
+            reportName:this.reportName?this.reportName:null,
+            reportOrigin:this.reportOrigin&&this.reportOrigin.length>0?this.reportOrigin[this.reportOrigin.length-1]:null,
             reportStatus:this.reportStatus?this.reportStatus:null
           }
         }).then(response => {
@@ -119,13 +130,20 @@
 
 
       },
-      submitReport(reportData){
-
+      authOrigins(){
+        this.BaseRequest({
+          url: "/record/flow/authOrigins",
+          method: 'get'
+        }).then(response => {
+          this.originTree = []
+          this.originTree.push(response)
+        })
       }
     },
     mounted() {
       this.reportDataList = []
       this.getTableData(1)
+      this.authOrigins()
     }
   }
 </script>

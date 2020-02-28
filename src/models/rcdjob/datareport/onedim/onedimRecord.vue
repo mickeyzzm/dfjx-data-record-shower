@@ -159,6 +159,7 @@
           data:{
             report_id:this.reportId,
             job_id:this.jobId,
+            client_type:'PC',
             reportJobInfos:Object.values(this.unitDatas)
           }
         }).then(response=>{
@@ -183,7 +184,8 @@
           url:"/record/process/validateSimpleDatas",
           method:'post',
           data:{
-            reportJobInfos:Object.values(this.unitDatas)
+            reportJobInfos:Object.values(this.unitDatas),
+            client_type:'PC'
           }
         }).then(response=>{
           console.log(response)

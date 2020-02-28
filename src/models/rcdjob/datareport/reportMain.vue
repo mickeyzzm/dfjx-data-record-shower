@@ -1,5 +1,18 @@
 <template>
   <div>
+    <div class="query">
+      <el-input v-model="reportName" size="mini" placeholder="请输入任务名称"></el-input>
+
+      <el-select clearable v-model="reportStatus" size="mini" placeholder="请选择填报状态">
+        <el-option  label="填报中" value="0"></el-option>
+        <el-option  label="审核中" value="1"></el-option>
+        <el-option  label="未开始" value="7"></el-option>
+        <el-option  label="已过期" value="8"></el-option>
+        <el-option  label="已完成" value="9"></el-option>
+
+      </el-select>
+      <el-button type="primary" @click="getTableData(1)">查询</el-button>
+    </div>
 
     <el-table
       :data="reportDataList"
@@ -18,7 +31,7 @@
         <template slot-scope="scope">
           <el-button v-if="scope.row.record_status!='0'" type="text" @click="reportView(scope.row)" size="mini">查看</el-button>
           <el-button v-if="scope.row.record_status=='0'" type="text" @click="reportFill(scope.row)" size="mini">填报</el-button>
-          <el-button v-if="scope.row.record_status=='0'" type="text" @click="submitReport(scope.row)" size="mini">提交</el-button>
+          <!--<el-button v-if="scope.row.record_status=='0'" type="text" @click="submitReport(scope.row)" size="mini">提交</el-button>-->
         </template>
       </el-table-column>
     </el-table>
@@ -40,6 +53,8 @@
     data () {
       return {
         reportDataList:[],
+        reportStatus:null,
+        reportName:null,
         eachPageNum:10,
         currPageNum:1,
         totalPage:1
@@ -63,7 +78,9 @@
           method: 'get',
           params: {
             currPage: pageNum,
-            pageSize: this.eachPageNum
+            pageSize: this.eachPageNum,
+            reportStatus:this.reportStatus?this.reportStatus:null,
+            reportName:this.reportName?this.reportName:null
           }
         }).then(response => {
           console.log(response)
@@ -95,5 +112,15 @@
 </script>
 
 <style scoped>
-
+  .query {
+    text-align: left;
+    padding:10px 0;
+    margin-bottom: 20px;
+  }
+  .query > .el-input,.el-select {
+    width: 15%;
+  }
+  .query > .el-input,.el-select,.el-button {
+    margin-right: 20px;
+  }
 </style>
