@@ -16,7 +16,7 @@
     size="mini"
     border
     stripe>
-      <el-table-column type="index" width="100" label="填报任务编号" :resizable="false"></el-table-column>
+      <el-table-column prop="job_id" label="填报任务编号" :resizable="false"></el-table-column>
       <el-table-column prop="job_name" label="填报任务名称" :resizable="false"></el-table-column>
       <el-table-column label="填报状态" :resizable="false">
         <template slot-scope="scope">
@@ -35,7 +35,7 @@
           <el-button type="text" v-if="scope.row.job_status === 0" @click="editJobconfig(scope.row)" size="mini">编辑</el-button>
           <el-button type="text" v-if="scope.row.job_status === 0" @click="unitconfig(scope.row)" size="mini">填报组维护</el-button>
           <el-button type="text" v-if="scope.row.job_status === 0" @click="rcdusercg(scope.row)" size="mini">填报人维护</el-button>
-          <el-button type="text" v-if="scope.row.job_status === 0" @click="makeJob(scope.row)" size="mini" :loading="makeJobLodding">{{makeJobLodding? '发布中' : '任务下发'}}</el-button>
+          <el-button type="text" v-if="scope.row.job_status === 0" @click="makeJob(scope.row)" size="mini">任务下发</el-button>
           <el-button type="text" v-if="scope.row.job_status === 0" @click="deleteJob(scope.row)" size="mini">删除</el-button>
           <el-button type="text" v-if="scope.row.job_status === 4" @click="detailJobconfig(scope.row)" size="mini">查看</el-button>
           <el-button type="text" v-else-if="scope.row.job_status === 5" @click="detailJobconfig(scope.row)" size="mini">查看</el-button>
@@ -91,12 +91,6 @@
             <el-table-column prop="user_id" label="填报人编号" :resizable="false"></el-table-column>
             <el-table-column prop="origin_name" label="填报人所属机构" :resizable="false"></el-table-column>
             <el-table-column prop="user_name_cn" label="填报人姓名" :resizable="false"></el-table-column>
-            <el-table-column label="操作" :resizable="false">
-              <template slot-scope="scope">
-                <el-button type="text" size="mini" @click="editUser(scope.row)">编辑</el-button>
-                <el-button type="text" size="mini" @click="deleteUser(scope.row)">删除</el-button>
-              </template>
-            </el-table-column>
           </el-table>
           <el-pagination
               @current-change="handleCurrentChangeUser"
@@ -105,7 +99,7 @@
               :total="paginationUser.totalUser"
               layout="total, prev, pager, next, jumper">
           </el-pagination>
-          <div style="text-align: right;margin-top: 10px;">
+          <div>
             <el-button type="primary" @click="rcdusercgDialog = false">取消</el-button>
             <el-button type="primary" @click="subRcdusercg" >确定</el-button>
           </div>
@@ -121,13 +115,18 @@
           stripe>
             <el-table-column prop="user_id" label="填报人编号" :resizable="false"></el-table-column>
             <el-table-column prop="user_name_cn" label="填报人姓名" :resizable="false"></el-table-column>
+            <el-table-column label="操作" :resizable="false">
+              <template slot-scope="scope">
+                <el-button type="text" size="mini" @click="deleteUser(scope.row)">删除</el-button>
+              </template>
+            </el-table-column>
           </el-table>
           <el-pagination
               @current-change="handleUser"
               :current-page="checkedUserPage.currentPageIndex"
               :page-size="checkedUserPage.pageSize"
               :total="checkedUserPage.total"
-              layout="total, prev, pager, next, jumper">
+              layout="total, prev, pager, next">
           </el-pagination>
         </el-main>
       </el-container>
@@ -143,10 +142,9 @@
         :rules="rules"
         ref="ruleForm"
         :hide-required-asterisk="hide_asterisk"
-        :show-message="false"
         :model="FormData">
           <el-form-item class="public" label="填报任务名称：" prop="job_name">
-            <el-input style="width:100%" clearable :readonly="isRead" v-model="FormData.job_name" placeholder="请输入填报任务名称"></el-input>
+            <el-input style="width:100%" clearable :readonly="isRead" v-model.trim="FormData.job_name" placeholder="请输入填报任务名称"></el-input>
           </el-form-item>
           <el-form-item v-if="!isShow" class="public" label="已选择任务组：">
             <el-dropdown v-for="item in selectedUnit" :key="item.job_unit_id" trigger="click">
@@ -199,6 +197,13 @@
 <script>
 export default {
   data () {
+    let checkErrorInput = (rule, value, callback) => {
+      if (!this.checkSpecificKey(value)) {
+        callback(new Error('不能包含特殊字符'))
+      } else {
+        callback()
+      }
+    }
     return {
       // 分页
       pagination: {
@@ -239,9 +244,12 @@ export default {
         job_end_dt: ''
       },
       rules: {
-        job_name: [{required: true, trigger: 'blur'}],
-        job_start_dt: [{required: true, trigger: 'blur'}],
-        job_end_dt: [{required: true, trigger: 'blur'}]
+        job_name: [
+          {required: true, message: '任务名称不能为空!', trigger: 'blur'},
+          { validator: checkErrorInput, trigger: 'blur' }
+        ],
+        job_start_dt: [{required: true, message: '开始时间不能为空!', trigger: 'blur'}],
+        job_end_dt: [{required: true, message: '结束时间不能为空!', trigger: 'blur'}]
       },
       isShow: true,
       isSave: false,
@@ -263,7 +271,8 @@ export default {
       checkedUser: [],
       current: [],
       selectedUser_id: [],
-      makeJobLodding: false
+      makeJobLodding: false,
+      UserList: []
     }
   },
   methods: {
@@ -299,6 +308,16 @@ export default {
         this.$refs.ruleForm.clearValidate()
       })
     },
+    // 判断非法输入
+    checkSpecificKey (str) {
+      var specialKey = "[`~!#$^&*()=|{}':;',\\[\\].<>/?~%！#￥……&*（）——|{}【】‘；：”“'。，、？]‘'"
+      for (var i = 0; i < str.length; i++) {
+        if (specialKey.indexOf(str.substr(i, 1)) != -1) {
+          return false
+        }
+      }
+      return true
+    },
     // 新增任务确定
     subJobconfig () {
       this.$refs.ruleForm.validate(vaild => {
@@ -320,8 +339,6 @@ export default {
           } else {
             this.$message.error('结束日期不能早于开始时间')
           }
-        } else {
-          this.$message.error('请检查必要信息填写完整!')
         }
       })
     },
@@ -369,8 +386,6 @@ export default {
           } else {
             this.$message.error('结束日期不能早于开始时间')
           }
-        } else {
-          this.$message.error('请检查必要信息填写完整!')
         }
       })
     },
@@ -501,6 +516,14 @@ export default {
           user_name: ''
         }
       }).then(data => {
+        // this.checkedUser.map(item => {
+        //   data.dataList.map((element, index) => {
+        //     if (item.user_id == element.user_id) {
+        //       data.dataList.splice(index, 1)
+        //       data.totalNum--
+        //     }
+        //   })
+        // })
         this.rcdusercgTable = data.dataList
         this.paginationUser.totalUser = data.totalNum
         this.paginationUser.currentPageIndexUser = data.currPage
@@ -508,15 +531,16 @@ export default {
       })
     },
     // 已经绑定的填报人
-    getCheckedUser (row) {
+    getCheckedUser () {
       this.BaseRequest({
         url: '/fillinatask/huixianrcdjobpersonassign',
         method: 'get',
         params: {
-          job_id: row.job_id
+          job_id: this.current.job_id
         }
       }).then(checkedUser => {
         this.checkedUser = checkedUser
+        this.rcdusercgList()
         this.checkedUserPage.total = checkedUser.length
       })
     },
@@ -524,8 +548,7 @@ export default {
     rcdusercg (row) {
       this.rcdusercgDialog = true
       this.current = row
-      this.rcdusercgList()
-      this.getCheckedUser(row)
+      this.getCheckedUser()
     },
     // 填报人确定
     subRcdusercg () {
@@ -542,7 +565,7 @@ export default {
                 this.userid.push(item.user_id)
               }
             })
-            this.rcdusercgDialog = false
+            // this.rcdusercgDialog = false
             this.BaseRequest({
               url: '/fillinatask/insertrcdjobpersonassign',
               method: 'get',
@@ -553,6 +576,7 @@ export default {
             }).then(data => {
               if (data === 'success') {
                 this.rcdjobconfigList()
+                this.getCheckedUser()
                 this.$message.success('添加成功')
               } else {
                 this.$message.error('添加失败')
@@ -591,6 +615,7 @@ export default {
     },
     // 任务下发
     makeJob (row) {
+      window.sessionStorage.setItem('loading_id', JSON.stringify(row))
       this.$confirm('确认要下发该任务吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -627,8 +652,10 @@ export default {
                         params: {jobId: row.job_id}
                       }).then(data => {
                         if (data == 'SUCCESS') {
-                          this.makeJobLodding = false
                           this.$message.success('任务发布成功')
+                          this.rcdjobconfigList()
+                        } else {
+                          this.$message.success('任务发布失败')
                           this.rcdjobconfigList()
                         }
                       })
@@ -675,6 +702,32 @@ export default {
         } else {
           this.$message.warning('当前任务不能删除')
         }
+      }).catch(() => {
+        return false
+      })
+    },
+    // 删除绑定的用户
+    deleteUser (row) {
+      this.$confirm('确认要删除该填报人', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.BaseRequest({
+          url: '/fillinatask/deletercdjobpersonassignbyuseridandjobid',
+          method: 'get',
+          params: {
+            job_id: this.current.job_id,
+            user_id: row.user_id
+          }
+        }).then(data => {
+          if (data == 'success') {
+            this.$message.success('删除成功')
+            this.getCheckedUser()
+          } else {
+            this.$message.error('删除失败')
+          }
+        })
       }).catch(() => {
         return false
       })

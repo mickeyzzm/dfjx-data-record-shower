@@ -51,10 +51,9 @@
         :rules="rules"
         ref="ruleForm"
         :hide-required-asterisk="true"
-        :show-message="false"
         :model="insertJobForm">
         <el-form-item class="public" label="任务组名称：" prop="job_unit_name">
-          <el-input v-model="insertJobForm.job_unit_name" placeholder="请输入任务组名称"></el-input>
+          <el-input v-model.trim="insertJobForm.job_unit_name" placeholder="请输入任务组名称"></el-input>
         </el-form-item>
         <el-form-item class="public" label="任务组状态：">
           <el-select style="width:100%" v-model="insertJobForm.job_unit_active">
@@ -110,6 +109,13 @@
 <script>
 export default {
   data () {
+    let checkErrorInput = (rule, value, callback) => {
+      if (!this.checkSpecificKey(value)) {
+        callback(new Error('不能包含特殊字符'))
+      } else {
+        callback()
+      }
+    }
     return {
       // 分页
       pagination: {
@@ -135,7 +141,10 @@ export default {
         job_unit_active: 0
       },
       rules: {
-        job_unit_name: [{required: true, trigger: 'blur'}]
+        job_unit_name: [
+          { validator: checkErrorInput, trigger: 'blur' },
+          { required: true, message: '任务组名称不能为空', trigger: 'blur' }
+        ]
       },
       options: [
         { label: '启用', value: 1 },
@@ -230,6 +239,16 @@ export default {
       this.unitDialogVisible = true
       this.insertJobForm = {job_unit_name: '', job_unit_type: 0, job_unit_active: 0}
     },
+    // 判断非法输入
+    checkSpecificKey (str) {
+      var specialKey = "[`~!#$^&*()=|{}':;',\\[\\].<>/?~%！#￥……&*（）——|{}【】‘；：”“'。，、？]‘'"
+      for (var i = 0; i < str.length; i++) {
+        if (specialKey.indexOf(str.substr(i, 1)) != -1) {
+          return false
+        }
+      }
+      return true
+    },
     // 提交新增
     subUnitconfig () {
       this.$refs.ruleForm.validate(vaild => {
@@ -250,8 +269,6 @@ export default {
               this.$message.error('新增失败')
             }
           })
-        } else {
-          this.$message.error('任务组名称不能为空!')
         }
       })
     },
@@ -295,8 +312,6 @@ export default {
               this.$message.error('修改失败')
             }
           })
-        } else {
-          this.$message.error('任务组名称不能为空!')
         }
       })
     },
@@ -466,8 +481,10 @@ export default {
     }
   },
   created () {
-    this.leftTreeList()
-    this.leftrcddtMenuSt()
+    this.$nextTick(() => {
+      this.leftTreeList()
+      this.leftrcddtMenuSt()
+    })
   }
 }
 </script>

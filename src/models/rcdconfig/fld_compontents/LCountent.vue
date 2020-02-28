@@ -108,11 +108,11 @@ export default {
             editShowModalPageBox:false,
             addformDataBox: {
                 subClasNm: "",
-                isEffectiveNm: "",
+                isEffectiveNm: "有效",
             },
             editformDataBox: {
                 subClasNm: "",
-                isEffectiveNm: "",
+                isEffectiveNm: "有效",
             },
             tableDataBox: [],
             typeCode:"",
@@ -120,49 +120,32 @@ export default {
         }
     },
     methods: {
-        getTableData_L(pageNum_L){//一级table数据
-            if (pageNum_L && pageNum_L !== '') {
-                this.pageIndex_L = pageNum_L;
-            } else {
-                pageNum_L = this.pageIndex_L;
-            }
+        getTableData_L(){//一级table数据
             this.BaseRequest({
                 url: '/rcdDt/selectrcddtproj',
                 method: 'get',
                 params: {
-                    'currPage': pageNum_L,
-                    'pageSize': 10,
+                    'currPage': this.pageIndex_L,
+                    'pageSize': this.pageSize_L,
                 }
             }).then((response) => {
-                // console.log(res,"一级table数据")
-                this.loading = true;
-                if (response) {
-                    if(this.page_res_L[this.pageIndex_L]){
-                        this.tableDataBox = this.page_res_L[this.pageIndex_L];
-                    }else {
-                        this.tableDataBox = response.dataList;
-                    }
-                    this.totalPage_L = response.totalNum;
-                    this.pageIndex_L = response.currPage;
-                } else {
-                    this.tableDataBox = [];
-                    this.totalPage_L = 0;
-                }
+                this.tableDataBox = response.dataList;
+                this.pageIndex_L = response.currPage,
+                this.pageSize_L = response.pageSize,
+                this.totalPage_L = response.totalNum,
                 this.loading = false;
             })
         },
         // 当前页
         currentChangeHandle_L (val) {
-            if(!this.page_res_L[this.pageIndex_L]){
-               this.page_res_L[this.pageIndex_L] = this.tableDataBox;
-            }
             this.pageIndex_L = val;
             // 获取table数据
             this.loading = true;
-            this.getTableData_L(val);
+            this.getTableData_L();
         },
         addUnitconfigBox () {//一级新增
             this.addShowModalPageBox = true;
+            this.addformDataBox.isEffectiveNm = "有效"
         },
         addSubmitDataFormBox: function () {//一级新增弹窗
             if (this.addformDataBox.subClasNm == "" || this.addformDataBox.isEffectiveNm == "" ) {
@@ -176,12 +159,12 @@ export default {
                     method: 'get',
                     params: {
                         'proj_name': this.addformDataBox.subClasNm,
-                        'is_actived': this.addformDataBox.isEffectiveNm,
+                        'is_actived': 0
                     }
                 }).then((res) => {
                     if(res == "success"){
                         this.Message.success('保存成功');
-                        this.getTableData_L(1);
+                        this.getTableData_L();
                         this.closeModal();
                         this.$emit("getMenuData_Add_L")
                     }
@@ -191,34 +174,28 @@ export default {
         openEditModalBox: function (row) {//一级编辑
             this.editShowModalPageBox = true;
             this.editformDataBox.subClasNm = row.proj_name;
-            this.editformDataBox.isEffectiveNm = row.is_actived==0?"有效":"无效";
+            this.addformDataBox.isEffectiveNm = "有效"
             this.typeCode = row.proj_id;
         },
         editSubmitDataFormBox: function () {//一级编辑弹窗
-        console.log(this.editformDataBox)
             if (this.editformDataBox.subClasNm == "" || this.editformDataBox.isEffectiveNm == "" ) {
                 this.$notify({
                     dangerouslyUseHTMLString: true,
                     message: '<span style="font-size:15px;color:red;font-weight: bold">以下参数不允许为空</span><br>基本类别名称、是否有效'
                 })
             }else{
-                if(this.editformDataBox.isEffectiveNm == "有效"){
-                    this.editformDataBox.isEffectiveNm = this.isEffective[0].id;
-                }else if( this.editformDataBox.isEffectiveNm == "无效"){
-                    this.editformDataBox.isEffectiveNm = this.isEffective[1].id;
-                }
                 this.BaseRequest({
                     url: '/rcdDt/updatercddtproj',
                     method: 'get',
                     params: {
                         'proj_id': this.typeCode,
                         'proj_name': this.editformDataBox.subClasNm,
-                        'is_actived': this.editformDataBox.isEffectiveNm,
+                        'is_actived': 0,
                     }
                 }).then((res) => {
                     if(res == "success"){
                         this.Message.success('修改成功');
-                        this.getTableData_L(1);
+                        this.getTableData_L();
                         this.closeModal();
                         this.$emit("getMenuData_edit_L");
                     }
@@ -257,9 +234,7 @@ export default {
         }
     },
     created () {
-        this.$nextTick(function () {
-            this.getTableData_L(1);
-        })
+        this.getTableData_L()
     }
 }
 </script>

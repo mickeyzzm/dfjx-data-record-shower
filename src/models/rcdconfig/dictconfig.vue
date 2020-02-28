@@ -292,7 +292,6 @@ export default {
                     'dict_id': this.dict_id,
                 }
             }).then((response) => {
-              console.log(response,"response")
                 this.loading = true;
                 if (response) {
                   // if(this.page_res_LL[this.pageIndex_LL]){
@@ -327,7 +326,6 @@ export default {
         handleNodeClick (node) {// 点击节点
             this.dict_id = node.id;
             this.nodeLL = node;
-            // console.log(node,"node")
             if (node.id == 0) {
                 this.getTableData_L();
             } else if(node.id != 0 ){
@@ -484,11 +482,9 @@ export default {
                     }
                 }).then(data => {
                     if (data === 'success') {
-                    this.$message.success('删除成功')
-                    this.getTableData_LL();
-                    this.closeModal();
-                    } else {
-                    this.$message.error('删除失败')
+                        this.$message.success('删除成功')
+                        this.getTableData_LL();
+                        this.closeModal();
                     }
                 })
                 }).catch(() => {
@@ -510,12 +506,10 @@ export default {
                     }
                 }).then(data => {
                     if (data === 'success') {
-                    this.$message.success('删除成功')
-                    this.getTableData_L();
-                    this.closeModal();
-                    this.getMenuData()
-                    } else {
-                    this.$message.error('删除失败')
+                        this.$message.success('删除成功')
+                        this.getTableData_L();
+                        this.closeModal();
+                        this.getMenuData()
                     }
                 })
                 }).catch(() => {

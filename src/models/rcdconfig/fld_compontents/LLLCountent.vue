@@ -407,9 +407,6 @@ export default {
                 {
                     name:"通用指标",
                     id:"0",
-                },{
-                    name:"突发指标",
-                    id:"1",
                 }
             ],
             dataTypes:[
@@ -466,7 +463,7 @@ export default {
                 inClaNm:"",
                 dataType:"",
                 isEmpoty:"",
-                fld_type:"",
+                fld_type:"通用指标",
                 datafid:"",
                 fld_range:"",
                 fld_visible:"",
@@ -478,7 +475,7 @@ export default {
                 inClaNm:"",
                 dataType:"",
                 isEmpoty:"",
-                fld_type:"",
+                fld_type:"通用指标",
                 datafid:"",
                 fld_range:"",
                 fld_visible:"",
@@ -703,6 +700,7 @@ export default {
         addUnitconfig_lll () {//三级新增
             this.addShowModalPage_lll = true;
             var proj_label = sessionStorage.getItem("proj_label");
+            this.editformData_lll.fld_type = "通用指标"
             this.addformData_lll.subfidClass = proj_label;//指标基本类别
             this.addformData_lll.inClass = this.nodeLabel;//指标类别
         },
@@ -726,7 +724,7 @@ export default {
                         'fld_name': this.addformData_lll.inClaNm,
                         'fld_data_type': this.addformData_lll.dataType,
                         'fld_is_null': this.addformData_lll.isEmpoty,
-                        'fld_type':this.addformData_lll.fld_type,
+                        'fld_type':0,
                         'fld_range':this.addformData_lll.fld_range,
                         'fld_visible':this.addformData_lll.fld_visible,
                         'dict_content_id': this.addformData_lll.datafidArry.join(","),
@@ -741,7 +739,6 @@ export default {
             }
         },
         openEditModal_lll(row) {//三级编辑
-            console.log(row)
             this.editShowModalPage_lll = true;
             this.typeCode = row.fld_id;
             this.editformData_lll.subfidClass = row.proj_name;
@@ -766,7 +763,7 @@ export default {
             }else if(row.fld_is_null == 1){
                 this.editformData_lll.isEmpoty = "不可为空";
             }
-            this.editformData_lll.fld_type = row.fld_type==0?"通用指标":"突发指标";
+            this.editformData_lll.fld_type = "通用指标";
             if(row.fld_data_type == 0){
                 this.editformData_lll.dataType = "字符串";
             }else if(row.fld_data_type == 1){
@@ -835,11 +832,6 @@ export default {
                 }else if( this.editformData_lll.isEmpoty == "不可为空"){
                     this.editformData_lll.isEmpoty = this.isEmpoty[1].id;
                 }
-                if(this.editformData_lll.fld_type == "通用指标"){
-                    this.editformData_lll.fld_type = this.fld_types[0].id;
-                }else if( this.editformData_lll.fld_type == "突发指标"){
-                    this.editformData_lll.fld_type = this.fld_types[1].id;
-                }
                 this.BaseRequest({
                     url: '/rcdDt/updatercddtfld',
                     method: 'get',
@@ -849,7 +841,7 @@ export default {
                         'fld_name': this.editformData_lll.inClaNm,
                         'fld_data_type': this.editformData_lll.dataType,
                         'fld_is_null': this.editformData_lll.isEmpoty,
-                        'fld_type':this.editformData_lll.fld_type,
+                        'fld_type':0,
                         'fld_range':this.editformData_lll.fld_range,
                         'fld_visible':this.editformData_lll.fld_visible,
                         'dict_content_id': this.editformData_lll.datafidArry.join(","),
