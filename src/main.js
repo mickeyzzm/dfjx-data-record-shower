@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import ElementUI from 'element-ui'
-import '@/element-ui-theme'
+import 'element-ui/lib/theme-chalk/index.css'
 import VueRouter from "vue-router";
 import cookie from 'vue-cookie';
 import { Message } from 'element-ui';

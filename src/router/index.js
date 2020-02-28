@@ -94,6 +94,11 @@ const routes = [
             component: () => import('@/models/rcdjob/datareport/reportMain')//数据填报
           },
           {
+            name: 'datareportreview',
+            path: '/rcdjob/dtRpReview',
+            component: () => import('@/models/rcdjob/dtrpreview/dtRpReviewMain')//数据填报
+          },
+          {
             name: 'reportFill',
             path: '/rcdjob/datareport/reportFill',
             component: () => import('@/models/rcdjob/datareport/reportFill'),
