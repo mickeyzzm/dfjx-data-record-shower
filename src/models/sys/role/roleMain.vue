@@ -39,7 +39,7 @@
     <!-- 新增、编辑 弹窗-->
     <el-dialog :title="modalPageTitle" :visible.sync="showModalPage" >
       <el-form class="modal-form" label-width="20%" :model="formData">
-        <el-form-item label="角色编号" >
+        <el-form-item v-if="isEditModal" label="角色编号" >
           <el-input :disabled="isEditModal" v-model="formData.user_role_id" auto-complete="off" ></el-input>
         </el-form-item>
         <el-form-item label="角色名称" >
@@ -153,7 +153,7 @@ export default {
     openAddModal: function () {
       this.clearData()
       this.showModalPage = true
-      this.isEditModal = true
+      this.isEditModal = false
     },
     openEditModal: function (row) {
       this.formData.user_role_id = row.user_role_id

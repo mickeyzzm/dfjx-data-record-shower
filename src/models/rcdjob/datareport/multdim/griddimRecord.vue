@@ -7,16 +7,16 @@
     </el-row>
     <div class="el-table el-table--fit el-table--striped el-table--border el-table--enable-row-hover el-table--enable-row-transition el-table--small" style="border: 0; background-color: transparent">
         <div class="el-table__header-wrapper el-table__body-wrapper " style="overflow-x: auto !important;overflow-y: auto;" >
-          <table cellspacing="0" cellpadding="0" border="0" class="el-table__header">
+          <table cellspacing="0" cellpadding="0" border="0" class="el-table__header" style="table-layout : fixed !important;">
             <thead class="has-gutter">
               <tr style="font-size: 14px;">
-                <th colspan="1" rowspan="2" class="el-table_6_column_31  is-center   is-leaf " >
+                <th colspan="1" rowspan="2" class="el-table_6_column_31  is-center   is-leaf " style="min-width:100px">
                   &nbsp; &nbsp; &nbsp;序号 &nbsp; &nbsp; &nbsp;
                 </th>
                 <th v-for="unitFldType in unitFldTypes" :colspan="unitFldType.unitFlds.length" rowspan="1" class="el-table_6_column_31  is-center   is-leaf ">
                   <span style="font-weight: bold; ">{{unitFldType.catg_name}}</span>
                 </th>
-                <th v-if="isView=='N'" colspan="1" rowspan="2" class="el-table_6_column_31  is-center is-leaf">
+                <th v-if="isView=='N'" colspan="1" rowspan="2" class="el-table_6_column_31  is-center is-leaf" style="min-width:100px">
                   &nbsp; &nbsp; &nbsp;操作&nbsp; &nbsp; &nbsp;
                 </th>
               </tr>

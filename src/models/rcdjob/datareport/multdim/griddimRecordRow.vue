@@ -9,8 +9,8 @@
         <div class="el-form-item" style="margin: auto;">
           <div class="el-form-item__content">
             <div v-if="unitFld.fld_data_type==0||unitFld.fld_data_type==1" class="el-input el-input--mini "
-                 v-bind:class="{ 'el-input-group el-input-group--append':(unitFld.fld_point!=null&&unitFld.fld_point!=''),
-                                 'is-disabled': (isView=='Y'||unitFld.fld_range=='1')}">
+                 v-bind:class="{ 'el-input-group el-input-group--append fix-el-bug':(unitFld.fld_point!=null&&unitFld.fld_point!=''),
+                                 'is-disabled': (isView=='Y'||unitFld.fld_range=='1')}" >
               <input :disabled="isView=='Y'||unitFld.fld_range=='1'" placeholder="请输入" v-model="reportDataLine['f'+unitFld.fld_id]" class="el-input__inner"></input>
               <div v-if="unitFld.fld_point!=null&&unitFld.fld_point!=''" class="el-input-group__append">{{unitFld.fld_point}}</div>
             </div>
@@ -108,3 +108,8 @@
     }
   }
 </script>
+<style scoped>
+  .fix-el-bug{
+    vertical-align : baseline !important;
+  }
+</style>
