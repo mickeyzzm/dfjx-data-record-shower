@@ -47,7 +47,7 @@
                 <el-form-item size="mini" label="基本类别名称：" >
                 <el-input style="width:50%" v-model="addformDataBox.subClasNm" placeholder="请输入基本类别名称" auto-complete="off" ></el-input>
                 </el-form-item>
-                <el-form-item size="mini" label="是否有效：" >
+                <!-- <el-form-item size="mini" label="是否有效：" >
                     <el-select style="width:50%" v-model="addformDataBox.isEffectiveNm">
                         <el-option
                             v-for="item in isEffective"
@@ -56,7 +56,7 @@
                             :value="item.id">
                         </el-option>
                     </el-select>
-                </el-form-item>
+                </el-form-item> -->
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="closeModal">取 消</el-button>
@@ -69,7 +69,7 @@
                 <el-form-item size="mini" label="基本类别名称：" >
                     <el-input style="width:50%" v-model="editformDataBox.subClasNm" placeholder="请输入基本类别名称" auto-complete="off" ></el-input>
                 </el-form-item>
-                <el-form-item size="mini" label="是否有效：" >
+                <!-- <el-form-item size="mini" label="是否有效：" >
                     <el-select style="width:50%" v-model="editformDataBox.isEffectiveNm">
                         <el-option
                             v-for="item in isEffective"
@@ -78,7 +78,7 @@
                             :value="item.id">
                         </el-option>
                     </el-select>
-                </el-form-item>
+                </el-form-item> -->
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="closeModal">取 消</el-button>

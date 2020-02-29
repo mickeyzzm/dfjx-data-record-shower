@@ -80,7 +80,7 @@
         <el-aside width="70%">
           <el-tag size="small">待选择填报人</el-tag>
           <el-table
-          :data="rcdusercgTable"
+          :data="rcdusercgTable.slice((paginationUser.currentPageIndexUser -1) * paginationUser.pageSizeUser, paginationUser.currentPageIndexUser * paginationUser.pageSizeUser)"
           style="width: 100%;margin-top:10px;"
           :header-cell-style="{background:'#f6f6f7'}"
           @selection-change="handlecheck"
@@ -271,8 +271,8 @@ export default {
       checkedUser: [],
       current: [],
       selectedUser_id: [],
-      makeJobLodding: false,
-      UserList: []
+      UserList: [],
+      MakJobflg: []
     }
   },
   methods: {
@@ -508,26 +508,18 @@ export default {
     // 获取填报人列表
     rcdusercgList () {
       this.BaseRequest({
-        url: '/reporting/rcdpersonconfiglist',
-        method: 'get',
-        params: {
-          currPage: this.paginationUser.currentPageIndexUser,
-          pageSize: this.paginationUser.pageSizeUser,
-          user_name: ''
-        }
+        url: '/reporting/rcdpersonconfiglistwu',
+        method: 'get'
       }).then(data => {
-        // this.checkedUser.map(item => {
-        //   data.dataList.map((element, index) => {
-        //     if (item.user_id == element.user_id) {
-        //       data.dataList.splice(index, 1)
-        //       data.totalNum--
-        //     }
-        //   })
-        // })
-        this.rcdusercgTable = data.dataList
-        this.paginationUser.totalUser = data.totalNum
-        this.paginationUser.currentPageIndexUser = data.currPage
-        this.paginationUser.pageSizeUser = data.pageSize
+        this.checkedUser.map(item => {
+          data.map((element, index) => {
+            if (item.user_id == element.user_id) {
+              data.splice(index, 1)
+            }
+          })
+        })
+        this.rcdusercgTable = data
+        this.paginationUser.totalUser = data.length
       })
     },
     // 已经绑定的填报人
@@ -575,10 +567,14 @@ export default {
               }
             }).then(data => {
               if (data === 'success') {
-                this.rcdjobconfigList()
+                this.rcdusercgList()
                 this.getCheckedUser()
+                this.paginationUser.currentPageIndexUser = 1
                 this.$message.success('添加成功')
               } else {
+                this.rcdusercgList()
+                this.getCheckedUser()
+                this.paginationUser.currentPageIndexUser = 1
                 this.$message.error('添加失败')
               }
             })
@@ -587,7 +583,6 @@ export default {
             this.currentData.map(item => {
               this.userid.push(item.user_id)
             })
-            this.rcdusercgDialog = false
             this.BaseRequest({
               url: '/fillinatask/insertrcdjobpersonassign',
               method: 'get',
@@ -597,9 +592,14 @@ export default {
               }
             }).then(data => {
               if (data === 'success') {
-                this.rcdjobconfigList()
+                this.paginationUser.currentPageIndexUser = 1
+                this.rcdusercgList()
+                this.getCheckedUser()
                 this.$message.success('添加成功')
               } else {
+                this.paginationUser.currentPageIndexUser = 1
+                this.rcdusercgList()
+                this.getCheckedUser()
                 this.$message.error('添加失败')
               }
             })
@@ -613,16 +613,14 @@ export default {
     handlecheck (value) {
       this.currentData = value
     },
-    // 任务下发
+    // 任务下发条件判断
     makeJob (row) {
-      window.sessionStorage.setItem('loading_id', JSON.stringify(row))
       this.$confirm('确认要下发该任务吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         closeOnClickModal: false,
         type: 'warning'
       }).then(() => {
-        this.makeJobLodding = true
         this.BaseRequest({
           url: '/fillinatask/huixianrcdjobpersonassign',
           method: 'get',
@@ -637,47 +635,53 @@ export default {
               params: {job_id: row.job_id}
             }).then(data => {
               if (data.length > 0) {
-                data.map(item => {
+                this.MakJobflg = []
+                for (let i = 0; i < data.length; i++) {
                   this.BaseRequest({
                     url: '/reporting/selectrcdjobunitfld',
                     method: 'get',
                     params: {
-                      job_unit_id: item.job_unit_id
+                      job_unit_id: data[i].job_unit_id
                     }
                   }).then(flg => {
-                    if (flg.length > 0) {
-                      this.BaseRequest({
-                        url: 'record/process/makeJob',
-                        method: 'get',
-                        params: {jobId: row.job_id}
-                      }).then(data => {
-                        if (data == 'SUCCESS') {
-                          this.$message.success('任务发布成功')
-                          this.rcdjobconfigList()
-                        } else {
-                          this.$message.success('任务发布失败')
-                          this.rcdjobconfigList()
-                        }
-                      })
-                    } else {
-                      this.makeJobLodding = false
+                    this.MakJobflg.push(flg.length)
+                    if (i === data.length - 1) {
+                      this.makeJobLoad(this.MakJobflg, row)
+                    }
+                    if (flg.length == 0) {
                       this.$message.error('发布失败，请检查任务组是否关联指标。')
                     }
                   })
-                })
+                }
               } else {
-                this.makeJobLodding = false
                 this.$message.error('发布失败，请检查任务组是否维护。')
               }
             })
           } else {
-            this.makeJobLodding = false
             this.$message.error('发布失败，请检查填报人是否维护。')
           }
         })
       }).catch(() => {
         return false
       })
+    },
+    // 任务下发
+    makeJobLoad (arr, row) {
+      if (arr.indexOf(0) == -1) {
+        this.BaseRequest({
+          url: 'record/process/makeJob',
+          method: 'get',
+          params: {jobId: row.job_id}
+        }).then(data => {
+          if (data == 'SUCCESS') {
+            this.$message.success('任务发布成功')
+            this.rcdjobconfigList()
+          } else {
+            this.$message.success('任务发布失败')
+            this.rcdjobconfigList()
+          }
+        })
+      }
     },
     // 删除任务
     deleteJob (row) {
@@ -723,8 +727,13 @@ export default {
         }).then(data => {
           if (data == 'success') {
             this.$message.success('删除成功')
+            this.paginationUser.currentPageIndexUser = 1
+            this.rcdusercgList()
             this.getCheckedUser()
           } else {
+            this.paginationUser.currentPageIndexUser = 1
+            this.rcdusercgList()
+            this.getCheckedUser()
             this.$message.error('删除失败')
           }
         })

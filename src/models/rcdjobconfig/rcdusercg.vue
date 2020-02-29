@@ -43,6 +43,7 @@
             :load="loadNode"
             lazy
             node-key="id"
+            @node-expand="handleNodeClick"
             @node-click="handleNodeClick"
             :default-expanded-keys="active"
             :highlight-current="true"
@@ -147,16 +148,11 @@ export default {
     subRcdusercg () {
       if (this.current.length > 0) {
         this.BaseRequest({
-          url: '/reporting/rcdpersonconfiglist',
-          method: 'get',
-          params: {
-            currPage: 1,
-            pageSize: 1000,
-            user_name: ''
-          }
+          url: '/reporting/rcdpersonconfiglistwu',
+          method: 'get'
         }).then(data => {
           this.userList = []
-          data.dataList.map(item => {
+          data.map(item => {
             this.userList.push(item.user_id)
           })
           this.userid = []
