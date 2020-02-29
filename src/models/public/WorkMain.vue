@@ -1,6 +1,6 @@
 <template>
   <div class="work-main">
-    <WorkMainHeader :class="headerClass" :headerItems="headerItems" :noNeedHome="noNeedHome"></WorkMainHeader>
+    <WorkMainHeader v-if="noNeedHeader!=null&&!noNeedHeader" :class="headerClass" :headerItems="headerItems" :noNeedHome="noNeedHome"></WorkMainHeader>
     <WorkMainContext :class="contextClass">
       <slot></slot>
     </WorkMainContext>
@@ -21,6 +21,9 @@
         type:Array
       },
       noNeedHome:{
+        type:Boolean
+      },
+      noNeedHeader:{
         type:Boolean
       },
       headerClass:{

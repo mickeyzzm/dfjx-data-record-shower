@@ -1,5 +1,5 @@
 <template>
-  <div >
+  <WorkMain :noNeedHeader="true" >
     <div class="fill-root">
       <div v-if="unitEntities.length>1" class="fill-steps">
         <el-steps process-status="finish"	direction="vertical" :active="activeStepNum">
@@ -110,7 +110,7 @@
 
 
 
-  </div>
+  </WorkMain>
 </template>
 
 <script>
@@ -129,6 +129,7 @@
       return {
         reportId:"",
         jobId:"",
+        isView:"",
         // isView:'N',
         auth:'N',//是否为审批用户查看
         reportStats:'',
